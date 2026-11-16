@@ -7,7 +7,7 @@ Gate de chaque lot : `py -m ruff format --check .` · `py -m ruff check .` · `p
 Skills : `database-design`, `tdd-workflow`. Étape bloquante : aucune.
 
 - [x] 1.1 Aligner la config sur Ollama : remplacer `llm:` dans `config/recherches.yaml`, `LLMConfig`/`LLMCall` dans `config.py` (`extra="forbid"`), mettre à jour `tests/test_config.py` ; vérifier avec les scénarios « Ollama LLM section » et « Legacy cloud fields rejected »
-- [ ] 1.2 Alléger `Secrets` (retirer `anthropic_api_key`, `telegram_webhook_secret`, `dashboard_password`), traiter `DATABASE_URL` vide comme absente, mettre à jour `.env.example` ; vérifier avec les tests « Cloud keys ignored » et « Default database » (code fait ; reste `.env.example` : retirer ANTHROPIC_API_KEY, TELEGRAM_WEBHOOK_SECRET, DASHBOARD_PASSWORD, accès refusé à l'agent)
+- [x] 1.2 Alléger `Secrets` (retirer `anthropic_api_key`, `telegram_webhook_secret`, `dashboard_password`), traiter `DATABASE_URL` vide comme absente, mettre à jour `.env.example` ; vérifier avec les tests « Cloud keys ignored » et « Default database » (code fait ; reste `.env.example` : retirer ANTHROPIC_API_KEY, TELEGRAM_WEBHOOK_SECRET, DASHBOARD_PASSWORD, accès refusé à l'agent)
 - [x] 1.3 Retirer `anthropic` et `psycopg` de `pyproject.toml`, ajouter `logs/` à `.gitignore` ; vérifier `py -m pip install -e ".[dev]"` puis `pytest -q`
 - [x] 1.4 Écrire `models.py` (`Piste`, `Offre`, `ScoreLLM` avec score 0..100) ; vérifier avec un test de validation (score 120 rejeté)
 - [x] 1.5 Écrire `db/base.py` (`make_engine` avec WAL, réécriture des URL postgres), `db/tables.py` (six tables, unicités) ; vérifier avec le test « WAL enabled »

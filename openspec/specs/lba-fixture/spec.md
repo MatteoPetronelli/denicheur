@@ -1,7 +1,7 @@
 # lba-fixture Specification
 
 ## Purpose
-TBD - created by archiving change bootstrap-projet. Update Purpose after archive.
+Fournir une capture figée de la réponse de La bonne alternance pour tester les sources et le pipeline hors réseau.
 
 ## Requirements
 
