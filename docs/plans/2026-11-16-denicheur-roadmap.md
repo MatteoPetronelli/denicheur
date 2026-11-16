@@ -1,5 +1,9 @@
 # Dénicheur — Full OpenSpec Roadmap (C0 → C7)
 
+> **Progress (2026-11-16, evening): C0–C3 are done and archived** (`openspec/changes/archive/`, specs in
+> `openspec/specs/`); next is C4 `bot-interactif`. C2 shipped Indeed and Jobtome parsers; C3 uses Marly-le-Roi for
+> Adzuna. Where a section below contradicts the archived specs, the specs win.
+
 > **For Claude (executor: Sonnet 5.5, effort medium).** This file is the single source of truth for building
 > Dénicheur. Execute it **one OpenSpec change at a time, one lot at a time**, following the protocol in §2.
 > Do not redesign: architecture, contracts and test expectations below are decided. If reality contradicts
@@ -17,7 +21,7 @@ Windows scheduled tasks: a periodic `run` (collect, score, notify) and a long-po
 service, no cloud component (decision of 2026-11-16, replaces the Anthropic / GitHub Actions / Neon / Vercel plan).
 
 **Tech stack:** Python ≥3.12 (local interpreter is 3.13), httpx, pydantic v2, SQLAlchemy 2, Alembic, PyYAML,
-python-dotenv, tzdata; pytest, ruff, mypy. LLM: Ollama (local HTTP API, default model `qwen2.5:14b`). Web:
+python-dotenv, tzdata; pytest, ruff, mypy. LLM: Ollama (local HTTP API, default model `llama3.1:8b`). Web:
 SvelteKit + `better-sqlite3` (npm). Infra: Windows Task Scheduler, Telegram Bot API, Gmail IMAP.
 
 ---
@@ -61,7 +65,7 @@ Measured facts the plan relies on (from `ft_test_results.json`, first block, tod
 | Tests | No network in tests. HTTP mocked with `httpx.MockTransport`; LLM with a fake class implementing the same protocol; time injected (`now` parameter), never `datetime.now()` inside logic. |
 | Telegram lib | None. Plain Bot API over httpx (`sendMessage`, `answerCallbackQuery`, `editMessageReplyMarkup`, `deleteWebhook`, `getUpdates`). |
 | Run guard | Scoring is free but slow: besides `llm_max_appels_jour`, add `llm_max_duree_run_s: 900`; scoring stops for the run when exceeded (remaining offers wait for the next run). |
-| Model (2026-11-16) | `llama3.1:8b`, chosen by the C1 L4 comparison on 4 labelled offers (mean gap 26.2, 0 wrong 65-crossings; `qwen2.5:7b-instruct` 42.0, `mistral` 58.8; both removed from the PC). Gap > 15 on only 4 labels: re-run on ~20 offers. Writing (C5) uses the same model. | **Superseded (2026-11-16, evening):** a 12-offer real-data re-run gave mean gap 38.3 (worse than a constant 50), so the model moved to `qwen2.5:14b` for testing under real conditions.
+| Model (2026-11-16) | `llama3.1:8b` (≈24 s/offer on the RTX 3060 Laptop), kept after a real-data comparison on 12 labelled offers (`tests/fixtures/etiquettes.json`). `qwen2.5:14b` was tried and dropped (mean gap 36.7, 3 wrong 65-crossings, 76 s/offer). The prompt was hardened (section "Plafonds impératifs") and `plafonner()` caps location scores in code: mean gap 13.8, 0 wrong crossings. Caveat: 11 of the 12 labels are bad offers and the prompt was tuned on them, so real-conditions validation is still pending. Writing (C5) uses the same model. |
 | On-site only | The school requires presence: any remote work, even partial, rejects the offer (`teletravail`, config `inclure_teletravail`). Supersedes spec §3 "hybride accepté". |
 | Diploma range | LBA `target_diploma` is only the highest level of a range; `access_conditions` is appended to the description and no Bac+5 malus applies when the range includes Bac+3. The Telegram Bac+5 warning (C1 L5) must come from the LLM alert, not from `niveau_diplome == "7"`. |
 | Quality gate | `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`. pre-commit: skipped (YAGNI). |
@@ -254,8 +258,8 @@ heure_digest: "08:30"
 llm:
   fournisseur: "ollama"
   url: "http://localhost:11434"
-  scoring:  { modele: "qwen2.5:14b", temperature: 0.0, num_ctx: 8192, timeout_s: 300 }
-  ecriture: { modele: "qwen2.5:14b", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
+  scoring:  { modele: "llama3.1:8b", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
+  ecriture: { modele: "llama3.1:8b", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
   llm_max_appels_jour: 150
   llm_max_duree_run_s: 900
 ```
@@ -307,7 +311,7 @@ positives appear.`
 r = http.post(
     f"{cfg.llm.url}/api/chat",
     json={
-        "model": cfg.llm.scoring.modele,  # "qwen2.5:14b"
+        "model": cfg.llm.scoring.modele,  # "llama3.1:8b"
         "messages": [
             {"role": "system", "content": SYSTEM_SCORING},
             {"role": "user", "content": user_message(offre, today)},
@@ -331,8 +335,8 @@ usage = Usage(r["prompt_eval_count"], r["eval_count"], r["total_duration"] / 1e9
 - Connection refused = Ollama not running: skip scoring for the run, error in `executions.erreurs`.
 - `SYSTEM_SCORING` = rubric (spec §6) + track rules + `profile/profil.md`, **byte-stable**: no date, no IDs.
   Today's date goes in the user message. A stable prefix lets Ollama reuse its KV cache.
-- Model: `ollama pull qwen2.5:14b` (≈9 GB, partly offloaded to RAM beyond the 6 GB GPU, slower). Keep `num_ctx` ≤ 8192 to stay in VRAM.
-  The model is a config value: candidates compared in C1 L4 (`mistral`, `llama3.1:8b`, `qwen3:8b` with
+- Model: `ollama pull llama3.1:8b` (≈5 GB, fits the 6 GB GPU). Keep `num_ctx` ≤ 8192 to stay in VRAM.
+  The model is a config value: candidates compared in C1 L4 (`mistral`, `qwen2.5:7b-instruct`, `qwen2.5:14b`, `llama3.1:8b`; `qwen3:8b` with
   `"think": false`). If the server answers 400 on an option, drop that option and note it in `design.md`.
 - Small models are weaker than hosted ones: scoring quality is validated by human labelling (C1 L4), not assumed.
 - Writing (C5) uses the same call with `cfg.llm.ecriture` (own model, temperature, timeout). A larger model
@@ -516,14 +520,19 @@ unknown sender → 0 offers + log. Done when: alert offers appear in a dry-run d
 
 **Why:** stage track has no official source. **Prereq:** `ADZUNA_APP_ID/KEY`.
 **L1.** Skills: `tdd-workflow`, `mutation-verified-testing`.
-Blocking step: one real call, save the JSON to `tests/fixtures/adzuna_search.json` (strip nothing secret: the
-response holds none), print `count` and 3 titles; record quota headers if present.
+Blocking step: one real call, save the JSON to `tests/fixtures/adzuna_search.json` (the secret key is absent but the
+App ID sits in `utm_source` of each `redirect_url`: mask it before committing and strip `utm_*` from stored links), print `count` and 3 titles; record quota headers if present.
 Logic: `GET https://api.adzuna.com/v1/api/jobs/fr/search/1` params `app_id, app_key, what=<keyword> stage,
-where="Mareil-Marly", distance=25, max_days_old=30, results_per_page=50, content-type=application/json`;
+where=<pistes.stage.lieu_recherche = "Marly-le-Roi">, distance=25, max_days_old=30, results_per_page=50, content-type=application/json`;
 one call per stage keyword (≤ 10/day). Map `id, title, company.display_name, location.display_name,
 latitude, longitude, redirect_url, created, description (truncated by Adzuna), contract_type`. Piste stage
 if title/description contains "stage|stagiaire|internship", else alternance if "alternance|apprenti", else
-autre. Duration parsed by regex `(\d)\s*mois` when present.
+autre. Duration parsed by regex `(\d{1,2})\s*mois` when present.
+**As built (2026-11-16):** Adzuna does not know Mareil-Marly (0 results for any query), so `where` is the new
+config `pistes.stage.lieu_recherche` ("Marly-le-Roi", neighbouring commune, 53 results for "stage développeur" at
+25 km); keywords come from `pistes.stage.mots_cles_recherche` (1–10); stage sources are collected once per Paris
+day (`derniere_collecte:stage`), `run --mode stage` forces it; `created` stays timezone-aware (the prefilter
+compares it with an aware `now`); unscored offers are scored alternance first, newest first.
 Tests on the fixture + MockTransport; 429 path. Done when: stage offers reach a dry-run digest.
 
 ### C4 — `bot-interactif` (handoff P8, spec phase 2 minus drafts)
@@ -617,11 +626,11 @@ Done when: all applications are visible and editable from the dashboard.
 
 | Before | Action |
 |---|---|
-| C1 L4 | `ollama pull qwen2.5:14b` (Ollama running); label ~20 offers for `etiquettes.json` |
+| C1 L4 | `ollama pull llama3.1:8b` (Ollama running) — done; `etiquettes.json` holds 12 labelled offers, more welcome |
 | C1 L5 | Create bot via @BotFather, `/start` it; `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in `.env` |
 | C1 L6 | Run `scripts/installer_taches.ps1` once (PowerShell, no admin); keep the PC on and Ollama running 08–20h; regenerate the francetravail.io secret (handoff §11) |
-| C2 | Gmail 2FA + app password, label + filter, anonymized `.eml` samples; alerts created on Indeed/WTTJ/LinkedIn/JobTeaser |
-| C3 | Adzuna developer keys |
+| C2 | Gmail 2FA + app password, label `Denicheur` + filter, anonymized `.eml` samples (done for Indeed and Jobtome; WTTJ/LinkedIn/JobTeaser parsers wait for real e-mails) |
+| C3 | Adzuna developer keys — done |
 | C4 | Allow the `bot` logon task |
 | C5 L1 | Grant access to `CV_base/` and the letters folder, review diffs |
 | C7 | Node.js installed |
