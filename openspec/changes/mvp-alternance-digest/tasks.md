@@ -19,12 +19,12 @@ Skills : `database-design`, `tdd-workflow`. Étape bloquante : aucune.
 
 Skills : `tdd-workflow`, `mutation-verified-testing`. Étape bloquante : charger la fixture et afficher les valeurs distinctes de `partner_label` et `contract.type` (attendu : `Apprentissage`, `Professionnalisation`) ; si la réalité diffère, arrêter et rapporter.
 
-- [ ] 2.1 Écrire `http.py:get_json` (retry 429 avec `Retry-After`, 5xx/timeout avec backoff, 4xx levé, `sleep` injectable) ; vérifier avec les tests 429→200 (sleep appelé avec 1), 401 sans nouvelle tentative, 503 épuisant les tentatives
-- [ ] 2.2 Écrire `sources/la_bonne_alternance.py` (mapping complet, lon en premier, commune après le code postal, repli du nom d'entreprise) et `sources/__init__.py` (`SOURCES`) ; vérifier avec `MockTransport` : 16 offres, ITIC (`lat≈48.8579`, `lon≈2.3923`, `des_que_possible`, diplôme `"7"`)
-- [ ] 2.3 Ajouter `collecter_recruteurs` ; vérifier : 150 recruteurs sur la fixture
-- [ ] 2.4 Gérer la clé `LBA_API_KEY` absente (source ignorée, journal, aucun appel) ; vérifier par test sans appel réseau
-- [ ] 2.5 Mutation-vérifier la logique de retry et l'ordre lon/lat (casser, voir rouge, restaurer)
-- [ ] 2.6 Gate L2 vert
+- [x] 2.1 Écrire `http.py:get_json` (retry 429 avec `Retry-After`, 5xx/timeout avec backoff, 4xx levé, `sleep` injectable) ; vérifier avec les tests 429→200 (sleep appelé avec 1), 401 sans nouvelle tentative, 503 épuisant les tentatives
+- [x] 2.2 Écrire `sources/la_bonne_alternance.py` (mapping complet, lon en premier, commune après le code postal, repli du nom d'entreprise) et `sources/__init__.py` (`SOURCES`) ; vérifier avec `MockTransport` : 16 offres, ITIC (`lat≈48.8579`, `lon≈2.3923`, `des_que_possible`, diplôme `"7"`)
+- [x] 2.3 Ajouter `collecter_recruteurs` ; vérifier : 150 recruteurs sur la fixture
+- [x] 2.4 Gérer la clé `LBA_API_KEY` absente (source ignorée, journal, aucun appel) ; vérifier par test sans appel réseau
+- [x] 2.5 Mutation-vérifier la logique de retry et l'ordre lon/lat (casser, voir rouge, restaurer)
+- [x] 2.6 Gate L2 vert
 
 ## Lot 3 — Dédoublonnage, géo, préfiltre
 
