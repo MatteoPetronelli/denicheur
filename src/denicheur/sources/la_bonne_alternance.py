@@ -32,6 +32,13 @@ def _dt(s: str | None) -> datetime | None:
     return datetime.fromisoformat(s) if s else None
 
 
+def _description(o: dict[str, Any]) -> str:
+    """Description + conditions d'accès : `target_diploma` n'est que le plus haut niveau d'une fourchette."""
+    conditions = " ".join(c.strip() for c in o.get("access_conditions") or [])
+    texte = o.get("description") or ""
+    return f"{texte}\n\nConditions d'accès : {conditions}" if conditions else texte
+
+
 def _offre(j: dict[str, Any]) -> Offre:
     w, c, o = j["workplace"], j["contract"], j["offer"]
     lon, lat = w["location"]["geopoint"]["coordinates"]  # [lon, lat]
@@ -52,7 +59,7 @@ def _offre(j: dict[str, Any]) -> Offre:
         debut=date.fromisoformat(c["start"][:10]) if precise else None,
         debut_des_que_possible=c.get("start_type") == "des_que_possible",
         niveau_diplome=(o.get("target_diploma") or {}).get("european"),
-        description=o.get("description") or "",
+        description=_description(o),
         # Présentiel exigé par l'école : tout `remote` autre que absent/onsite écarte l'offre.
         teletravail=c.get("remote") not in (None, "onsite"),
         publiee_le=_dt(pub.get("creation")),

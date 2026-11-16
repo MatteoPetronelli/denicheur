@@ -97,3 +97,11 @@ def test_teletravail_selon_remote(remote, attendu):
         headers={"Authorization": "Bearer k"},
     )
     assert collecter(cfg, client, NOW)[0].teletravail is attendu
+
+
+def test_conditions_acces_ajoutees_a_la_description():
+    offres = collecter(cfg, _client(), NOW)
+    itic = next(o for o in offres if o.entreprise == "ITIC PARIS")
+    assert "Conditions d'accès : Cet emploi est accessible avec un niveau Bac+2 à Bac+5" in itic.description
+    woodoo = next(o for o in offres if o.entreprise == "SAS WOODOO")
+    assert "Conditions d'accès" not in woodoo.description

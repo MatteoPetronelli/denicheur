@@ -1,0 +1,102 @@
+[
+ {
+  "offre": {
+   "source": "lba",
+   "source_id": "6af5eaa7c3367d6aa4c193d7",
+   "url": "https://labonnealternance.apprentissage.beta.gouv.fr/emploi/offres_emploi_lba/6af5eaa7c3367d6aa4c193d7/développeur-développeuse-de-sécurité-des-systèmes-d-information",
+   "titre": "Développeur / Développeuse de sécurité des systèmes d'information",
+   "entreprise": "ITIC PARIS",
+   "commune": "Paris",
+   "lat": 48.857929,
+   "lon": 2.392314,
+   "piste": "alternance",
+   "duree_mois": 6,
+   "debut": null,
+   "debut_des_que_possible": true,
+   "niveau_diplome": "7",
+   "description": "Le / La Développeur(se) informatique conçoit et améliore des systèmes informatiques. Conçoit et développe des applications informatiques selon les besoins des utilisateurs Participe à l'analyse des besoins des clients et propose des solutions techniques adaptées Rédige des documentations techniques et des guides d'utilisation pour les applications développées Assure la maintenance et la mise à jour des systèmes pour garantir leur efficacité et leur sécurité Collabore avec des équipes multidisciplinaires pour intégrer de nouvelles technologies et améliorer les processus de développement Effectue des tests et des validations pour s'assurer de la qualité et de la performance des applications",
+   "teletravail": false,
+   "publiee_le": "2026-11-12T16:34:47.905000Z",
+   "expire_le": "2027-01-12T00:00:00Z",
+   "distance_km": 23.15661081421719,
+   "lieu_a_verifier": false,
+   "motif_rejet": null
+  },
+  "score_attendu": 55
+ },
+ {
+  "offre": {
+   "source": "lba",
+   "source_id": "6ae27faaec4f5594ab3fbd11",
+   "url": "https://r.holeest.com/redirect?jd_token=BTunDp&o=1&from=https%3A%2F%2Fwww.hellowork.com%2Ffr-fr%2Femplois%2F84912582.html%3Futm_source%3Dbonnealternance%26utm_medium%3Dmetamoteurs-free%26utm_campaign%3Dalternance%2B-%2B%7Bseo_domain%7D%26utm_content%3Dfluxbonnealternance%26utm_term%3D84912582",
+   "titre": "Data Business Analyste Confirmé H/F",
+   "entreprise": "CAPGEMINI",
+   "commune": "Issy-les-Moulineaux",
+   "lat": 48.823903,
+   "lon": 2.262888,
+   "piste": "alternance",
+   "duree_mois": 24,
+   "debut": null,
+   "debut_des_que_possible": false,
+   "niveau_diplome": "6",
+   "description": "* La transformation digitale, la valorisation de la donnée et l'automatisation des processus métiers ;  \n* L'intelligence artificielle, l'IA générative et les assistants métiers reposant sur des modèles de langage ;  \n* Les solutions de recherche augmentée, de gestion des connaissances et de RAG ;  \n* Les Knowledge Graphs, les ontologies métiers et la structuration des connaissances de l'entreprise ;  \n* La Computer Vision, l'analyse d'images et de vidéos, ainsi que le traitement documentaire intelligent.",
+   "teletravail": false,
+   "publiee_le": "2026-10-28T18:05:13Z",
+   "expire_le": "2026-12-28T18:05:13Z",
+   "distance_km": 14.929814068839667,
+   "lieu_a_verifier": false,
+   "motif_rejet": "mot_exclu:confirme"
+  },
+  "score_attendu": 30
+ },
+ {
+  "offre": {
+   "source": "lba",
+   "source_id": "6a20a5df767e173f5751e037",
+   "url": "https://r.holeest.com/redirect?jd_token=pJbIAu&o=1&from=https%3A%2F%2Fwww.hellowork.com%2Ffr-fr%2Femplois%2F79768077.html%3Futm_source%3Dbonnealternance%26utm_medium%3Dmetamoteurs-free%26utm_campaign%3Dalternance%2B-%2B%7Bseo_domain%7D%26utm_content%3Dfluxbonnealternance%26utm_term%3D79768077",
+   "titre": "Alternant·e RH - Paie et SIRH H/F",
+   "entreprise": "MUTUELLE GENERALE EDUCATION NATIONALE",
+   "commune": "Paris",
+   "lat": 48.859,
+   "lon": 2.347,
+   "piste": "alternance",
+   "duree_mois": 12,
+   "debut": null,
+   "debut_des_que_possible": false,
+   "niveau_diplome": "7",
+   "description": "Vous aurez notamment pour mission de :\n\n- Réaliser progressivement les déclarations de charges sociales du Groupe (mutuelle, retraite fonctionnaires) ainsi que la DSN\n- Participer à l'assistance utilisateurs sur l'outil de paie (HR4U)\n- Mettre à jour des supports pédagogiques de paie et/ou de gestion administrative\n- Intégrer des données de paie en masse via des bordereaux d'import\n- Participer à la mise en oeuvre de projets transverses liés aux évolutions législatives, aux accords d'entreprise (expressions de besoins, recettes métiers, supports pédagogiques, mesures d'accompagnement des acteurs clés, ...)",
+   "teletravail": false,
+   "publiee_le": "2026-11-04T22:09:55Z",
+   "expire_le": "2027-01-04T22:09:55Z",
+   "distance_km": 19.849449443475724,
+   "lieu_a_verifier": false,
+   "motif_rejet": "mots_cles_absents"
+  },
+  "score_attendu": 5
+ },
+ {
+  "offre": {
+   "source": "lba",
+   "source_id": "6ad7791e04d39aae9b87130c",
+   "url": "https://jobs.makesense.org/fr/jobs/woodoo-alternance-developpeurse-full-stack-industrie-40-hf-yGvoUSTAta9bd4OUhj3X?source=api-apprentissage",
+   "titre": "ALTERNANCE - Développeur·se Full Stack – Industrie 4.0 (H/F)",
+   "entreprise": "SAS WOODOO",
+   "commune": "Paris",
+   "lat": 48.859,
+   "lon": 2.347,
+   "piste": "alternance",
+   "duree_mois": null,
+   "debut": null,
+   "debut_des_que_possible": false,
+   "niveau_diplome": null,
+   "description": "Alternance 12 · La Chapelle-Saint-Luc (Troyes) · Dès que possible\n\nNotre mission\n\nWOODOO est une startup française convaincue que le bois est la clé d’un futur durable. En repensant le bois à l’échelle moléculaire, elle a développé STACK, un bois augmenté bas carbone et haute performance, conçu pour remplacer le béton, l’acier et l’aluminium dans la construction.\n\nAprès plusieurs années de R&amp;D, Woodoo entre dans une phase de déploiement industriel. Plutôt que de bâtir ses propres usines, elle transforme (retrofit) les lignes de production existantes de ses partenaires industriels pour qu’elles produisent selon les standards Woodoo.\n\nDirigée par Timothée Boitouzet, architecte et chimiste diplômé de Harvard, WOODOO réunit près de 40 collaborateurs et compte 80 brevets.\n\nVotre mission\n\nAu sein de l’équipe Industrie 4.0, qui digitalise nos procédés et nos sites de production, vous ferez avancer et fiabiliserez nos applications internes. Concrètement, vous traiterez les demandes des équipes de production, de qualité et de R&amp;D, et vous tiendrez à jour une documentation technique claire.\n\nAvec l’industrialisation, les demandes se multiplient. Vous aurez un vrai impact : réduire les délais de traitement, rendre nos outils plus fiables et faire en sorte que chaque nouvel arrivant puisse s’appuyer sur une documentation solide.\n\nVos responsabilités\n\nDévelopper et corriger (70 %)\n\n  - Reproduire les bugs remontés par les utilisateurs, trouver leur cause et les corriger.\n  - Développer de nouvelles fonctionnalités en front et en back, et faire évoluer les API et les bases de données.\n  - Écrire des tests, participer aux revues de code et contribuer aux mises en production.\n  - Échanger directement avec les opérateurs, les qualiticiens et les chercheurs pour clarifier un besoin et faire valider une livraison.\n\n\nDocumenter et capitaliser (30 %)\n\n  - Documenter l’architecture, les API, les modèles de données et le déploiement de nos applications.\n  - Structurer et centraliser la base documentaire.\n  - Rédiger des guides de résolution pour les incidents récurrents, des FAQ internes et des guides pour les utilisateurs.\n\n\nVotre autonomie\n\nVous organisez le traitement de vos tickets selon les priorités de l’équipe, corrigez les bugs simples et menez vos échanges avec les utilisateurs. Les choix structurants (architecture, migrations, mises en production) se font avec votre tuteur, après revue de code.\n\nÀ l’issue de l’alternance, vous gérerez en autonomie au moins une application, du ticket jusqu’à la mise en production.\n\n\n\nProfil recherché\n\nVous préparez un Bac+3 à Bac+5 en développement informatique (école d’ingénieurs, école du numérique, BUT, licence ou master) et vous cherchez une entreprise pour votre alternance.\n\n  - Vous développez en front et en back : JavaScript/TypeScript avec un framework moderne, et un langage back-end pour créer des API REST.\n  - Vous savez travailler avec des bases de données NoSQL.\n  - Vous écrivez une documentation claire, en Markdown ou sur un wiki.\n  - Vous êtes rigoureux·se et organisé·e, capable de gérer plusieurs tickets en parallèle.\n  - Vous aimez échanger avec des personnes non techniques et comprendre leur quotidien.\n\n\nUn plus : Docker, CI/CD, et un intérêt pour les données industrielles, les capteurs et l’IoT.\n\nMais surtout : vous aimez coder, et vous avez envie de voir concrètement à quoi sert votre travail, au plus près d’un site industriel.\n\nPositionnement\n\nLe poste est rattaché au responsable de l’équipe Industrie 4.0, qui sera votre tuteur. Vous travaillerez sur notre site pilote, au contact direct des équipes de production, de qualité et de R&amp;D.\n\nEnvie de nous rejoindre ?\n\n  - Apprenez en construisant le futur : développez vos compétences au sein d’une équipe qui repousse les limites du possible.\n  - Bougez plus vert : adoptez une mobilité durable grâce à notre forfait dédié.\n  - Rechargez les batteries : profitez de titres-restaurant et de l’offre Bien-être et sport avec notre partenaire E-Gym Wellpass.\n\n\nSi vous avez de la curiosité à revendre, l’envie d’apprendre et le goût du concret, alors Woodoo est fait pour vous !\n\nRejoignez-nous et ensemble, bâtissons le monde de demain !",
+   "teletravail": false,
+   "publiee_le": "2026-10-20T14:22:21.473000Z",
+   "expire_le": "2026-12-04T14:22:22.473000Z",
+   "distance_km": 19.849449443475724,
+   "lieu_a_verifier": true,
+   "motif_rejet": null
+  },
+  "score_attendu": 25
+ }
+]

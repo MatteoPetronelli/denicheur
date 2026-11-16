@@ -40,13 +40,13 @@ Skills : `tdd-workflow`, `mutation-verified-testing`. Étape bloquante : exécut
 
 Skills : `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`. Étape bloquante : `ollama --version` ; `ollama pull qwen2.5:7b-instruct` ; `curl http://localhost:11434/api/tags` liste le modèle ; un appel `/api/chat` de test avec `format` = schéma `ScoreLLM` sur l'offre ITIC, afficher le JSON brut et les secondes. Si `format` est rejeté ou la sortie invalide, arrêter et rapporter.
 
-- [ ] 4.1 Écrire `scoring/prompts.py` (prompt système français stable : rôle, grille 40/20/15/15/10, règles de piste, malus Bac+5 avec alerte, rythme ≠ 1/2 en alerte, bonus `mots_bonus`, `projet_a_citer` parmi les projets du profil ; `user_message(offre, today)` avec description tronquée à 6 000 caractères) ; vérifier : test PII (téléphone, `@`, « né le ») et test de préfixe stable entre deux dates
-- [ ] 4.2 Écrire `scoring/llm.py` (`Usage`, `OllamaScorer` avec options lues dans la config) ; vérifier avec `MockTransport` : modèle et options égaux à la config, score 120 rejeté, JSON invalide rejeté
-- [ ] 4.3 Écrire `scoring/service.py:scorer_offres` ; vérifier : score stocké avec tokens et secondes, 2e passage sans appel, plafond 1 → un appel, limite de durée, connexion refusée sans crash avec erreur enregistrée
-- [ ] 4.4 Mutation-vérifier le cache, le plafond d'appels et la limite de durée
-- [ ] 4.5 Écrire `scripts/compare_modeles.py` (`--dry-run` avec le scoreur factice, métriques écart moyen / franchissements de 65 / secondes) ; vérifier en lançant `--dry-run` sur `tests/fixtures/etiquettes.json`
+- [x] 4.1 Écrire `scoring/prompts.py` (prompt système français stable : rôle, grille 40/20/15/15/10, règles de piste, malus Bac+5 avec alerte, rythme ≠ 1/2 en alerte, bonus `mots_bonus`, `projet_a_citer` parmi les projets du profil ; `user_message(offre, today)` avec description tronquée à 6 000 caractères) ; vérifier : test PII (téléphone, `@`, « né le ») et test de préfixe stable entre deux dates
+- [x] 4.2 Écrire `scoring/llm.py` (`Usage`, `OllamaScorer` avec options lues dans la config) ; vérifier avec `MockTransport` : modèle et options égaux à la config, score 120 rejeté, JSON invalide rejeté
+- [x] 4.3 Écrire `scoring/service.py:scorer_offres` ; vérifier : score stocké avec tokens et secondes, 2e passage sans appel, plafond 1 → un appel, limite de durée, connexion refusée sans crash avec erreur enregistrée
+- [x] 4.4 Mutation-vérifier le cache, le plafond d'appels et la limite de durée
+- [x] 4.5 Écrire `scripts/compare_modeles.py` (`--dry-run` avec le scoreur factice, métriques écart moyen / franchissements de 65 / secondes) ; vérifier en lançant `--dry-run` sur `tests/fixtures/etiquettes.json`
 - [ ] 4.6 Étape humaine : l'utilisateur étiquette ~20 offres dans `etiquettes.json` et lance `py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` ; figer le modèle de plus petit écart dans `config/recherches.yaml` ; arrêter et consulter l'utilisateur si écart moyen > 15 ou plus de 4 franchissements
-- [ ] 4.7 Gate L4 vert
+- [x] 4.7 Gate L4 vert
 
 ## Lot 5 — Envoi Telegram et messages
 
