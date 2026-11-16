@@ -2,7 +2,7 @@
 
 Assistant personnel de recherche d'**alternance** (priorité) et de **stage**. Il collecte les offres via des sources officielles, les évalue avec un LLM par rapport au profil du candidat et envoie un digest en français sur Telegram. **L'envoi d'une candidature reste toujours une décision humaine.**
 
-> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed et Jobtome lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Reste à venir : Adzuna, bot interactif, brouillons.
+> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed et Jobtome lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Stages collectés via Adzuna (une fois par jour, autour de Marly-le-Roi). Reste à venir : bot interactif, brouillons.
 
 ## Fonctionnement
 
@@ -23,7 +23,7 @@ collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM �
 | Source | Usage | Statut |
 |---|---|---|
 | La bonne alternance (API) | Offres d'alternance et entreprises pour candidature spontanée | Fonctionne |
-| Adzuna | Stages | À tester |
+| Adzuna | Stages (une collecte par jour, `run --mode stage` pour la forcer) | Codé |
 | E-mails d'alerte (Indeed, WTTJ, LinkedIn, JobTeaser) via Gmail | Offres des grands sites, sans scraping | Indeed et Jobtome codés ; WTTJ, LinkedIn, JobTeaser à ajouter |
 | France Travail (Offres v2, La Bonne Boite v2) | Offres complémentaires | Accès non obtenu |
 
