@@ -14,9 +14,9 @@ Rules:
 Outil personnel : collecte offres alternance/stage (La bonne alternance, Adzuna, e-mails d'alerte), scoring LLM, digest Telegram. **Envoi de candidature toujours humain.** Contexte complet : `handoff.md`, `Denicheur-specifications.md`.
 
 - Statut : C0 `bootstrap-projet` terminé (squelette, config, fixture LBA) ; pipeline à venir avec C1 (roadmap `docs/plans/2026-11-16-denicheur-roadmap.md`). Installation : `py -m pip install -e ".[dev]"`. Gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
-- Stack prévue : Python 3.12, httpx, pydantic, SQLAlchemy (SQLite puis Postgres), pytest, ruff. Lancement prévu : `py -m denicheur run`.
+- Stack prévue : Python 3.12, httpx, pydantic, SQLAlchemy (SQLite), pytest, ruff. Lancement prévu : `py -m denicheur run`.
 - Langue : tout ce que voit l'utilisateur (Telegram, brouillons) en **français** ; code et identifiants en anglais.
-- LLM : `claude-sonnet-5-5`, effort `low` pour le scoring, `medium` pour l'écriture ; ne jamais changer l'effort entre requêtes du même type.
+- 100 % local et gratuit (décision 2026-11-16) : LLM = **Ollama** (`qwen2.5:7b-instruct` par défaut, modèle et options dans `config/recherches.yaml`), exécution par le Planificateur de tâches Windows, SQLite, bot Telegram en polling. Aucun service payant ni cloud (ni API Anthropic, ni GitHub Actions/Neon/Vercel). Ne jamais changer le modèle ni les options entre requêtes du même type.
 - Secrets/données perso : jamais dans git ni envoyés au LLM (`.env`, `identifiants_*.json`, `CV_base/`, `profile/cv_*.md`) ; accès refusé dans `.claude/settings.json`.
 - Workflow : changements via OpenSpec (`/openspec-propose`), un lot à la fois. Pas de code applicatif sans demande explicite.
 - Skills projet dans `.claude/skills/` : tdd-workflow, systematic-debugging, mutation-verified-testing, database-design, prompt-engineering, avoid-ai-writing, clean-code, commit, openspec-*.

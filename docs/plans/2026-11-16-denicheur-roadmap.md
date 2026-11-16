@@ -7,18 +7,18 @@
 > let the user decide (skill `openspec-batch-executor`, "Before a lot", point 2).
 
 **Goal:** a personal job radar that collects alternance/stage offers from legal sources, filters them (25 km
-around Mareil-Marly, rules), scores them with `claude-sonnet-5-5`, and sends a French Telegram digest + instant
+around Mareil-Marly, rules), scores them with a local LLM (Ollama), and sends a French Telegram digest + instant
 alerts, then supports drafts, application tracking, spontaneous applications, e-mail alerts and a dashboard.
 The final send of any application is **always human**.
 
-**Architecture:** one Python package `src/denicheur` (pipeline, DB, LLM, Telegram) run by GitHub Actions
-(cron) and by a thin Vercel Python function (Telegram webhook) that imports the same package; one Postgres
-(Neon) shared by both; a SvelteKit dashboard in `web/` reading the same Postgres. SQLite only for local dev
-and tests.
+**Architecture:** one Python package `src/denicheur` (pipeline, DB, LLM client, Telegram) run **locally** by two
+Windows scheduled tasks: a periodic `run` (collect, score, notify) and a long-polling `bot`. One SQLite file
+(`denicheur.db`) shared with a local SvelteKit dashboard in `web/` (C7). The LLM is Ollama on the same PC. No paid
+service, no cloud component (decision of 2026-11-16, replaces the Anthropic / GitHub Actions / Neon / Vercel plan).
 
-**Tech stack:** Python ≥3.12 (local interpreter is 3.13), httpx, pydantic v2, SQLAlchemy 2, Alembic,
-psycopg 3, anthropic (Python SDK 1.x), PyYAML, python-dotenv, tzdata; pytest, ruff, mypy. Web: SvelteKit +
-`postgres` (npm). Infra: GitHub Actions, Vercel, Neon, Telegram Bot API, Gmail IMAP.
+**Tech stack:** Python ≥3.12 (local interpreter is 3.13), httpx, pydantic v2, SQLAlchemy 2, Alembic, PyYAML,
+python-dotenv, tzdata; pytest, ruff, mypy. LLM: Ollama (local HTTP API, default model `qwen2.5:7b-instruct`). Web:
+SvelteKit + `better-sqlite3` (npm). Infra: Windows Task Scheduler, Telegram Bot API, Gmail IMAP.
 
 ---
 
@@ -51,15 +51,16 @@ Measured facts the plan relies on (from `ft_test_results.json`, first block, tod
 |---|---|
 | Change granularity | One OpenSpec change per phase (C0…C7), each `tasks.md` split into numbered lots (L1, L2…). One lot per session turn-block; gate after every lot. |
 | Order | C0 bootstrap → C1 MVP alternance digest → C2 e-mail alerts → C3 Adzuna stage → C4 interactive bot → C5 drafts + Gmail drafts → C6 spontaneous applications → C7 dashboard. (Spec order moved e-mail alerts and spontaneous earlier because handoff §3/§5 measured that LBA alone sees very few dev offers; dashboard last per spec §16.) |
-| DB | SQLAlchemy 2 + Alembic **from C1**. SQLite for local/tests; **Neon Postgres as soon as the job runs in GitHub Actions (C1 L6)**, because a runner's SQLite file is lost between runs and idempotence would break. All six spec tables created in the first migration. |
-| Web | Telegram webhook = Vercel **Python** function `api/telegram.py` importing `src/denicheur`. Dashboard = **SvelteKit** in `web/` (separate Vercel project), C7. |
+| Local-only (2026-11-16) | No paid API and no cloud. LLM = Ollama on the user's PC (RTX 3060 Laptop 6 GB VRAM, 32 GB RAM); pipeline run by Windows Task Scheduler; SQLite; Telegram by polling. Replaces the earlier Anthropic / GitHub Actions / Neon / Vercel decisions. The PC must be on during collection hours; a late run catches up. |
+| DB | SQLAlchemy 2 + Alembic **from C1**. SQLite (`denicheur.db`, gitignored) everywhere, WAL mode so the bot, the run and the dashboard do not lock each other. Code stays Postgres-compatible (JSON columns, `make_engine`) in case a hosted DB is ever wanted. All six spec tables created in the first migration. |
+| Web | No public endpoint. Telegram bot = long polling (`getUpdates`) in a local process. Dashboard = **SvelteKit** in `web/`, run locally (bound to 127.0.0.1), reading the same SQLite file, C7. |
 | Diploma | Alternance prepares **Bac+3** → `niveau_vise: 6`. Bac+5 (`7`) offers get a score malus + ⚠️ alert, never eliminated. Do **not** pass `target_diploma_level` to the LBA API (it would hide the 13/16 offers with null diploma). |
 | Fixture | Commit `tests/fixtures/lba_search.json` = first block of `ft_test_results.json` (16 jobs + 150 recruiters, public ad/company data). `ft_test_results.json` itself stays gitignored. |
 | Gmail | IMAP + app password, stdlib `imaplib`. Read only label `Denicheur`; create drafts via `APPEND` to `[Gmail]/Drafts`. Never send. |
-| HTTP | Our code uses `httpx` (sync). The Anthropic SDK 1.x uses its own `httpx2` internally: never pass our httpx client to it. |
+| HTTP | Our code uses `httpx` (sync) for every call, including Ollama (`/api/chat`). |
 | Tests | No network in tests. HTTP mocked with `httpx.MockTransport`; LLM with a fake class implementing the same protocol; time injected (`now` parameter), never `datetime.now()` inside logic. |
-| Telegram lib | None. Plain Bot API over httpx (`sendMessage`, `answerCallbackQuery`, `editMessageReplyMarkup`, `setWebhook`, `getUpdates`). |
-| Cost guard | Besides `llm_max_appels_jour`, add `llm_budget_mensuel_eur: 5.0`; scoring stops when month-to-date `cout_eur` ≥ budget. (150 calls/day at ≈0.01 $/call would be ≈45 $/month, over the spec's 5 € goal.) |
+| Telegram lib | None. Plain Bot API over httpx (`sendMessage`, `answerCallbackQuery`, `editMessageReplyMarkup`, `deleteWebhook`, `getUpdates`). |
+| Run guard | Scoring is free but slow: besides `llm_max_appels_jour`, add `llm_max_duree_run_s: 900`; scoring stops for the run when exceeded (remaining offers wait for the next run). |
 | Quality gate | `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`. pre-commit: skipped (YAGNI). |
 
 ---
@@ -85,7 +86,7 @@ For each change **Cn**:
    `CLAUDE.md` "Statut" and commands lines if they changed.
 
 Never: send an application, scrape a protected page, put secrets/PII in git, prompts or logs, change the LLM
-effort between requests of the same kind.
+model or options between requests of the same kind, use a paid service.
 
 ### Skill map (project skills in `.claude/skills/` unless marked global)
 
@@ -99,9 +100,8 @@ effort between requests of the same kind.
 | `avoid-ai-writing` | every lot that writes French user text: C1 L5, C5 L2–L3, C6 L3, README in C0/C7 |
 | `commit` | end of every lot |
 | `long-run-delivery` | only if the user runs several lots unattended (`/goal`, overnight) |
-| `claude-api` (global) | C1 L4, C5 L2 — before writing any Anthropic SDK code |
 | `sveltekit`, `browser-proof`, `fixing-accessibility` (global) | C7 |
-| `threat-modeling` (global) | C4 L2 (webhook exposed to internet) |
+| `threat-modeling` (global) | C4 L2 (Telegram bot: `chat_id` allowlist) |
 
 ---
 
@@ -110,22 +110,24 @@ effort between requests of the same kind.
 ### 3.1 Runtime
 
 ```
-GitHub Actions cron (UTC, every hour :30, 05–19 UTC)        Vercel (Python fn)            Vercel (SvelteKit, C7)
-  py -m denicheur run --mode auto                            api/telegram.py               web/  dashboard + /projet
-   ├─ collect (sources due)                                   → denicheur.telegram.webhook   reads/writes Postgres
-   ├─ normalize → dedupe → geo → prefilter                    buttons, commands, drafts
-   ├─ score (LLM, capped)                                            │
+Windows Task Scheduler (user session, PC on)              Windows logon task
+  py -m denicheur run --mode auto                           py -m denicheur bot
+  every hour at :30, 08–20h Paris; StartWhenAvailable       Telegram long polling: buttons, commands, drafts
+   ├─ collect (sources due)                                          │
+   ├─ normalize → dedupe → geo → prefilter                           │
+   ├─ score (Ollama, localhost:11434, capped)                        │
    ├─ notify: instant alerts / daily digest / J+7 reminders          │
-   └─ log row in `executions` ───────────► Neon Postgres ◄───────────┘
+   └─ log row in `executions` ───────────► SQLite denicheur.db ◄─────┘
+                                                   ▲
+                                     SvelteKit dashboard (C7), 127.0.0.1 only
 ```
+
+Ollama runs as a local service (autostart on Windows). Nothing is exposed to the internet.
 
 ### 3.2 Final repository layout
 
 ```
 denicheur/
-├── .github/workflows/collecte.yml        # C1 L6
-├── api/telegram.py                       # C4 L2 — thin Vercel handler
-├── vercel.json                           # C4 L2
 ├── alembic.ini · migrations/             # C1 L1 (env.py reads DATABASE_URL)
 ├── config/
 │   ├── recherches.yaml                   # committed, no secrets
@@ -136,7 +138,9 @@ denicheur/
 │   └── cv_alternance.md · cv_stage.md    # C5 L1 — local only (gitignored)
 ├── scripts/
 │   ├── make_fixture.py                   # C0 — ft_test_results.json → tests/fixtures/lba_search.json
-│   └── compare_effort.py                 # C1 L4
+│   ├── compare_modeles.py                # C1 L4
+│   └── installer_taches.ps1              # C1 L6 (+ C4 L2) — Windows scheduled tasks
+├── logs/                                 # gitignored
 ├── src/denicheur/
 │   ├── __init__.py · __main__.py         # CLI (argparse)
 │   ├── config.py                         # Config (pydantic) from YAML + Secrets from env
@@ -147,13 +151,13 @@ denicheur/
 │   ├── sources/  __init__.py (SOURCES registry) · la_bonne_alternance.py · adzuna.py · email_alertes.py
 │   │             · recherche_entreprises.py · csv_entreprises.py
 │   ├── pipeline/ normalize.py · dedupe.py · geo.py · prefilter.py · run.py
-│   ├── scoring/  prompts.py · llm.py (protocol + Anthropic impl + cost) · service.py
+│   ├── scoring/  prompts.py · llm.py (protocol + Ollama impl) · service.py
 │   ├── redaction/ prompts.py · service.py · gmail_drafts.py        # C5
-│   ├── telegram/ api.py · digest.py · webhook.py · commands.py     # webhook/commands: C4
+│   ├── telegram/ api.py · digest.py · bot.py (polling) · commands.py     # bot/commands: C4
 │   ├── mail/     imap.py · parsers.py                              # C2
 │   └── db/       base.py (engine/session) · tables.py · repo.py
 ├── tests/  fixtures/ (lba_search.json, emails/*.eml, adzuna_search.json, etiquettes.json) · test_*.py
-├── web/                                  # C7 SvelteKit
+├── web/                                  # C7 SvelteKit (local)
 ├── pyproject.toml · .env.example · README.md (FR)
 ```
 
@@ -198,14 +202,14 @@ def prefiltrer(offres, config, now) -> list[Offre]  # sets motif_rejet on reject
 
 # scoring
 class Scorer(Protocol):
-    def scorer(self, offre: Offre, today: date) -> tuple[ScoreLLM, Usage]: ...   # Usage = (input, output, cache_write, cache_read)
-def scorer_offres(session, offres, config, scorer, now) -> int   # skips already-scored, honors daily cap + monthly budget
+    def scorer(self, offre: Offre, today: date) -> tuple[ScoreLLM, Usage]: ...   # Usage = (prompt_tokens, output_tokens, duree_s)
+def scorer_offres(session, offres, config, scorer, now) -> int   # skips already-scored, honors daily cap + run duration limit
 
 # telegram/api.py
 class TelegramAPI:  # __init__(token, http)
     def send_message(chat_id, text_html, keyboard=None) -> int  # returns message_id
     def answer_callback(callback_id, text=None); def edit_keyboard(chat_id, message_id, keyboard)
-    def set_webhook(url, secret); def get_updates() -> list[dict]
+    def delete_webhook(); def get_updates(offset: int, timeout: int = 50) -> list[dict]
 ```
 
 ### 3.4 Data model (first Alembic migration, C1 L1)
@@ -213,10 +217,10 @@ class TelegramAPI:  # __init__(token, http)
 | Table | Columns (type) | Constraints / indexes |
 |---|---|---|
 | `offres` | id PK int · source str · source_id str · url str · cle_dedup str(64) · titre · entreprise? · commune? · lat? lon? float · distance_km? · lieu_a_verifier bool · piste str · duree_mois? int · debut? date · debut_des_que_possible bool · niveau_diplome? · description text · publiee_le? · expire_le? · motif_rejet? · vue_le datetime · notifiee_le? datetime | UNIQUE(source, source_id), UNIQUE(url), INDEX(cle_dedup) |
-| `scores` | offre_id FK unique · piste · score int · points_forts JSON · points_faibles JSON · alerte? · projet_a_citer · resume · modele · effort · input_tokens · output_tokens · cache_read_tokens · cout_eur float · cree_le | one score per offer = the LLM cache |
+| `scores` | offre_id FK unique · piste · score int · points_forts JSON · points_faibles JSON · alerte? · projet_a_citer · resume · modele · prompt_tokens · output_tokens · duree_s float · cree_le | one score per offer = the LLM cache |
 | `candidatures` | id · offre_id? FK · entreprise_id? (FK added C6) · statut · envoyee_le? · rappel_le? · relance_le? · notes? · cree_le · maj_le | statut ∈ nouvelle, interessante, candidature_envoyee, relancee, entretien, refus, offre, sans_reponse, ignoree |
 | `brouillons` | id · candidature_id FK · type (email, lettre, relance, spontanee) · contenu text · gmail_draft bool · cree_le | |
-| `executions` | id · debut · fin? · mode · offres_collectees · offres_retenues · offres_scorees · offres_notifiees · erreurs JSON · cout_eur | |
+| `executions` | id · debut · fin? · mode · offres_collectees · offres_retenues · offres_scorees · offres_notifiees · erreurs JSON · duree_llm_s float | |
 | `parametres` | cle PK · valeur text | keys: `pause`, `dernier_digest` (date), `derniere_collecte_alternance`, `derniere_collecte_stage`, `derniere_collecte_emails`, `dernier_update_id` |
 | `entreprises` (C6 migration) | id · siret unique · nom · naf · commune · lat? lon? · distance_km · site? · source · priorite int · contactee_le? | |
 
@@ -245,34 +249,34 @@ digest_max_offres: 10
 plage_alertes: ["08:00", "20:00"]
 heure_digest: "08:30"
 llm:
-  modele: "claude-sonnet-5-5"
-  scoring:  { effort: "low",    max_tokens: 2000 }   # adaptive thinking counts toward max_tokens: 800 risks truncation
-  ecriture: { effort: "medium", max_tokens: 8000 }
+  fournisseur: "ollama"
+  url: "http://localhost:11434"
+  scoring:  { modele: "qwen2.5:7b-instruct", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
+  ecriture: { modele: "qwen2.5:7b-instruct", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
   llm_max_appels_jour: 150
-  llm_budget_mensuel_eur: 5.0
-  prix_usd_par_mtok: { input: 2.0, output: 10.0, cache_write: 2.5, cache_read: 0.10 }
-  taux_usd_eur: 0.92
+  llm_max_duree_run_s: 900
 ```
 
-Secrets (`.env` locally, GitHub Secrets / Vercel env in prod; `Secrets` dataclass reads `os.environ`, missing
-optional key = source disabled with a log line, never a crash): `LBA_API_KEY`, `ANTHROPIC_API_KEY`,
-`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`,
-`DATABASE_URL` (default `sqlite:///denicheur.db`), `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `DASHBOARD_PASSWORD`,
-optional `FT_CLIENT_ID`, `FT_CLIENT_SECRET`.
+Secrets (`.env` locally; `Secrets` dataclass reads `os.environ`, missing optional key = source disabled with a
+log line, never a crash; an empty value counts as missing): `LBA_API_KEY`, `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_CHAT_ID`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `DATABASE_URL` (default `sqlite:///denicheur.db`),
+`GMAIL_USER`, `GMAIL_APP_PASSWORD`, optional `FT_CLIENT_ID`, `FT_CLIENT_SECRET`. Removed with the local pivot:
+`ANTHROPIC_API_KEY`, `TELEGRAM_WEBHOOK_SECRET`, `DASHBOARD_PASSWORD`.
 
 ### 3.6 Pipeline logic (`pipeline/run.py: executer(mode, deps, now)`)
 
 1. `paris = now.astimezone(ZoneInfo("Europe/Paris"))` (dependency `tzdata`, required on Windows).
 2. Open `executions` row. If `parametres.pause == "1"`: still collect and score, skip all sending.
-3. **Due sources** (state-driven, robust to cron delays/DST): alternance sources if
+3. **Due sources** (state-driven, robust to a late or missed run: a run after the PC was off catches up): alternance sources if
    `paris - derniere_collecte_alternance ≥ 3h` and 08:00 ≤ paris < 20:00; stage sources if last stage collect
    is not today; e-mail source on every run (C2). Each source in its own `try`: an error is appended to
    `executions.erreurs` and the run continues.
 4. Normalize (inside the source) → `dedupliquer` against DB URLs/keys → `appliquer_geo` → `prefiltrer` →
    store **all** new offers (rejects keep `motif_rejet`, for `/stats` and the dashboard).
-5. `scorer_offres` on retained offers without a score (cap: calls today < `llm_max_appels_jour`, month cost <
-   budget). LLM refusal / invalid output → no score row, error logged, offer retried next run once (store
-   nothing so it is retried; count the attempt toward the cap).
+5. `scorer_offres` on retained offers without a score (cap: calls today < `llm_max_appels_jour`, run time <
+   `llm_max_duree_run_s`). Invalid LLM output → no score row, error logged, offer retried next run (count the
+   attempt toward the cap). Ollama unreachable → skip scoring for this run, record the error, never crash;
+   notifications still go out for offers already scored.
 6. Notify:
    - **Instant alert**: piste = alternance, score ≥ 80, `notifiee_le` null, inside 08:00–20:00 → "🚨 Alternance"
      message; set `notifiee_le`.
@@ -294,35 +298,33 @@ word, a city from `config/villes_hors_zone.txt` (≈50 big French cities outside
 that city ≠ the offer's commune. `# shortcut: fixed city list; upgrade to geocoding the mentions if false
 positives appear.`
 
-### 3.7 LLM contract (verified against the `claude-api` skill, 2026-11)
+### 3.7 LLM contract (Ollama, local)
 
 ```python
-client = anthropic.Anthropic()                      # reads ANTHROPIC_API_KEY
-resp = client.messages.parse(
-    model=cfg.llm.modele,                            # "claude-sonnet-5-5"
-    max_tokens=cfg.llm.scoring.max_tokens,
-    output_config={"effort": cfg.llm.scoring.effort},  # "low" — never varies between scoring calls
-    system=[{"type": "text", "text": SYSTEM_SCORING, "cache_control": {"type": "ephemeral"}}],
-    messages=[{"role": "user", "content": user_message(offre, today)}],
-    output_format=ScoreLLM,
-)
-if resp.stop_reason in ("refusal", "max_tokens"): -> treat as failure (no score row)
-score = resp.parsed_output; usage = resp.usage   # input_tokens, output_tokens, cache_creation_input_tokens, cache_read_input_tokens
+r = http.post(f"{cfg.llm.url}/api/chat", json={
+    "model": cfg.llm.scoring.modele,                 # "qwen2.5:7b-instruct"
+    "messages": [{"role": "system", "content": SYSTEM_SCORING},
+                 {"role": "user", "content": user_message(offre, today)}],
+    "format": ScoreLLM.model_json_schema(),          # structured output: JSON constrained by the schema
+    "stream": False,
+    "keep_alive": "10m",
+    "options": {"temperature": cfg.llm.scoring.temperature, "seed": 42, "num_ctx": cfg.llm.scoring.num_ctx},
+}, timeout=cfg.llm.scoring.timeout_s).json()
+score = ScoreLLM.model_validate_json(r["message"]["content"])
+usage = Usage(r["prompt_eval_count"], r["eval_count"], r["total_duration"] / 1e9)
 ```
 
-- Do not send `thinking` (Sonnet 5.5 runs adaptive by default; `{"type":"disabled"}` is a 400), no
-  `temperature`, no assistant prefill.
+- Invalid JSON or failed validation (e.g. score outside 0..100) = failure: no score row, retried next run.
+- Connection refused = Ollama not running: skip scoring for the run, error in `executions.erreurs`.
 - `SYSTEM_SCORING` = rubric (spec §6) + track rules + `profile/profil.md`, **byte-stable**: no date, no IDs.
-  Today's date goes in the user message. Check `cache_read_input_tokens > 0` on the 2nd call in the manual
-  smoke test; if 0, the prefix is under the model minimum — acceptable, just note it.
-- If `messages.parse` rejects `output_config` together with `output_format` in the installed SDK version,
-  fall back to `messages.create(output_config={"effort": ..., "format": {"type": "json_schema", "schema": ...}})`
-  then `ScoreLLM.model_validate_json(text)`.
-- Optional (recommended by the skill for Sonnet 5.5): server-side refusal fallback
-  `client.beta.messages.parse(..., betas=["server-side-fallback-2026-07-01"], fallbacks="default")`.
-  Add it in C1 L4 only if the beta `parse` exists in the installed SDK; otherwise refusal = skipped offer.
-- Cost (EUR) = (input·p_in + output·p_out + cache_write·p_cw + cache_read·p_cr)/1e6 · taux_usd_eur.
-- Writing (C5) uses the same call with `cfg.llm.ecriture` (effort medium) and a separate system prompt.
+  Today's date goes in the user message. A stable prefix lets Ollama reuse its KV cache.
+- Model: `ollama pull qwen2.5:7b-instruct` (≈4.7 GB, fits the 6 GB GPU). Keep `num_ctx` ≤ 8192 to stay in VRAM.
+  The model is a config value: candidates compared in C1 L4 (`mistral`, `llama3.1:8b`, `qwen3:8b` with
+  `"think": false`). If the server answers 400 on an option, drop that option and note it in `design.md`.
+- Small models are weaker than hosted ones: scoring quality is validated by human labelling (C1 L4), not assumed.
+- Writing (C5) uses the same call with `cfg.llm.ecriture` (own model, temperature, timeout). A larger model
+  (≈14B Q4) can be partially offloaded to the 32 GB of RAM: slower, acceptable for drafts.
+- Free by construction: `Usage` records tokens and seconds only.
 
 ### 3.8 Telegram contract
 
@@ -334,16 +336,17 @@ score = resp.parsed_output; usage = resp.usage   # input_tokens, output_tokens, 
 - Inline keyboard (C4): `callback_data` ≤ 64 bytes: `p:<offre_id>` Je postule, `b:<offre_id>` Brouillon,
   `r:<offre_id>` Rappel J+7, `x:<offre_id>` Ignorer. In C1 messages are sent without keyboard.
 - Allowlist: every update whose `chat.id` ≠ `TELEGRAM_CHAT_ID` is ignored (HTTP 200, no reply).
-- Webhook: header `X-Telegram-Bot-Api-Secret-Token` must equal `TELEGRAM_WEBHOOK_SECRET` (compare with
-  `hmac.compare_digest`), else 403. Duplicate `update_id` ≤ `dernier_update_id` → ignored.
+- Polling: `py -m denicheur bot` calls `deleteWebhook` once, then loops `getUpdates(offset=dernier_update_id+1,
+  timeout=50)`, handling updates in order and storing `dernier_update_id` after each. Duplicate or older
+  `update_id` → ignored. Network error → sleep 5 s and continue (the loop never exits on its own).
 
 ### 3.9 Invariants (each guarded by a test, mutation-verified)
 
 1. No PII in prompts: prompt builders read only `profile/profil.md` and the offer; a test asserts the built
    prompt contains none of the patterns: phone (`0\d[\s.]?\d{2}`…), `@` e-mail, "né le".
 2. Idempotence: running `executer` twice on the same fixture sends each offer at most once and scores it once.
-3. Allowlist on `chat_id`; webhook secret check.
-4. LLM effort per request type is read from config, never overridden in code.
+3. Allowlist on `chat_id`; duplicate `update_id` ignored.
+4. Model name and sampling options per request type (scoring / écriture) are read from config, never overridden in code.
 5. Nothing sends e-mail: no `smtplib` import anywhere (`grep` test in the suite).
 
 ---
@@ -386,8 +389,12 @@ and `target_metadata = tables.metadata`), first revision autogenerated, reviewed
 CLI `init-db` = `alembic upgrade head`.
 Tests (SQLite in `tmp_path`, migration applied via Alembic API): insert offer + score, read back; second
 insert of the same `(source, source_id)` is a no-op returning the existing id; `repo.urls_connues()` /
-`repo.cles_connues()`; `repo.appels_llm_aujourdhui(now)`, `repo.cout_mois(now)`; `parametres` get/set.
+`repo.cles_connues()`; `repo.appels_llm_aujourdhui(now)`; `parametres` get/set.
 Done when: "insert and re-read an offer and a score" passes.
+Also in this lot (local-LLM pivot): in `config/recherches.yaml`, `config.py` and `tests/test_config.py`, replace the
+`llm:` section by the §3.5 one (Ollama), drop `anthropic_api_key`, `telegram_webhook_secret`, `dashboard_password`
+from `Secrets`, remove `anthropic` and `psycopg` from `pyproject.toml`, add `logs/` to `.gitignore`, and make
+`make_engine` enable SQLite WAL (`PRAGMA journal_mode=WAL`). Gate must stay green.
 
 **L2 — Source La bonne alternance.** Skills: `tdd-workflow`, `mutation-verified-testing`.
 Blocking step: load the fixture and print the distinct `partner_label`, `contract.type` values (expect
@@ -419,23 +426,25 @@ assert the exact motif per offer from the measured table); Woodoo `lieu_a_verifi
 Mutation-verify: radius comparison, `confirme` exclusion, age rule.
 Done when: the three named cases are explained by tests.
 
-**L4 — LLM scoring.** Skills: `claude-api` (global), `prompt-engineering`, `tdd-workflow`,
-`mutation-verified-testing`.
-Blocking step: `py -c "import anthropic; print(anthropic.__version__)"`; check `messages.parse` accepts
-`output_config` (see §3.7 fallback).
+**L4 — LLM scoring (Ollama).** Skills: `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`.
+Blocking step: `ollama --version`; `ollama pull qwen2.5:7b-instruct`; `curl http://localhost:11434/api/tags`
+lists it; one scratch call to `/api/chat` with `format` = `ScoreLLM` schema on the ITIC fixture offer: print the raw
+JSON and the seconds taken. If `format` is rejected or the output is not valid JSON, stop and report (§3.7).
 Files: `scoring/prompts.py` (French system prompt: role, rubric 40/20/15/15/10, track rules incl. Bac+3 vs
 Bac+5 malus + alert, rhythm ≠ 1/2 → alerte not elimination, bonus `mots_bonus`, `projet_a_citer` must be one
 of the profile projects, "n'invente rien", answer in French; `user_message(offre, today)` with title,
 company, commune + distance, contract, duration, start, diploma, description truncated to 6 000 chars),
-`scoring/llm.py` (`AnthropicScorer`, `Usage`, `cout_eur(usage, cfg)`), `scoring/service.py`,
-`scripts/compare_effort.py` (reads `tests/fixtures/etiquettes.json` = list of `{offre: {...}, score_attendu}`;
-runs low and medium; prints mean |Δ|, offers crossing 65, total cost; `--dry-run` uses the fake).
-Tests (fake scorer): valid score stored with tokens and cost; second run makes 0 calls (cache); cap 1 →
-only 1 call; budget reached → 0 calls; refusal → no row; `ScoreLLM` rejects score 120; PII invariant (§3.9.1)
-on the built system+user prompt; effort passed = config value.
-Human step (before freezing `low`): user labels ~20 offers in `etiquettes.json`, runs
-`py scripts/compare_effort.py` (real calls, ≈0.40 $). If mean |Δ| > 10 or > 3 offers cross 65 → set
-scoring effort to `medium` in config.
+`scoring/llm.py` (`OllamaScorer`, `Usage`), `scoring/service.py`, `scripts/compare_modeles.py` (reads
+`tests/fixtures/etiquettes.json` = list of `{offre: {...}, score_attendu}`; runs each model given on the command
+line; prints mean |Δ|, offers crossing 65, total seconds; `--dry-run` uses the fake).
+Tests (fake scorer, `MockTransport` for the Ollama client): valid score stored with tokens and seconds; second run
+makes 0 calls (cache); cap 1 → only 1 call; run duration limit reached → remaining offers skipped; invalid JSON →
+no row; connection refused → no crash, error recorded; `ScoreLLM` rejects score 120; PII invariant (§3.9.1) on the
+built system+user prompt; model and options passed = config values.
+Human step (before freezing the model): user labels ~20 offers in `etiquettes.json`, runs
+`py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` (free, local, a few minutes). Keep the model
+with the smallest mean |Δ|. If even the best has mean |Δ| > 15 or > 4 offers cross 65, stop and tell the user
+(options: a larger model offloaded to RAM, or a stricter prompt).
 Done when: a fixture offer gets a valid score, is not re-scored on the 2nd run, compare script runs.
 
 **L5 — Telegram send + messages.** Skills: `avoid-ai-writing`, `tdd-workflow`.
@@ -449,33 +458,20 @@ picks top 10 ≥ 65 sorted desc and sets `notifiee_le`; sending to another chat 
 bound to `TELEGRAM_CHAT_ID`).
 Done when: `py -m denicheur digest --test` delivers a message on the user's phone.
 
-**L6 — `run` command, executions, GitHub Actions, Neon.** Skills: `tdd-workflow`, `systematic-debugging`.
-Blocking step: user creates Neon DB, sets `DATABASE_URL`; `py -m denicheur init-db` against Neon succeeds.
+**L6 — `run` command, executions, Windows scheduled task.** Skills: `tdd-workflow`, `systematic-debugging`.
+Blocking step: `py -m denicheur init-db` creates `denicheur.db`; `ollama list` shows the chosen model.
 Files: `pipeline/run.py`, `clock.py`, CLI `run --mode auto|alternance|stage|digest [--dry-run]`,
-`.github/workflows/collecte.yml`:
-```yaml
-on:
-  schedule: [{cron: "30 5-19 * * *"}]   # UTC; code decides what is due (Paris time, DST-safe)
-  workflow_dispatch: {}
-jobs:
-  run:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    concurrency: { group: collecte, cancel-in-progress: false }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12", cache: pip }
-      - run: pip install -e .
-      - run: python -m denicheur init-db && python -m denicheur run --mode auto
-        env: { DATABASE_URL: ${{ secrets.DATABASE_URL }}, LBA_API_KEY: ${{ secrets.LBA_API_KEY }}, ... all §3.5 }
-```
-Plus a `test` job on push/PR running the gate.
+`scripts/installer_taches.ps1` (PowerShell, current user, no admin: `Register-ScheduledTask`; action
+`<repo>\.venv\Scripts\python.exe -m denicheur run --mode auto`, working directory = repo, output appended to
+`logs/run.log`; trigger daily 08:30 repeating every hour for 12 h; settings `-StartWhenAvailable`
+`-MultipleInstances IgnoreNew` `-ExecutionTimeLimit 00:30:00`; re-running the script replaces the task).
 Tests: `executer` on fixture with fakes: one `executions` row with counts; at 07:00 Paris no digest; at 08:31
 digest sent once, second call same day sends nothing (idempotence invariant); alternance not re-collected
 within 3 h; Woodoo score 85 at 10:00 → instant "🚨 Alternance" alert, not repeated in the digest; source
-raising → error recorded, run continues; uncaught error → failure message + exit 1; `pause=1` → no send.
-Done when: a manual `workflow_dispatch` run produces a digest and one `executions` row in Neon.
+raising → error recorded, run continues; Ollama unreachable → already-scored offers still notified; uncaught
+error → failure message + exit 1; `pause=1` → no send.
+Done when: a manual `py -m denicheur run --mode auto` produces a digest and one `executions` row, and the
+scheduled task runs once by itself (see `logs/run.log`).
 Close C1: archive, update `CLAUDE.md` (Statut, commands: `py -m pip install -e ".[dev]"`, gate, `py -m
 denicheur run`).
 
@@ -525,21 +521,20 @@ Tests on the fixture + MockTransport; 429 path. Done when: stage offers reach a 
 nouvelle→interessante→candidature_envoyee→relancee→{entretien, refus, offre, sans_reponse}; any → ignoree.
 Invalid transition raises. Alembic revision only if columns change.
 
-**L2 — Webhook.** Skills: `threat-modeling` (global), `tdd-workflow`, `mutation-verified-testing`.
-Blocking step: deploy a hello-world `api/telegram.py` to Vercel and confirm it imports `denicheur` (verify how
-the current Vercel Python runtime installs deps — `pyproject.toml` or `requirements.txt` — and set
-`vercel.json` `functions["api/telegram.py"] = {"maxDuration": 60, "includeFiles": "src/**"}`; add
-`sys.path` insert of `src` in the handler if needed). Record the answer in `design.md`.
-Files: `api/telegram.py` (BaseHTTPRequestHandler `do_POST` → read body → `webhook.handle(headers, body,
-deps)` → status code), `telegram/webhook.py`, `telegram/commands.py`, CLI `set-webhook <url>`.
+**L2 — Bot (polling).** Skills: `threat-modeling` (global), `tdd-workflow`, `mutation-verified-testing`.
+Blocking step: in a scratch script call `deleteWebhook`, send yourself a message with a test inline button, tap it,
+then `getUpdates`: print the raw updates to confirm the `callback_query` shape and the `offset` behavior. Record
+the answer in `design.md`.
+Files: `telegram/bot.py` (`boucle(deps)`: long polling per §3.8), `telegram/commands.py`, CLI `bot`;
+`scripts/installer_taches.ps1` gains a logon task for `bot` (restart on failure).
 Callbacks: `p` → candidature `candidature_envoyee`, `envoyee_le=today`, keyboard edited to show "✅ Envoyée";
 `r` → `rappel` planned (J+7 handled by the run); `x` → `ignoree`; `b` → reply "Brouillon disponible à
 l'étape C5" until C5. Always `answerCallbackQuery`.
 Commands: `/aujourdhui`, `/stage`, `/alternance`, `/candidatures`, `/relances`, `/stats`, `/pause`,
 `/reprendre`, `/config` (texts in `messages_fr.py`).
-Tests: wrong secret → 403; foreign chat → 200 + no API call; duplicate update_id ignored; each callback and
-command produces the expected DB change and message. Mutation-verify the two guards.
-Done when: tapping "✅ Je postule" on the phone updates Neon.
+Tests: foreign chat → no API call; duplicate update_id ignored; each callback and command produces the expected DB
+change and message; network error → loop continues. Mutation-verify the allowlist and the update_id guard.
+Done when: tapping "✅ Je postule" on the phone updates `denicheur.db`.
 
 **L3 — Buttons on sent offers + J+7.** Add the keyboard to digest/alerts; add reminder step 6 of §3.6.
 Tests: reminder sent once at J+7, not at J+6, not twice. Done when: a back-dated candidature triggers one reminder.
@@ -554,11 +549,11 @@ exactly; **show the diff before saving**; style only, no names/addresses copied.
 `{detail}`), local-only `profile/cv_alternance.md`, `profile/cv_stage.md`. Verify `git status` does not list
 `cv_*.md`.
 
-**L2 — Draft service.** Skills: `claude-api`, `prompt-engineering`, `avoid-ai-writing`, `tdd-workflow`.
+**L2 — Draft service.** Skills: `prompt-engineering`, `avoid-ai-writing`, `tdd-workflow`.
 Files: `redaction/prompts.py` (system = `regles_ecriture.md` + `lettre_modele.md` + `profil.md`, stable;
 user = offer + chosen project + track availability sentence), `redaction/service.py`
 `rediger(offre, score, type: Literal["email","lettre","relance","spontanee"]) -> str` using `llm.ecriture`
-(effort medium, never changed). Output must end with a line "Éléments du profil utilisés : …" (handoff §10)
+(own model and options from config, never overridden; a larger model may be offloaded to RAM; the user reviews draft quality before first real use). Output must end with a line "Éléments du profil utilisés : …" (handoff §10)
 so the user can verify; length checks: email 120–180 words, lettre 250–300 (one retry if out of range,
 then send anyway with a ⚠️ note). Unknown company detail → literal `[à compléter : détail sur l'entreprise]`,
 never invented.
@@ -569,7 +564,7 @@ Tests (fake LLM): prompt has no PII; word-count retry path; placeholder kept whe
 Telegram + "📥 Créer le brouillon Gmail" button (`g:<brouillon_id>`); reminder message gets a "✉️ Relance"
 button (one relance max: second request refused with a message).
 Tests: fake IMAP receives exactly one APPEND to Drafts, never a send; invariant §3.9.5 (no smtplib).
-Done when: tapping "✉️ Brouillon" returns a relevant French draft in < 30 s (measure, report the time).
+Done when: tapping "✉️ Brouillon" returns a relevant French draft in < 90 s (measure, report the time).
 
 ### C6 — `candidatures-spontanees` (spec phase 4)
 
@@ -589,15 +584,16 @@ Tests: cap, never twice the same company. Done when: a list of 10 companies arri
 ### C7 — `dashboard` (spec phase 3)
 
 Skills: `sveltekit`, `browser-proof`, `fixing-accessibility` (global), `avoid-ai-writing`, `tdd-workflow`.
-**L1 — Scaffold + auth.** `web/` via `npx sv create web` (TypeScript, minimal), `postgres` npm client,
-`src/lib/server/db.ts` (reads `DATABASE_URL`), `hooks.server.ts`: every route except `/projet` and `/login`
-requires a cookie set after comparing `DASHBOARD_PASSWORD` (timing-safe) → httpOnly, secure, sameSite=strict.
+**L1 — Scaffold.** `web/` via `npx sv create web` (TypeScript, minimal), `better-sqlite3` opening the SQLite file
+(path from env `DB_PATH`, default `../denicheur.db`), `src/lib/server/db.ts`. Runs only locally, bound to
+127.0.0.1: no public deploy, hence no login (README: never expose the port). Writes go through form actions;
+SQLite WAL (set in C1 L1) keeps the bot, the run and the dashboard from locking each other.
 **L2 — Kanban + filters.** `/` columns by statut; card = offre titre/entreprise/score/distance; form action
 to change statut (same transition rules as C4 L1 — duplicate the list in `src/lib/statuts.ts` and add a Python
 test that compares both lists to avoid drift); filters stage/alternance; offers below threshold listed in
 `/offres`.
-**L3 — Stats + portfolio page.** `/stats` (offres vues, retenues, scorées, candidatures, réponses, coût du
-mois from `executions`); `/projet` public page (FR) describing the architecture, no personal data. README FR
+**L3 — Stats + portfolio page.** `/stats` (offres vues, retenues, scorées, candidatures, réponses, durée
+LLM from `executions`); `/projet` showcase page (FR) describing the architecture, no personal data. README FR
 with screenshots of bot and dashboard. Verify with `browser-proof` (real browser: login, move a card, stats).
 Done when: all applications are visible and editable from the dashboard.
 
@@ -607,14 +603,14 @@ Done when: all applications are visible and editable from the dashboard.
 
 | Before | Action |
 |---|---|
-| C1 L4 | `ANTHROPIC_API_KEY` in `.env`; label ~20 offers for `etiquettes.json` |
-| C1 L5 | Create bot via @BotFather, `/start` it |
-| C1 L6 | Neon project + `DATABASE_URL`; GitHub repo **private** + secrets; regenerate the francetravail.io secret (handoff §11) |
+| C1 L4 | `ollama pull qwen2.5:7b-instruct` (Ollama running); label ~20 offers for `etiquettes.json` |
+| C1 L5 | Create bot via @BotFather, `/start` it; `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in `.env` |
+| C1 L6 | Run `scripts/installer_taches.ps1` once (PowerShell, no admin); keep the PC on and Ollama running 08–20h; regenerate the francetravail.io secret (handoff §11) |
 | C2 | Gmail 2FA + app password, label + filter, anonymized `.eml` samples; alerts created on Indeed/WTTJ/LinkedIn/JobTeaser |
 | C3 | Adzuna developer keys |
-| C4 | Vercel account/project, `TELEGRAM_WEBHOOK_SECRET` |
+| C4 | Allow the `bot` logon task |
 | C5 L1 | Grant access to `CV_base/` and the letters folder, review diffs |
-| C7 | Second Vercel project (root `web/`), `DASHBOARD_PASSWORD` |
+| C7 | Node.js installed |
 
 ---
 
@@ -622,11 +618,11 @@ Done when: all applications are visible and editable from the dashboard.
 
 - **Per lot:** the gate (§1) with counts; `openspec validate <change>`; mutation-verified guard tests.
 - **C1 end-to-end:** `py -m denicheur run --mode auto --dry-run` locally on the fixture prints 2 retained
-  offers (ITIC, Woodoo with "lieu à vérifier"); then a `workflow_dispatch` run on GitHub → digest on the phone
-  + one `executions` row in Neon; run it again → nothing re-sent.
-- **C4/C5:** tap each button on the phone; draft arrives < 30 s; Gmail shows a draft, nothing in "Sent".
+  offers (ITIC, Woodoo with "lieu à vérifier"); then a real `run` with Ollama → digest on the phone + one
+  `executions` row in `denicheur.db`; run it again → nothing re-sent.
+- **C4/C5:** tap each button on the phone; draft arrives < 90 s; Gmail shows a draft, nothing in "Sent".
 - **C7:** `browser-proof` session: login, move a card, see it in Telegram `/candidatures`.
-- **Cost:** after one week, `SELECT sum(cout_eur) FROM executions` ≤ 5 € pro rata.
+- **Cost:** 0 € by construction (no paid API); after one week check that `executions.duree_llm_s` stays under 15 min per run.
 
 ## 7. First actions after this plan is approved
 
