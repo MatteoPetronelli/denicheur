@@ -13,7 +13,7 @@ Rules:
 
 Outil personnel : collecte offres alternance/stage (La bonne alternance, Adzuna, e-mails d'alerte), scoring LLM, digest Telegram. **Envoi de candidature toujours humain.** Contexte complet : `handoff.md`, `Denicheur-specifications.md`.
 
-- Statut : phase de cadrage, **aucun code applicatif** encore (roadmap P0→P6 dans `handoff.md` §9). Pas de commandes build/test vérifiées : à ajouter ici après P0.
+- Statut : C0 `bootstrap-projet` terminé (squelette, config, fixture LBA) ; pipeline à venir avec C1 (roadmap `docs/plans/2026-11-16-denicheur-roadmap.md`). Installation : `py -m pip install -e ".[dev]"`. Gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
 - Stack prévue : Python 3.12, httpx, pydantic, SQLAlchemy (SQLite puis Postgres), pytest, ruff. Lancement prévu : `py -m denicheur run`.
 - Langue : tout ce que voit l'utilisateur (Telegram, brouillons) en **français** ; code et identifiants en anglais.
 - LLM : `claude-sonnet-5-5`, effort `low` pour le scoring, `medium` pour l'écriture ; ne jamais changer l'effort entre requêtes du même type.
