@@ -1,5 +1,6 @@
 import email
 import email.policy
+import hashlib
 import re
 from datetime import UTC, datetime
 from email.message import EmailMessage
@@ -144,3 +145,14 @@ def test_geocodage_reessaye_une_fois():
     http = httpx.Client(transport=httpx.MockTransport(handler))
     offres = collecter(CONFIG, NOW, _mails("indeed_3.eml"), http)
     assert offres[0].lat == 48.9
+
+
+def test_jobtome_sans_ville_ni_geocodage_et_id_sur_le_chemin():
+    appels: list[str] = []
+    offres = collecter(CONFIG, NOW, _mails("jobtome_1.eml"), _http(appels))
+    assert [o.source for o in offres] == ["email:jobtome"] * 4
+    sans_ville = offres[0]
+    assert sans_ville.commune is None and sans_ville.lat is None
+    assert all("Ingeniance" not in a for a in appels) and len(appels) == 1  # seule « Paris » est géocodée
+    chemin = sans_ville.url.split("?")[0]
+    assert sans_ville.source_id == hashlib.sha1(chemin.encode()).hexdigest()

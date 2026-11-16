@@ -7,7 +7,7 @@ Transformer les e-mails d'alerte d'offres en offres normalisées du pipeline, sa
 ## ADDED Requirements
 
 ### Requirement: Per-sender parsing
-Chaque expéditeur reconnu (Indeed, Welcome to the Jungle, LinkedIn, JobTeaser), identifié par le domaine de l'en-tête `From`, SHALL avoir un analyseur qui extrait pour chaque offre le titre, l'entreprise, la ville et le lien. Un expéditeur inconnu SHALL produire zéro offre et une ligne de journal, sans exception.
+Chaque expéditeur reconnu (Indeed et Jobtome ; Welcome to the Jungle, LinkedIn et JobTeaser dès qu'un e-mail réel existe), identifié par le domaine de l'en-tête `From`, SHALL avoir un analyseur qui extrait pour chaque offre le titre, l'entreprise, la ville et le lien. Un expéditeur inconnu SHALL produire zéro offre et une ligne de journal, sans exception.
 
 #### Scenario: Known sender
 - **WHEN** un e-mail de la fixture de chaque expéditeur est analysé
@@ -18,7 +18,7 @@ Chaque expéditeur reconnu (Indeed, Welcome to the Jungle, LinkedIn, JobTeaser),
 - **THEN** zéro offre est retournée et le domaine est consigné
 
 ### Requirement: Clean links and stable identity
-Le lien d'une offre SHALL être débarrassé des paramètres de suivi et du fragment ; `source` SHALL valoir `email:<site>` et `source_id` le SHA-1 du lien propre.
+Le lien d'une offre SHALL être débarrassé des paramètres de suivi et du fragment ; `source` SHALL valoir `email:<site>` et `source_id` le SHA-1 du lien propre, ou de son chemin seul quand la requête du lien porte un jeton propre au destinataire (Jobtome).
 
 #### Scenario: Same offer in two e-mails
 - **WHEN** la même offre apparaît dans deux e-mails avec des paramètres de suivi différents

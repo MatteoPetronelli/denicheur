@@ -9,7 +9,7 @@ import pytest
 from denicheur.mail.parsers import analyser, lien_propre
 
 EMAILS = Path(__file__).parent / "fixtures" / "emails"
-ATTENDU = {"indeed_1.eml": 7, "indeed_2.eml": 5, "indeed_3.eml": 4}
+ATTENDU = {"indeed_1.eml": 7, "indeed_2.eml": 5, "indeed_3.eml": 4, "jobtome_1.eml": 4, "jobtome_2.eml": 0}
 
 
 def _charger(nom: str):
@@ -77,3 +77,16 @@ def test_meme_offre_deux_mails_meme_lien_propre():
 )
 def test_lien_propre(brut, propre):
     assert lien_propre(brut) == propre
+
+
+def test_jobtome_champs_et_identifiant_stable():
+    offres = analyser(_charger("jobtome_1.eml"))
+    o = offres[0]
+    assert (o.site, o.entreprise, o.ville) == ("jobtome", "Ingeniance", "")
+    assert o.titre == "Développeur Full Stack Java / Angular - Ia Augmentée - F/H"
+    assert o.lien.startswith("https://jobtomealert.com/l/")
+    assert (
+        o.ident == o.lien.split("?")[0]
+    )  # le chemin identifie l'offre, la requête porte le jeton du destinataire
+    assert (offres[1].entreprise, offres[1].ville) == ("Quai des Notaires", "Paris")
+    assert offres[2].titre == "Développeur Full Stack Java / React H/F (It) / Freelance"

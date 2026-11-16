@@ -2,7 +2,7 @@
 
 Assistant personnel de recherche d'**alternance** (priorité) et de **stage**. Il collecte les offres via des sources officielles, les évalue avec un LLM par rapport au profil du candidat et envoie un digest en français sur Telegram. **L'envoi d'une candidature reste toujours une décision humaine.**
 
-> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Reste à venir : Adzuna, bot interactif, brouillons.
+> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed et Jobtome lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Reste à venir : Adzuna, bot interactif, brouillons.
 
 ## Fonctionnement
 
@@ -24,7 +24,7 @@ collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM �
 |---|---|---|
 | La bonne alternance (API) | Offres d'alternance et entreprises pour candidature spontanée | Fonctionne |
 | Adzuna | Stages | À tester |
-| E-mails d'alerte (Indeed, WTTJ, LinkedIn, JobTeaser) via Gmail | Offres des grands sites, sans scraping | Indeed codé ; WTTJ, LinkedIn, JobTeaser à ajouter |
+| E-mails d'alerte (Indeed, WTTJ, LinkedIn, JobTeaser) via Gmail | Offres des grands sites, sans scraping | Indeed et Jobtome codés ; WTTJ, LinkedIn, JobTeaser à ajouter |
 | France Travail (Offres v2, La Bonne Boite v2) | Offres complémentaires | Accès non obtenu |
 
 Aucun scraping de pages protégées, aucun contournement de CAPTCHA, aucun envoi automatique de candidature.
@@ -97,4 +97,4 @@ py -m ruff format --check . && py -m ruff check . && py -m mypy src && py -m pyt
 
 ## Alertes e-mail (Gmail)
 
-La source e-mail lit le libellé Gmail `Denicheur` en lecture seule (aucun message modifié ni marqué lu). Prérequis : double authentification Google, mot de passe d'application dans `.env` (`GMAIL_USER`, `GMAIL_APP_PASSWORD`), puis un filtre Gmail qui applique le libellé `Denicheur` aux alertes (Indeed pour l'instant). Sans ces deux variables la source est simplement ignorée.
+La source e-mail lit le libellé Gmail `Denicheur` en lecture seule (aucun message modifié ni marqué lu). Prérequis : double authentification Google, mot de passe d'application dans `.env` (`GMAIL_USER`, `GMAIL_APP_PASSWORD`), puis un filtre Gmail qui applique le libellé `Denicheur` aux alertes (Indeed et Jobtome pour l'instant). Sans ces deux variables la source est simplement ignorée.

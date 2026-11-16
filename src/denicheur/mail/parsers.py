@@ -22,6 +22,8 @@ class OffreMail:
     departement: str
     lien: str
     texte: str
+    # Identifiant stable quand le lien porte un jeton propre au destinataire.
+    ident: str = ""
 
 
 def lien_propre(url: str) -> str:
@@ -61,8 +63,32 @@ def _indeed(msg: EmailMessage) -> list[OffreMail]:
     return offres
 
 
+# Jobtome : une offre par ligne « Titre (Entreprise - Ville): lien » ; ville parfois vide, pas de département.
+_LIGNE_JOBTOME = re.compile(r"^(.+) \((.*) - (.*)\): (https://jobtomealert\.com/l/\S+)$")
+
+
+def _jobtome(msg: EmailMessage) -> list[OffreMail]:
+    corps = msg.get_body(("plain",))
+    if corps is None:
+        return []
+    offres = []
+    for ligne in corps.get_content().splitlines():
+        m = _LIGNE_JOBTOME.match(ligne.strip())
+        if m:
+            # Le lien est une redirection avec jeton destinataire : gardé tel quel pour qu'il s'ouvre,
+            # mais l'identité de l'offre ne dépend que du chemin.
+            lien = m[4]
+            offres.append(
+                OffreMail("jobtome", m[1], m[2].strip(), m[3].strip(), "", lien, "", lien.split("?")[0])
+            )
+    return offres
+
+
 # Domaine de l'expéditeur (suffixe) -> analyseur. Ajouter un site = une fonction + une fixture.
-ANALYSEURS: dict[str, Callable[[EmailMessage], list[OffreMail]]] = {"indeed.com": _indeed}
+ANALYSEURS: dict[str, Callable[[EmailMessage], list[OffreMail]]] = {
+    "indeed.com": _indeed,
+    "jobtomealert.com": _jobtome,
+}
 
 
 def analyser(msg: Message) -> list[OffreMail]:

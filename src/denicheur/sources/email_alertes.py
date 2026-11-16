@@ -38,7 +38,9 @@ def piste_du_titre(titre: str) -> Piste:
 def _geocoder(http: httpx.Client, ville: str, dep: str) -> tuple[float, float] | None:
     for _ in range(2):  # un échec ponctuel de l'API ne doit pas faire perdre la distance
         try:
-            r = http.get(GEOCODAGE, params={"q": f"{ville} {dep}", "type": "municipality", "limit": 1})
+            r = http.get(
+                GEOCODAGE, params={"q": f"{ville} {dep}".strip(), "type": "municipality", "limit": 1}
+            )
             r.raise_for_status()
             lon, lat = r.json()["features"][0]["geometry"]["coordinates"]
             return lat, lon
@@ -51,11 +53,11 @@ def _offre(o: OffreMail, coord: tuple[float, float] | None) -> Offre:
     lat, lon = coord or (None, None)
     return Offre(
         source=f"email:{o.site}",
-        source_id=hashlib.sha1(o.lien.encode()).hexdigest(),
+        source_id=hashlib.sha1((o.ident or o.lien).encode()).hexdigest(),
         url=o.lien,
         titre=o.titre,
         entreprise=o.entreprise,
-        commune=o.ville,
+        commune=o.ville or None,
         lat=lat,
         lon=lon,
         piste=piste_du_titre(o.titre),
@@ -84,7 +86,7 @@ def collecter(
     for msg in lire(since):
         for o in analyser(msg):
             cle = (o.ville, o.departement)
-            if cle not in cache:
+            if o.ville and cle not in cache:
                 cache[cle] = _geocoder(http, *cle)
-            offres.append(_offre(o, cache[cle]))
+            offres.append(_offre(o, cache.get(cle)))
     return offres

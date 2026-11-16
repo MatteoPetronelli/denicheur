@@ -1,0 +1,512 @@
+Delivered-To: destinataire@exemple.invalid
+Received: by 2002:a05:6504:9948:20b0:320:8cbd:af28 with SMTP id 8-n2csp1367ltl;
+        Tue, 10 Nov 2026 22:57:09 -0800 (PST)
+X-Received: by 2002:a05:600c:64c8:b0:4a3:5a7b:6002 with SMTP id 5b1f17b1804b1-4ba0939db68mr20451215e9.28.1794380228947;
+        Tue, 10 Nov 2026 22:57:08 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1794380228; cv=none;
+        d=google.com; s=arc-20260327;
+        b=L7VskwxA2qBFJcYRCEHXgc5kRdhU9Sgz5RClBy5BOCzTlIWqr9hqgMHfMCwME5NGF4
+         bNdYbPVACFJpPNn/zmnUx5p5hhnBSTOnrKb7QvtDOAcwd3xBHVXSgk4/XGQbWbG0XarL
+         ruOwJ6Xwg1PdPNZmPCQwbOdg5sb6FqWLZsmH1p1smyu4g38mRCxxXAjwU0ohnzRmjhOn
+         K+RyQhFlkTsrh/9G+eEv3ooHNHAWIBAF6xOyXgsKLA1vhEOJZHhURpTeucQiIRV93fF2
+         vkAnkVamtbMsGk9tAHp4MJJ9gkUjiPphA/A84npsPr6hX1j1xY+TfH6YrL58T3a4RP1w
+         Jkqg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=mime-version:cfbl-address:feedback-id:list-id:list-unsubscribe-post
+         :list-unsubscribe:precedence:message-id:date:subject:from:to
+         :dkim-signature;
+        bh=8+fpBMfFSi+O8ftUtu8PYhAg5B4dC7wVpOFm6QoYWy0=;
+        fh=xKtjfEMKzznCUkw7cYo/Aw8BJAKMrdxmM+LDqCb+2J4=;
+        b=DWf2ZgfVdC+Bp2lZ+YPEsqMSE5OP1Tc0bwzEJy0KQpRxHylHe6yNlvAxu+M6S6PAIi
+         niWOYaTTsvRT9ksXl4E4HcXwYeXnoLvKe6byiyCjw0jc3jU4hTf1A+APFJlE1wUIVweF
+         ++6QLbxngQiJQv/smaLdTqaqR3+xKPo+P6uviLG/iZ3oWe7hXXfJXkY6nT45qMWvzvu0
+         YZIx4ixbprzoxoRcWCCY7r9Ua3dVdyMJ4JA9Q17XdANyniAqWT12oVBQPteV9psm6TcN
+         dCT+oRfsXehQuw9NQRUIzPBC8x6BOnt1KbIpYNbs8wW9moi8ys0yqckSLUX4FZKF2K3B
+         LiLA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@jobtomealert.com header.s=j2m01 header.b=SRhJmQe3;
+       spf=pass (google.com: domain of b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com designates 89.46.192.35 as permitted sender) smtp.mailfrom=b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=jobtomealert.com
+Return-Path: <b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com>
+Received: from pta035.jobtomealert.com (pta035.jobtomealert.com. [89.46.192.35])
+        by mx.google.com with ESMTPS id ffacd0b85a97d-498478f4f3dsi8715567f8f.487.2026.11.10.22.57.08
+        for <destinataire@exemple.invalid>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Nov 2026 22:57:08 -0800 (PST)
+Received-SPF: pass (google.com: domain of b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com designates 89.46.192.35 as permitted sender) client-ip=89.46.192.35;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@jobtomealert.com header.s=j2m01 header.b=SRhJmQe3;
+       spf=pass (google.com: domain of b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com designates 89.46.192.35 as permitted sender) smtp.mailfrom=b-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=jobtomealert.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; s=j2m01; d=jobtomealert.com;
+ h=To:From:Subject:Date:Message-ID:List-Unsubscribe:List-Unsubscribe-Post:
+ List-Id:Feedback-ID:MIME-Version:Content-Type; i=youralerts@jobtomealert.com;
+ bh=k4vgub8xqVXfTgwEYOpC1PYbV3noEf+Db+q8nRyytzQ=;
+ b=SRhJmQe3K6mYtqk+WF3Vy4UsPtbdAjsbhvBkr4U8MF91z4uzvmtYSmQOBb5YVwgM5WhodLmKmxIy
+   luUD1uyJJL7JSZUezyIadNF5w8O7CYxuv1pEbfogs5Lz3MJLso+uzVDpnReCFg36ANb7xyTIUZqL
+   X1NmHKuzMQNMXK9C/OI=
+X-Mailer: Jobtome
+To: destinataire@exemple.invalid
+From: Jobtome Alert <youralerts@jobtomealert.com>
+Subject: =?UTF-8?Q?=E2=98=95=2017=20nouvelles=20offres=20pour=20vous?=
+Date: Wed, 11 Nov 2026 07:56:43 +0100
+Message-ID: <6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@jobtomealert.com>
+X-Priority: 3
+Precedence: bulk
+List-Unsubscribe: <mailto:u-6af411ab32.798e059d1dc98501d6a1d6fc89361f50.3eb.c@ja01.jobtomealert.com>, <https://jobtomealert.com/jfx?u=798e059d1dc98501d6a1d6fc89361f50/1003/fr_jobtome/destinataire%40exemple.invalid>
+List-Unsubscribe-Post: List-Unsubscribe=One-Click
+List-Id: jobtomealert.com-fr_jobtome
+Feedback-ID: fr_jobtome:none:798e059d1dc98501d6a1d6fc89361f50:jobtome
+CFBL-Address: fbl@jobtomealert.com; report=arf
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="b1_111b71e4ac3510b6a562fcdd96b1efc0"
+
+--b1_111b71e4ac3510b6a562fcdd96b1efc0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+=0A=0A=0ANous avons s=C3=A9lectionn=C3=A9 ces meilleures offres d=E2=80=99=
+emploi rien que pour vous !=0A=0A=0AConsultez les derni=C3=A8res offres d'=
+emploi: D=C3=A9veloppeur Full Stack + IA / Paris=0A=0A   =0AD=C3=A9veloppe=
+ur Full Stack Java / Angular - Ia Augment=C3=A9e - F/H (Ingeniance - ): ht=
+tps://jobtomealert.com/l/6theobyFJmE3nkMScDSFLe/629819f91e6bfeacda515047fe=
+b22988/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BS=
+tack%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc=
+89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D4d4&f=3Dtext=
+=0A=09=0ALead D=C3=A9veloppeur Ia (Quai des Notaires - Paris): https://job=
+tomealert.com/l/kzsAKEjZ95bQDj73sprkEc/4fcc9211fa880ebb67d20828b021f5e9/pj=
+/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%2=
+52B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/=
+3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme=
+f4a58706e/00000000-0000-0000-0000-000000000000&c=3D52b&f=3Dtext=0A=09=0AD=
+=C3=A9veloppeur Full Stack Java / React H/F (It) / Freelance (GROUPE SYD -=
+ Paris): https://jobtomealert.com/l/jRiSP5hoJMsajJY5VekUpx/7e8e8097c4722cd=
+8b8d22626e54e67c6/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur=
+%2BFull%2BStack%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98=
+501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-37=
+54/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D51a=
+&f=3Dtext=0A=09=0AD=C3=A9veloppeur(Se) Full Stack Senior & Architecte Syst=
+=C3=A8me H/F (Eclairion - Paris): https://jobtomealert.com/l/9vwzQ6QktrTPz=
+VigU3R3ps/0d181d0110d7996ac54cfcda068eb371/pj/?jp=3Dsearch_api_batch&keywo=
+rd=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=3DParis&G=
+=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_=
+IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-411=
+8-bf4f-2dab5dffa3ee&c=3D40d&f=3Dtext=0A=09=0A   Plus d'offres d'emploi: ht=
+tps://jobtomealert.com/l/XsE5MHRm2FJ4svYymS2Dij/0/s/?location=3DParis&posi=
+tion=3DD%C3%A9veloppeur+Full+Stack+%2B+IA&G=3D6af411ab32/798e059d1dc98501d=
+6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/u=
+id-7841644e58504f4a58706e/00000000-0000-0000-0000-000000000000&c=3D3dc&f=
+=3Dtext=0A=0A=0A=0AModifier l'alerte emploi: https://jobtomealert.com/l/Kk=
+57bKHfFo87iRDK3SSrjP/0/user_area/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc8=
+9361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D435&f=3Dtext=0A=
+Se d=C3=A9sabonner: https://jobtomealert.com/l/6EC6xVB9fBMbTK9MURPQXZ/0/un=
+subscribe/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P2=
+0_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382=
+c2f-d5cc-4118-bf4f-2dab5dffa3ee&c=3D412&f=3Dtext=0A=0ABesoin d'aide?: http=
+s://jobtomealert.com/l/QgcpjSyWbVbwR4S69WZPnR/0/contact/?G=3D6af411ab32/79=
+8e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES4=
+51_HD130-3754/uid-anonyme/a6382c2f-d5cc-4118-bf4f-2dab5dffa=
+3ee&c=3D449&f=3Dtext=0AQui sommes-nous: https://jobtomealert.com/l/2bhhcFz=
+mDLnkpajVYEPnM8/0/corporate/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f=
+50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme=
+504f4a58706e/00000000-0000-0000-0000-000000000000&c=3D438&f=3Dtext=0A
+
+
+--b1_111b71e4ac3510b6a562fcdd96b1efc0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+ <!DOCTYPE html PUBLIC - W3C DTD XHTML 1 0 Transitional EN http www w3 org=
+ TR xhtml1 DTD xhtml1-transitional dtd> <html xmlns=3D"http://www.w3.org/1=
+999/xhtml" xmlns v=3D"urn:schemas-microsoft-com:vml" xmlns o=3D"urn:schema=
+s-microsoft-com:office:office"> <head> <no value> <meta http-equiv=3D"Cont=
+ent-Type" content=3D"text/html; charset=3Dutf-8"> <meta name=3D"viewport" =
+content=3D"width=3Ddevice-width, initial-scale=3D1.0"> <!--[if if mso><!--=
+> <meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge"> <!--<![endif=
+]-- endif --> <meta name=3D"format-detection" content=3D"telephone=3Dno"> =
+<meta name=3D"x-apple-disable-message-reformatting"> <title></title> <styl=
+e type=3D"text/css"> #outlook a { padding: 0; } .ReadMsgBody, .ExternalCla=
+ss { width: 100%; } .ExternalClass, .ExternalClass p, .ExternalClass td, .=
+ExternalClass div, .ExternalClass span, .ExternalClass font { line-height:=
+ 100%; } div[style*=3D"margin: 14px 0"], div[style*=3D"margin: 16px 0"] { =
+margin: 0 !important; } table, td { mso-table-lspace: 0; mso-table-rspace:=
+ 0; } table, tr, td { border-collapse: collapse; } body, td, th, p, div, l=
+i, a, span { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; m=
+so-line-height-rule: exactly; } img { border: 0; outline: none; line-heigh=
+t: 100%; text-decoration: none; -ms-interpolation-mode: bicubic; } a[x-app=
+le-data-detectors] { color: inherit !important; text-decoration: none !imp=
+ortant; } body { margin: 0; padding: 0; width: 100% !important; -webkit-fo=
+nt-smoothing: antialiased; } .pc-gmail-fix { display: none; display: none =
+!important; } @media screen and (min-width: 621px) { .pc-email-container {=
+ width: 620px !important; } } @media screen and (max-width:620px) { .pc-sm=
+-p-25-20 { padding: 25px 20px !important } .pc-sm-mw-100pc { max-width: 10=
+0% !important; border-bottom: 1px solid #E0E0E5; } .pc-sm-ta-center { text=
+-align: center !important } .pc-sm-p-25-10-15 { padding: 25px 10px 15px !i=
+mportant } .pc-sm-w-100pc { width: 100% !important } .pc-sm-p-35-30 { padd=
+ing: 35px 30px !important } .pc-sm-p-31-30 { padding: 31px 30px !important=
+ } .pc-sm-h-20 { height: 20px !important } } @media screen and (max-width:=
+525px) { .pc-xs-p-15-10 { padding: 15px 10px !important } .pc-xs-p-15-0-5 =
+{ padding: 15px 0 5px !important } .pc-xs-br-disabled br { display: none !=
+important } .pc-xs-p-25-20 { padding: 25px 20px !important } .pc-xs-fs-30 =
+{ font-size: 30px !important } .pc-xs-lh-1-42 { line-height: 1.42 !importa=
+nt } .pc-xs-p-15-20-25 { padding: 15px 20px 25px !important } } </style> <=
+!--[if if mso> <style type=3D"text/css"> .pc-fb-font { font-family: Helvet=
+ica, Arial, sans-serif !important; } </style> <![endif]-- --> <!--[if if g=
+te mso 9><xml><o:OfficeDocumentSettings OfficeDocumentSettings><o:AllowPNG=
+/ AllowPNG><o:PixelsPerInch PixelsPerInch>96</o:PixelsPerInch PixelsPerInc=
+h></o:OfficeDocumentSettings OfficeDocumentSettings></xml><![endif]-- --> =
+</head> <body style=3D"width: 100% !important; margin: 0; padding: 0; mso-=
+line-height-rule: exactly; -webkit-font-smoothing: antialiased; -webkit-te=
+xt-size-adjust: 100%; -ms-text-size-adjust: 100%;" marginheight=3D"0" marg=
+inwidth=3D"0" leftmargin=3D"0" topmargin=3D"0" class=3D""> <span class=3D"=
+preheader" style=3D"color: transparent; display: none; height: 0; max-heig=
+ht: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibili=
+ty: hidden; width: 0;">Assurez-vous que vous =C3=AAtes le premier =C3=A0 d=
+=C3=A9couvrir de nouveaux emplois et trouvez celui qui est fait pour vous,=
+ maintenant. Trouvez maintenant l=E2=80=99emploi qui vous convient!</span>=
+ <table class=3D"pc-email-body" width=3D"100%" bgcolor=3D"#f9f8f9" style=
+=3D"background-color: #f9f8f9; table-layout: fixed" border=3D"0" cellpaddi=
+ng=3D"0" cellspacing=3D"0" role=3D"presentation"> <tbody> <tr> <td align=
+=3D"center" valign=3D"top"> <!--[if if gte mso 9 IE><table width=3D"620" a=
+lign=3D"center" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=3D"p=
+resentation"><tr><td width=3D"620" align=3D"center" valign=3D"top"><![endi=
+f]-- --> <table class=3D"pc-email-container" width=3D"100%" align=3D"cente=
+r" style=3D"margin: 0 auto; max-width: 620px;" border=3D"0" cellpadding=3D=
+"0" cellspacing=3D"0" role=3D"presentation"> <tbody> <tr> <td align=3D"lef=
+t" style=3D"padding: 0 10px;" valign=3D"top"> <table width=3D"100%" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=3D"presentation"> <tbody> =
+<tr> <td height=3D"20" style=3D"font-size: 1px; line-height: 1px;">&nbsp;<=
+/td> </tr> </tbody> </table> <!-- BEGIN MODULE Menu 5 --> <table width=3D"=
+100%" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" role=3D"presentatio=
+n"> <tbody> <tr> <td class=3D"pc-sm-p-25-20 pc-xs-p-15-10" style=3D"paddin=
+g: 29px 30px; background-color: #ffffff; font-size: 0; border-radius: 8px;=
+ box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1)" bgcolor=3D"#ffffff" valign=3D=
+"middle"> <!--[if if gte mso 9 IE><table width=3D"100%" border=3D"0" cells=
+pacing=3D"0" cellpadding=3D"0" role=3D"presentation"><tr><td width=3D"220"=
+ valign=3D"middle"><![endif]-- --> <div class=3D"pc-sm-mw-100pc" style=3D"=
+border: none; display: inline-block; width: 100%; max-width: 220px; vertic=
+al-align: middle;"> <table width=3D"100%" border=3D"0" cellpadding=3D"0" c=
+ellspacing=3D"0" role=3D"presentation"> <tbody> <tr> <td class=3D"pc-sm-ta=
+-center" style=3D"padding: 10px;" valign=3D"top"> <a href=3D"https://jobto=
+mealert.com/l/MU3gGqRRLGBqiFsZhpHCYG/0/home/?G=3D6af411ab32/798e059d1dc985=
+01d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-375=
+4/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D4d4&=
+f=3Dhtml" style=3D"text-decoration: none;"><img src=3D"https://jobtomealer=
+t.com/images/type-g1i.png" width=3D"130" height=3D"40" alt=3D"Jobtome" sty=
+le=3D"max-width: 100%; border: 0; line-height: 100%; outline: 0; -ms-inter=
+polation-mode: bicubic; font-size: 14px; color: #ffffff"></a> </td> </tr> =
+</tbody> </table> </div> <!--[if if gte mso 9 IE></td><td width=3D"320" va=
+lign=3D"middle"><![endif]-- --> <div class=3D"pc-sm-mw-100pc" style=3D"bor=
+der: none; display: inline-block; width: 100%; max-width: 320px; vertical-=
+align: middle;"> <table width=3D"100%" border=3D"0" cellpadding=3D"0" cell=
+spacing=3D"0" role=3D"presentation"> <tbody> <tr> <td class=3D"pc-sm-ta-ce=
+nter pc-fb-font" style=3D"padding: 5px 10px; text-align: right; font-famil=
+y: sans-serif; line-height: 28px; font-size: 20px;" valign=3D"top"> <a hre=
+f=3D"https://jobtomealert.com/l/MU3gGqRRLGBqiFsZhpHCYG/0/home/?G=3D6af411a=
+b32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-=
+O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-4118-bf4f-2da=
+b5dffa3ee&c=3D52b&f=3Dhtml" style=3D"text-decoration: none; font-family: '=
+Helvetica', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: bo=
+ld; color: #3d3d4f">Nouveaux emplois quotidiens</a> </td> </tr> </tbody> <=
+/table> </div> <!--[if if gte mso 9 IE></td></tr></table><![endif]-- --> <=
+/td> </tr> </tbody> </table> <table width=3D"100%" border=3D"0" cellspacin=
+g=3D"0" cellpadding=3D"0" role=3D"presentation"> <tbody> <tr> <td height=
+=3D"8" style=3D"font-size: 1px; line-height: 1px;">&nbsp;</td> </tr> </tbo=
+dy> </table> <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=
+=3D"width: 100%;" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td c=
+lass=3D"pc-sm-p-25-10-15 pc-xs-p-15-0-5" style=3D"vertical-align: top; pad=
+ding: 30px 20px 20px; background-color: #ffffff; border-radius: 8px; box-s=
+hadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);" valign=3D"top" bgcolor=3D"#ffffff"=
+> <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: =
+100%;" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td style=3D"ver=
+tical-align: top; padding: 0 20px;" valign=3D"top"> <table border=3D"0" ce=
+llpadding=3D"0" cellspacing=3D"0" style=3D"width: 100%;" width=3D"100%" ro=
+le=3D"presentation"> <tbody> <tr> <td class=3D"pc-fb-font pc-xs-br-disable=
+d" style=3D"vertical-align: top; font-family: 'Helvetica', Helvetica, Aria=
+l, sans-serif; padding-top: 10px; line-height: 1.56; font-size: 18px; font=
+-weight: 300; letter-spacing: -0.2px; color: #0000cc" valign=3D"top"><stro=
+ng>D=C3=A9veloppeur Full Stack + IA / Paris</strong></td> </tr> </tbody> <=
+/table> </td> </tr> <tr> <td height=3D"0" style=3D"height: 0px; font-size:=
+ 1px; line-height: 1px">&nbsp;</td> </tr> </tbody> <tbody> <tr> <td style=
+=3D"vertical-align: top; font-size: 0;" valign=3D"top"> <!--[if if gte mso=
+ 9 IE><table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"=
+0" role=3D"presentation"><tr><td width=3D"50%" style=3D"width: 50%; vertic=
+al-align: top;" valign=3D"top"><![endif]-- --> <!--TEMPLATE=3DLINE:OFFER-L=
+EFT--> <div class=3D"pc-sm-mw-100pc" style=3D"display: inline-block; width=
+: 100%; max-width: 280px; vertical-align: top;"> <table border=3D"0" cellp=
+adding=3D"0" cellspacing=3D"0" style=3D"width: 100%;" width=3D"100%" role=
+=3D"presentation"> <tbody> <tr> <td style=3D"vertical-align: top; padding:=
+ 20px;" valign=3D"top"> <table border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width: 100%;" width=3D"100%" role=3D"presentation"> <tbody=
+> <tr> <td style=3D"vertical-align: top; padding: 6px 0 0; width: 60px;" w=
+idth=3D"60" valign=3D"top"> <table border=3D"0" cellpadding=3D"0" cellspac=
+ing=3D"0" style=3D"width: 60px;" width=3D"60" role=3D"presentation"> <tbod=
+y> <tr> <td style=3D"vertical-align: top;" valign=3D"top"> <a href=3D"http=
+s://jobtomealert.com/l/6theobyFJmE3nkMScDSFLe/629819f91e6bfeacda515047feb2=
+2988/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BSta=
+ck%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89=
+361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D51a&f=3Dhtml" st=
+yle=3D"text-decoration: none;"><img src=3D"https://jobtomealert.com/images=
+/bullet-ewz.png" width=3D"60" alt=3D"" style=3D"max-width: 100%; border: 0=
+; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; border-r=
+adius: 6px; display: block" height=3D"60"></a> </td> </tr> </tbody> </tabl=
+e> </td> <td style=3D"vertical-align: top; padding: 0 0 0 10px;" valign=3D=
+"top"> <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"wi=
+dth: 100%;" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td class=
+=3D"pc-fb-font" style=3D"vertical-align: top; line-height: 1.5; font-famil=
+y: 'Helvetica', Helvetica, Arial, sans-serif; font-size: 16px; font-weight=
+: 500; letter-spacing: -0.1px; color: #1B1B1B;" valign=3D"top"> <a href=3D=
+"https://jobtomealert.com/l/6theobyFJmE3nkMScDSFLe/629819f91e6bfeacda51504=
+7feb22988/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%=
+2BStack%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d=
+6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D40d&f=3Dhtm=
+l" style=3D"text-decoration: none; color: #3d3d4f">D=C3=A9veloppeur Full S=
+tack Java / Angular - Ia Augment=C3=A9e - F/H</a> </td> </tr> <tr> <td cla=
+ss=3D"pc-fb-font" style=3D"vertical-align: top; padding: 4px 0 0 0; line-h=
+eight: 1.43; font-family: 'Helvetica', Helvetica, Arial, sans-serif; font-=
+size: 14px; font-weight: 300; letter-spacing: -0.2px; color: #6a6a81" vali=
+gn=3D"top"><a style=3D"text-decoration: none; color: #9b9b9b;" href=3D"htt=
+ps://jobtomealert.com/l/6theobyFJmE3nkMScDSFLe/629819f91e6bfeacda515047feb=
+22988/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BSt=
+ack%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc8=
+9361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D3dc&f=3Dhtml">I=
+ngeniance</a></td> </tr> </tbody> </table> </td> </tr> </tbody> </table> <=
+/td> </tr> </tbody> </table> </div> <!--END-TEMPLATE=3DLINE:OFFER-LEFT--> =
+<!--TEMPLATE=3DLINE:OFFER-RIGHT--> <!--[if if gte mso 9 IE></td><td width=
+=3D"50%" style=3D"width: 50%; vertical-align: top;" valign=3D"top"><![endi=
+f]-- --> <div class=3D"pc-sm-mw-100pc" style=3D"display: inline-block; wid=
+th: 100%; max-width: 280px; vertical-align: top;"> <table border=3D"0" cel=
+lpadding=3D"0" cellspacing=3D"0" style=3D"width: 100%;" width=3D"100%" rol=
+e=3D"presentation"> <tbody> <tr> <td style=3D"vertical-align: top; padding=
+: 20px;" valign=3D"top"> <table border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width: 100%;" width=3D"100%" role=3D"presentation"> <tbody=
+> <tr> <td style=3D"vertical-align: top; padding: 6px 0 0; width: 60px;" w=
+idth=3D"60" valign=3D"top"> <table border=3D"0" cellpadding=3D"0" cellspac=
+ing=3D"0" style=3D"width: 60px;" width=3D"60" role=3D"presentation"> <tbod=
+y> <tr> <td style=3D"vertical-align: top;" valign=3D"top"> <a href=3D"http=
+s://jobtomealert.com/l/kzsAKEjZ95bQDj73sprkEc/4fcc9211fa880ebb67d20828b021=
+f5e9/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BSta=
+ck%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89=
+361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D435&f=3Dhtml" st=
+yle=3D"text-decoration: none;"><img src=3D"https://jobtomealert.com/images=
+/bullet-ewz.png" width=3D"60" alt=3D"" style=3D"max-width: 100%; border: 0=
+; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; border-r=
+adius: 6px; display: block" height=3D"60"></a> </td> </tr> </tbody> </tabl=
+e> </td> <td style=3D"vertical-align: top; padding: 0 0 0 10px;" valign=3D=
+"top"> <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"wi=
+dth: 100%;" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td class=
+=3D"pc-fb-font" style=3D"vertical-align: top; line-height: 1.5; font-famil=
+y: 'Helvetica', Helvetica, Arial, sans-serif; font-size: 16px; font-weight=
+: 500; letter-spacing: -0.1px; color: #1B1B1B;" valign=3D"top"> <a href=3D=
+"https://jobtomealert.com/l/kzsAKEjZ95bQDj73sprkEc/4fcc9211fa880ebb67d2082=
+8b021f5e9/pj/?jp=3Dsearch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%=
+2BStack%2B%252B%2BIA&location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d=
+6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D412&f=3Dhtm=
+l" style=3D"text-decoration: none; color: #3d3d4f">Lead D=C3=A9veloppeur I=
+a</a> </td> </tr> <tr> <td class=3D"pc-fb-font" style=3D"vertical-align: t=
+op; padding: 4px 0 0 0; line-height: 1.43; font-family: 'Helvetica', Helve=
+tica, Arial, sans-serif; font-size: 14px; font-weight: 300; letter-spacing=
+: -0.2px; color: #6a6a81" valign=3D"top"><a style=3D"text-decoration: none=
+; color: #9b9b9b;" href=3D"https://jobtomealert.com/l/kzsAKEjZ95bQDj73sprk=
+Ec/4fcc9211fa880ebb67d20828b021f5e9/pj/?jp=3Dsearch_api_batch&keyword=3DD%=
+25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=3DParis&G=3D6af411=
+ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1=
+-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-4118-bf4f-2d=
+ab5dffa3ee&c=3D449&f=3Dhtml">Quai des Notaires</a></td> </tr> </tbody> </t=
+able> </td> </tr> </tbody> </table> </td> </tr> </tbody> </table> </div> <=
+!--END-TEMPLATE=3DLINE:OFFER-RIGHT--> <!--[if if gte mso 9 IE></td></tr></=
+table><![endif]-- --> <!--TEMPLATE=3DLINE:OFFER-LEFT--> <div class=3D"pc-s=
+m-mw-100pc" style=3D"display: inline-block; width: 100%; max-width: 280px;=
+ vertical-align: top;"> <table border=3D"0" cellpadding=3D"0" cellspacing=
+=3D"0" style=3D"width: 100%;" width=3D"100%" role=3D"presentation"> <tbody=
+> <tr> <td style=3D"vertical-align: top; padding: 20px;" valign=3D"top"> <=
+table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: 100=
+%;" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td style=3D"vertic=
+al-align: top; padding: 6px 0 0; width: 60px;" width=3D"60" valign=3D"top"=
+> <table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: =
+60px;" width=3D"60" role=3D"presentation"> <tbody> <tr> <td style=3D"verti=
+cal-align: top;" valign=3D"top"> <a href=3D"https://jobtomealert.com/l/jRi=
+SP5hoJMsajJY5VekUpx/7e8e8097c4722cd8b8d22626e54e67c6/pj/?jp=3Dsearch_api_b=
+atch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=
+=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_=
+V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2=
+f-d5cc-4118-bf4f-2dab5dffa3ee&c=3D438&f=3Dhtml" style=3D"text-decoration: =
+none;"><img src=3D"https://jobtomealert.com/images/bullet-ewz.png" width=
+=3D"60" alt=3D"" style=3D"max-width: 100%; border: 0; line-height: 100%; o=
+utline: 0; -ms-interpolation-mode: bicubic; border-radius: 6px; display: b=
+lock" height=3D"60"></a> </td> </tr> </tbody> </table> </td> <td style=3D"=
+vertical-align: top; padding: 0 0 0 10px;" valign=3D"top"> <table border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: 100%;" width=3D=
+"100%" role=3D"presentation"> <tbody> <tr> <td class=3D"pc-fb-font" style=
+=3D"vertical-align: top; line-height: 1.5; font-family: 'Helvetica', Helve=
+tica, Arial, sans-serif; font-size: 16px; font-weight: 500; letter-spacing=
+: -0.1px; color: #1B1B1B;" valign=3D"top"> <a href=3D"https://jobtomealert=
+.com/l/jRiSP5hoJMsajJY5VekUpx/7e8e8097c4722cd8b8d22626e54e67c6/pj/?jp=3Dse=
+arch_api_batch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&=
+location=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR=
+_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme=
+/00000000-0000-0000-0000-000000000000&c=3D471&f=3Dhtml" style=3D"text-deco=
+ration: none; color: #3d3d4f">D=C3=A9veloppeur Full Stack Java / React H/F=
+ (It) / Freelance</a> </td> </tr> <tr> <td class=3D"pc-fb-font" style=3D"v=
+ertical-align: top; padding: 4px 0 0 0; line-height: 1.43; font-family: 'H=
+elvetica', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300=
+; letter-spacing: -0.2px; color: #6a6a81" valign=3D"top"><a style=3D"text-=
+decoration: none; color: #9b9b9b;" href=3D"https://jobtomealert.com/l/jRiS=
+P5hoJMsajJY5VekUpx/7e8e8097c4722cd8b8d22626e54e67c6/pj/?jp=3Dsearch_api_ba=
+tch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=3D=
+Paris&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V03=
+5_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d=
+5cc-4118-bf4f-2dab5dffa3ee&c=3D460&f=3Dhtml">GROUPE SYD</a></td> </tr> </t=
+body> </table> </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>=
+ </div> <!--END-TEMPLATE=3DLINE:OFFER-LEFT--> <!--TEMPLATE=3DLINE:OFFER-RI=
+GHT--> <!--[if if gte mso 9 IE></td><td width=3D"50%" style=3D"width: 50%;=
+ vertical-align: top;" valign=3D"top"><![endif]-- --> <div class=3D"pc-sm-=
+mw-100pc" style=3D"display: inline-block; width: 100%; max-width: 280px; v=
+ertical-align: top;"> <table border=3D"0" cellpadding=3D"0" cellspacing=3D=
+"0" style=3D"width: 100%;" width=3D"100%" role=3D"presentation"> <tbody> <=
+tr> <td style=3D"vertical-align: top; padding: 20px;" valign=3D"top"> <tab=
+le border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: 100%;"=
+ width=3D"100%" role=3D"presentation"> <tbody> <tr> <td style=3D"vertical-=
+align: top; padding: 6px 0 0; width: 60px;" width=3D"60" valign=3D"top"> <=
+table border=3D"0" cellpadding=3D"0" cellspacing=3D"0" style=3D"width: 60p=
+x;" width=3D"60" role=3D"presentation"> <tbody> <tr> <td style=3D"vertical=
+-align: top;" valign=3D"top"> <a href=3D"https://jobtomealert.com/l/9vwzQ6=
+QktrTPzVigU3R3ps/0d181d0110d7996ac54cfcda068eb371/pj/?jp=3Dsearch_api_batc=
+h&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=3DPa=
+ris&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_=
+R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5c=
+c-4118-bf4f-2dab5dffa3ee&c=3D353&f=3Dhtml" style=3D"text-decoration: none;=
+"><img src=3D"https://jobtomealert.com/images/bullet-ewz.png" width=3D"60"=
+ alt=3D"" style=3D"max-width: 100%; border: 0; line-height: 100%; outline:=
+ 0; -ms-interpolation-mode: bicubic; border-radius: 6px; display: block" h=
+eight=3D"60"></a> </td> </tr> </tbody> </table> </td> <td style=3D"vertica=
+l-align: top; padding: 0 0 0 10px;" valign=3D"top"> <table border=3D"0" ce=
+llpadding=3D"0" cellspacing=3D"0" style=3D"width: 100%;" width=3D"100%" ro=
+le=3D"presentation"> <tbody> <tr> <td class=3D"pc-fb-font" style=3D"vertic=
+al-align: top; line-height: 1.5; font-family: 'Helvetica', Helvetica, Aria=
+l, sans-serif; font-size: 16px; font-weight: 500; letter-spacing: -0.1px; =
+color: #1B1B1B;" valign=3D"top"> <a href=3D"https://jobtomealert.com/l/9vw=
+zQ6QktrTPzVigU3R3ps/0d181d0110d7996ac54cfcda068eb371/pj/?jp=3Dsearch_api_b=
+atch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=
+=3DParis&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_=
+V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2=
+f-d5cc-4118-bf4f-2dab5dffa3ee&c=3D342&f=3Dhtml" style=3D"text-decoration: =
+none; color: #3d3d4f">D=C3=A9veloppeur(Se) Full Stack Senior & Architecte =
+Syst=C3=A8me H/F</a> </td> </tr> <tr> <td class=3D"pc-fb-font" style=3D"ve=
+rtical-align: top; padding: 4px 0 0 0; line-height: 1.43; font-family: 'He=
+lvetica', Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300;=
+ letter-spacing: -0.2px; color: #6a6a81" valign=3D"top"><a style=3D"text-d=
+ecoration: none; color: #9b9b9b;" href=3D"https://jobtomealert.com/l/9vwzQ=
+6QktrTPzVigU3R3ps/0d181d0110d7996ac54cfcda068eb371/pj/?jp=3Dsearch_api_bat=
+ch&keyword=3DD%25C3%25A9veloppeur%2BFull%2BStack%2B%252B%2BIA&location=3DP=
+aris&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035=
+_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5=
+cc-4118-bf4f-2dab5dffa3ee&c=3D379&f=3Dhtml">Eclairion</a></td> </tr> </tbo=
+dy> </table> </td> </tr> </tbody> </table> </td> </tr> </tbody> </table> <=
+/div> <!--END-TEMPLATE=3DLINE:OFFER-RIGHT--> <!--[if if gte mso 9 IE></td>=
+</tr></table><![endif]-- --> </td> </tr> <tr> <td style=3D"vertical-align:=
+ top; padding: 16px 0;" valign=3D"top" align=3D"center"> <table border=3D"=
+0" cellpadding=3D"0" cellspacing=3D"0" role=3D"presentation"> <tbody> <tr>=
+ <td style=3D"vertical-align: top; text-align: center; padding: 13px 17px;=
+ border-radius: 8px; background-color: #dd0058" bgcolor=3D"#dd0058" valign=
+=3D"top" align=3D"center"> <a class=3D"pc-fb-font" href=3D"https://jobtome=
+alert.com/l/XsE5MHRm2FJ4svYymS2Dij/0/s/?location=3DParis&position=3DD%C3%A=
+9veloppeur+Full+Stack+%2B+IA&G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f=
+50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme=
+504f4a58706e/00000000-0000-0000-0000-000000000000&c=3D3a0&f=3Dhtml" style=
+=3D"line-height: 1.5; text-decoration: none; word-break: break-word; font-=
+weight: 500; display: block; font-family: 'Helvetica', Helvetica, Arial, s=
+ans-serif; font-size: 16px; color: #ffffff;">Plus d'offres d'emploi</a> </=
+td> </tr> </tbody> </table> </td> </tr> </tbody> </table> </td> </tr> </tb=
+ody> </table> <!-- BEGIN MODULE Footer 3 --> <table width=3D"100%" border=
+=3D"0" cellspacing=3D"0" cellpadding=3D"0" role=3D"presentation"> <tbody> =
+<tr> <td height=3D"8" style=3D"font-size: 1px; line-height: 1px;">&nbsp;</=
+td> </tr> </tbody> </table> <table border=3D"0" cellpadding=3D"0" cellspac=
+ing=3D"0" width=3D"100%" role=3D"presentation"> <tbody> <tr> <td class=3D"=
+pc-sm-p-31-30 pc-xs-p-15-20-25" style=3D"padding: 31px 40px; background-co=
+lor: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.=
+1)" valign=3D"top" bgcolor=3D"#ffffff"> <table border=3D"0" cellpadding=3D=
+"0" cellspacing=3D"0" width=3D"100%" role=3D"presentation"> <tbody> <tr> <=
+td style=3D"vertical-align: top;" valign=3D"top"> <!--[if if gte mso 9 IE>=
+<table width=3D"100%" border=3D"0" cellspacing=3D"0" cellpadding=3D"0" rol=
+e=3D"presentation"><tr><td width=3D"260" valign=3D"top" align=3D"left"><![=
+endif]-- --> <table class=3D"pc-sm-w-100pc" align=3D"left" border=3D"0" ce=
+llpadding=3D"0" cellspacing=3D"0" role=3D"presentation"> <tbody> <tr> <td =
+class=3D"pc-sm-ta-center pc-xs-br-disabled pc-fb-font" style=3D"line-heigh=
+t: 20px; letter-spacing: -0.2px; font-family: 'Helvetica', sans-serif; fon=
+t-size: 14px; color: #9B9B9B; padding: 10px 0" valign=3D"top"> <p>=C3=80 t=
+out moment, vous pouvez vous <a href=3D"https://jobtomealert.com/l/6EC6xVB=
+9fBMbTK9MURPQXZ/0/unsubscribe/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc8936=
+1f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D38d&f=3Dhtml" targ=
+et=3D'_blank' style=3D'color:#0075FF'>d=C3=A9sabonner</a> ou modifier vos =
+<a href=3D"https://jobtomealert.com/l/Kk57bKHfFo87iRDK3SSrjP/0/user_area/?=
+G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7=
+_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-41=
+18-bf4f-2dab5dffa3ee&c=3D3c6&f=3Dhtml" target=3D'_blank' style=3D'color:#0=
+075FF'>alertes de recherche</a>. <br><br></p> <p>Ajouter <a href=3D"mailto=
+:youralerts@jobtomealert.com?G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f=
+50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme=
+504f4a58706e/00000000-0000-0000-0000-000000000000&c=3D3b5&f=3Dhtml" style=
+=3D"color:#0075FF;">youralerts@jobtomealert.com</a> au r=C3=A9pertoire pou=
+r =C3=AAtre certain de recevoir les emails de Jobtome Ce message a =C3=A9t=
+=C3=A9 envoy=C3=A9 =C3=A0 l'adresse destinataire@exemple.invalid, car en da=
+te du 05/11/2026 vous vous =C3=AAtes abonn=C3=A9 au service d'alertes Jobt=
+ome via <a href=3D"https://www.jobtome.com?G=3D6af411ab32/798e059d1dc98501=
+d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/=
+uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D2a8&f=
+=3Dhtml" target=3D"_blank" style=3D"color:#0075FF">Jobtome.com</a><br></p>=
+ <p>Jobtome International SA, Via San Martino 16/A, Mendrisio, 6850, Switz=
+erland<br>=C2=A9 2026 Jobtome</p> </td> </tr> </tbody> </table> <!--[if if=
+ gte mso 9 IE></td><td width=3D"260" valign=3D"top" align=3D"right"><![end=
+if]-- --> <table class=3D"pc-sm-w-100pc" align=3D"right" border=3D"0" cell=
+padding=3D"0" cellspacing=3D"0" role=3D"presentation"> <tbody> <tr> <td al=
+ign=3D"left" class=3D"pc-sm-ta-center" style=3D"font-size: 20px; font-fami=
+ly: sans-serif; padding: 6px 0 10px; text-align: left;" valign=3D"top"> <a=
+ href=3D"https://jobtomealert.com/l/NjNinMGdCeAYQZeuC4VDgx/0/facebook/?G=
+=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_=
+IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-411=
+8-bf4f-2dab5dffa3ee&c=3D297&f=3Dhtml" style=3D"text-decoration: none;"><im=
+g src=3D"https://jobtomealert.com/images/facebook-dark.png" width=3D"15" h=
+eight=3D"15" alt=3D"Facebook" style=3D"border: 0; line-height: 100%; outli=
+ne: 0; -ms-interpolation-mode: bicubic; font-size: 14px; color: #151515;">=
+</a> <span>&nbsp;&nbsp;</span> <a href=3D"https://jobtomealert.com/l/mgYMy=
+CUiiRmkrmMYQ2bEKG/0/instagram/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc8936=
+1f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D2d0&f=3Dhtml" styl=
+e=3D"text-decoration: none;"><img src=3D"https://jobtomealert.com/images/i=
+nstagram-dark.png" width=3D"16" height=3D"15" alt=3D"instagram" style=3D"b=
+order: 0; line-height: 100%; outline: 0; -ms-interpolation-mode: bicubic; =
+font-size: 14px; color: #151515;"></a> </td> </tr> </tbody> </table> <!--[=
+if if gte mso 9 IE></td></tr></table><![endif]-- --> </td> </tr> <tr> <td =
+class=3D"pc-sm-h-20" height=3D"32" style=3D"height: 32px; line-height: 1px=
+; font-size: 1px">&nbsp;</td> </tr> <tr> <td class=3D"pc-fb-font" style=3D=
+"text-align: center; line-height: 20px; font-family: sans-serif; font-size=
+: 14px; color: #9B9B9B;" valign=3D"top"> <a href=3D"https://jobtomealert.c=
+om/l/QgcpjSyWbVbwR4S69WZPnR/0/contact/?G=3D6af411ab32/798e059d1dc98501d6a1=
+d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/00000000-0000-0000-0000-000000000000&c=3D2bd&f=3Dht=
+ml" style=3D"text-decoration: none; font-family: 'Helvetica', sans-serif; =
+color: #0000cc">Besoin d'aide?</a> <span>&nbsp;&nbsp;</span> <a href=3D"ht=
+tps://jobtomealert.com/l/2bhhcFzmDLnkpajVYEPnM8/0/corporate/?G=3D6af411ab3=
+2/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_R0-7_IA_S0_YA1-O0=
+_ES451_HD130-3754/uid-anonyme/a6382c2f-d5cc-4118-bf4f-2dab5=
+dffa3ee&c=3D304&f=3Dhtml" style=3D"text-decoration: none; font-family: 'He=
+lvetica', sans-serif; color: #0000cc">Qui sommes-nous</a> <span>&nbsp;&nbs=
+p;</span><a href=3D"https://jobtomealert.com/l/MU3gGqRRLGBqiFsZhpHCYG/0/ho=
+me/?G=3D6af411ab32/798e059d1dc98501d6a1d6fc89361f50/3eb/c/LFR_OD_P20_V035_=
+R0-7_IA_S0_YA1-O0_ES451_HD130-3754/uid-anonyme/a6382c2f-d5c=
+c-4118-bf4f-2dab5dffa3ee&c=3D2d3&f=3Dhtml" style=3D"text-decoration: none;=
+ font-family: 'Helvetica', sans-serif; color: #0000cc">Jobtome France</a><=
+/td> </tr> </tbody> </table> </td> </tr> </tbody> </table> <!-- END MODULE=
+ Footer 3 --> <table width=3D"100%" border=3D"0" cellpadding=3D"0" cellspa=
+cing=3D"0" role=3D"presentation"> <tbody> <tr> <td height=3D"20" style=3D"=
+font-size: 1px; line-height: 1px;">&nbsp;</td> </tr> </tbody> </table> </t=
+d> </tr> </tbody> </table> <!--[if if gte mso 9 IE></td></tr></table><![en=
+dif]-- --> </td> </tr> </tbody> </table> <!-- Fix for Gmail on iOS --> <di=
+v class=3D"pc-gmail-fix" style=3D"white-space: nowrap; font: 15px courier;=
+ line-height: 0;">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; =
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbs=
+p; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &=
+nbsp; </div> </body> </html> 
+
+--b1_111b71e4ac3510b6a562fcdd96b1efc0--
+
