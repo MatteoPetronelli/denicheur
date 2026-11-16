@@ -11,7 +11,7 @@ from denicheur.clock import heure_atteinte, is_daytime
 from denicheur.config import load_config
 from denicheur.db import repo
 from denicheur.db.base import make_engine, migrer
-from denicheur.models import ScoreLLM
+from denicheur.models import ScoreLLM, Statut
 from denicheur.pipeline.run import Deps, executer
 from denicheur.scoring.llm import OllamaIndisponible, Usage
 from denicheur.sources.adzuna import collecter as collecter_adzuna
@@ -48,6 +48,7 @@ class Env:
         migrer(url)
         self.session = Session(make_engine(url))
         self.envoyes = []
+        self.corps = []
         self.collectes = 0
         client = httpx.Client(
             transport=httpx.MockTransport(lambda r: httpx.Response(200, json=FIXTURE)),
@@ -61,7 +62,9 @@ class Env:
         self.source = source
 
         def envoi(req):
-            self.envoyes.append(json.loads(req.content)["text"])
+            corps = json.loads(req.content)
+            self.corps.append(corps)
+            self.envoyes.append(corps["text"])
             return httpx.Response(200, json={"ok": True, "result": {}})
 
         self.api = TelegramAPI("t", httpx.Client(transport=httpx.MockTransport(envoi)), chat_id="1",
@@ -280,3 +283,73 @@ def test_run_auto_cumule_alternance_et_stage(env):
     assert (b.collectees, b.retenues) == (16 + 50, 2 + 45)
     ligne = env.ligne()
     assert (ligne["offres_collectees"], ligne["offres_retenues"]) == (66, 47)
+
+
+# --- boutons et rappel J+7 ---
+def test_alerte_instantanee_porte_les_boutons_de_l_offre(env):
+    env.run(T0)
+    alerte = env.corps[0]
+    assert alerte["text"].startswith("🚨 Alternance")
+    donnees = [b["callback_data"] for ligne in alerte["reply_markup"]["inline_keyboard"] for b in ligne]
+    assert [d[0] for d in donnees] == ["p", "b", "r", "x"] and len({d.split(":")[1] for d in donnees}) == 1
+
+
+def _candidature_envoyee_le(env, jour):
+    """Premier run (collecte + envois), puis une candidature marquée envoyée à `jour`."""
+    env.run(T0)
+    oid = (
+        env.session.execute(text("select id from offres where motif_rejet is null order by id"))
+        .scalars()
+        .first()
+    )
+    repo.marquer(env.session, oid, Statut.CANDIDATURE_ENVOYEE, jour)
+    env.session.commit()
+    env.envoyes.clear()
+    return oid
+
+
+def _rappels(env):
+    return [t for t in env.envoyes if t.startswith("⏰")]
+
+
+def test_rappel_a_j_plus_7_une_seule_fois(env):
+    _candidature_envoyee_le(env, T0)
+    env.run(T0 + timedelta(days=7))
+    (rappel,) = _rappels(env)
+    assert "7 jours" in rappel
+    assert repo.candidatures_a_relancer(env.session, (T0 + timedelta(days=7)).date()) == []
+    env.run(T0 + timedelta(days=7, hours=4))
+    env.run(T0 + timedelta(days=8))
+    assert len(_rappels(env)) == 1
+
+
+def test_pas_de_rappel_a_j_plus_6(env):
+    _candidature_envoyee_le(env, T0)
+    env.run(T0 + timedelta(days=6))
+    assert _rappels(env) == []
+
+
+def test_pause_supprime_le_rappel_sans_le_consommer(env):
+    _candidature_envoyee_le(env, T0)
+    repo.set_param(env.session, "pause", "1")
+    env.run(T0 + timedelta(days=7))
+    assert _rappels(env) == []
+    repo.set_param(env.session, "pause", "0")
+    env.run(T0 + timedelta(days=7, hours=1))
+    assert len(_rappels(env)) == 1
+
+
+def test_pas_de_rappel_la_nuit_il_part_le_matin(env):
+    _candidature_envoyee_le(env, T0)
+    env.run(datetime(2026, 11, 23, 6, tzinfo=UTC))  # 07:00 Paris
+    assert _rappels(env) == []
+    env.run(datetime(2026, 11, 23, 7, 30, tzinfo=UTC))  # 08:30 Paris
+    assert len(_rappels(env)) == 1
+
+
+def test_echec_d_envoi_laisse_la_candidature_due(env):
+    _candidature_envoyee_le(env, T0)
+    api = TelegramAPI("t", httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(500))),
+                      chat_id="1", sleep=lambda s: None)  # fmt: skip
+    assert not env.run(T0 + timedelta(days=7), api=api).ok
+    assert len(repo.candidatures_a_relancer(env.session, (T0 + timedelta(days=7)).date())) == 1

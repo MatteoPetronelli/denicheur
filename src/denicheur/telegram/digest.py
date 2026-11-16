@@ -7,6 +7,7 @@ from denicheur.db import repo
 from denicheur.messages_fr import RIEN_DE_NEUF, entete_digest, format_offre
 from denicheur.models import Offre, Piste, ScoreLLM
 from denicheur.telegram.api import TelegramAPI
+from denicheur.telegram.keyboard import clavier_offre
 
 
 def envoyer_digest(session: Session, api: TelegramAPI, config: Config, now: datetime) -> int:
@@ -17,7 +18,7 @@ def envoyer_digest(session: Session, api: TelegramAPI, config: Config, now: date
         return 0
     api.send_message(entete_digest(len(a_envoyer)))
     for offre_id, offre, score in a_envoyer:
-        api.send_message(format_offre(offre, score))
+        api.send_message(format_offre(offre, score), clavier_offre(offre_id))
         repo.marquer_notifiee(session, offre_id, now)
         session.commit()  # un échec en cours de route ne renvoie pas ce qui est déjà parti
     return len(a_envoyer)

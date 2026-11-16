@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from denicheur.clock import heure_atteinte, is_daytime, paris_now
 from denicheur.config import Config
 from denicheur.db import repo
-from denicheur.messages_fr import echec_collecte, format_offre
+from denicheur.messages_fr import echec_collecte, format_offre, rappel_j7
 from denicheur.models import Offre, Piste
 from denicheur.pipeline.dedupe import cle_dedup, dedupliquer
 from denicheur.pipeline.geo import appliquer_geo
@@ -18,6 +18,7 @@ from denicheur.scoring.llm import Scorer
 from denicheur.scoring.service import scorer_offres
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.digest import envoyer_digest
+from denicheur.telegram.keyboard import clavier_offre
 
 MODES = ("auto", "alternance", "stage", "digest")
 Source = Callable[[Config, datetime], list[Offre]]
@@ -101,7 +102,7 @@ def _notifier(deps: Deps, mode: str, now: datetime) -> int:
     if is_daytime(now, *cfg.plage_alertes):
         for offre_id, offre, score in repo.offres_a_notifier(s, cfg.alerte_immediate_alternance_min, 100):
             if offre.piste is Piste.ALTERNANCE:
-                api.send_message(format_offre(offre, score, alerte=True))
+                api.send_message(format_offre(offre, score, alerte=True), clavier_offre(offre_id))
                 repo.marquer_notifiee(s, offre_id, now)
                 s.commit()
                 envoyees += 1
@@ -111,6 +112,11 @@ def _notifier(deps: Deps, mode: str, now: datetime) -> int:
         envoyees += envoyer_digest(s, api, cfg, now)
         repo.set_param(s, "dernier_digest", aujourdhui)
         s.commit()
+    if is_daytime(now, *cfg.plage_alertes):
+        for offre_id, offre in repo.candidatures_a_relancer(s, paris_now(now).date()):
+            api.send_message(rappel_j7(offre))
+            repo.marquer_rappelee(s, offre_id, now)  # après l'envoi : un échec laisse le rappel dû
+            s.commit()
     return envoyees
 
 

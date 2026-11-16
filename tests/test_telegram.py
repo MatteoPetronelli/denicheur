@@ -153,6 +153,23 @@ def test_digest_top_10_par_score_decroissant(session):
     assert repo.offres_a_notifier(session, 65, 20)[0][1].titre in {"Dev 0", "Dev 1"}
 
 
+def test_digest_joint_les_quatre_boutons_a_chaque_offre_mais_pas_a_l_entete(session):
+    a, b = _stocker(session, 1, 90), _stocker(session, 2, 80)
+    vues = []
+    envoyer_digest(session, _api(vues), cfg, NOW)
+    entete, offre_a, offre_b = (corps for _, corps in vues)
+    assert "reply_markup" not in entete
+    for corps, oid in ((offre_a, a), (offre_b, b)):
+        donnees = [x["callback_data"] for ligne in corps["reply_markup"]["inline_keyboard"] for x in ligne]
+        assert donnees == [f"p:{oid}", f"b:{oid}", f"r:{oid}", f"x:{oid}"]
+
+
+def test_digest_vide_sans_clavier(session):
+    vues = []
+    envoyer_digest(session, _api(vues), cfg, NOW)
+    assert "reply_markup" not in vues[0][1]
+
+
 def test_digest_respecte_le_score_min(session):
     _stocker(session, 1, 64)
     _stocker(session, 2, 65)

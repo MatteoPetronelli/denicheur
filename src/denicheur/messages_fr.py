@@ -137,3 +137,14 @@ def texte_config(c: Config, pause: bool) -> str:
             f"Envois : {'en pause' if pause else 'actifs'}",
         ]
     )
+
+
+def rappel_j7(o: Offre) -> str:
+    return "\n".join(
+        [
+            f"⏰ Il y a 7 jours, tu as postulé : <b>{_e(o.titre, 200)}</b>",
+            f"🏢 {_e(o.entreprise or 'entreprise non précisée', 100)}",
+            "Pense à relancer l'entreprise si tu n'as pas eu de réponse.",
+            f'🔗 <a href="{escape(o.url)}">Voir l\'offre</a>',
+        ]
+    )
