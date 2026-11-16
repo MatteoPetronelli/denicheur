@@ -16,10 +16,9 @@ digest_max_offres: 10
 plage_alertes: ["08:00", "20:00"]
 heure_digest: "08:30"
 llm:
-  modele: "claude-sonnet-5-5"
-  scoring: { effort: "low", max_tokens: 2000 }
-  ecriture: { effort: "medium", max_tokens: 8000 }
+  fournisseur: "ollama"
+  url: "http://localhost:11434"
+  scoring: { modele: "qwen2.5:7b-instruct", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
+  ecriture: { modele: "qwen2.5:7b-instruct", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
   llm_max_appels_jour: 150
-  llm_budget_mensuel_eur: 5.0
-  prix_usd_par_mtok: { input: 2.0, output: 10.0, cache_write: 2.5, cache_read: 0.10 }
-  taux_usd_eur: 0.92
+  llm_max_duree_run_s: 900

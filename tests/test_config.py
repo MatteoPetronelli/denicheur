@@ -16,9 +16,27 @@ def test_load_config_valide():
     cfg = load_config(YAML)
     assert cfg.rayon_km == 25
     assert cfg.niveau_vise == "6"
-    assert cfg.llm.modele == "claude-sonnet-5-5"
-    assert cfg.llm.scoring.effort == "low"
-    assert cfg.llm.ecriture.effort == "medium"
+
+
+def test_llm_ollama():
+    llm = load_config(YAML).llm
+    assert llm.fournisseur == "ollama"
+    assert llm.url == "http://localhost:11434"
+    assert llm.scoring.modele == "qwen2.5:7b-instruct"
+    assert llm.scoring.temperature == 0.0
+    assert llm.ecriture.temperature == 0.7
+    assert llm.llm_max_appels_jour == 150
+    assert llm.llm_max_duree_run_s == 900
+
+
+@pytest.mark.parametrize("champ", ["llm_budget_mensuel_eur", "prix_usd_par_mtok"])
+def test_champs_facturation_rejetes(tmp_path, champ):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    data["llm"][champ] = 1
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_config(f)
 
 
 def test_rayon_negatif_rejete(tmp_path):
@@ -33,6 +51,14 @@ def test_rayon_negatif_rejete(tmp_path):
 def test_adzuna_desactive_sans_cles():
     assert load_secrets({}).adzuna_enabled is False
     assert load_secrets({"ADZUNA_APP_ID": "a", "ADZUNA_APP_KEY": "b"}).adzuna_enabled is True
+
+
+def test_cles_cloud_ignorees():
+    assert not hasattr(load_secrets({"ANTHROPIC_API_KEY": "x"}), "anthropic_api_key")
+
+
+def test_database_url_vide_donne_defaut():
+    assert load_secrets({"DATABASE_URL": ""}).database_url == "sqlite:///denicheur.db"
 
 
 def test_database_url_par_defaut():

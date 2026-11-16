@@ -33,5 +33,6 @@ CLAUDE.local.md
 .vscode/
 .idea/
 *.log
+logs/
 .orchestrator-rules.json
 graphify-out/

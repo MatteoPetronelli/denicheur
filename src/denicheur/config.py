@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Centre(BaseModel):
@@ -32,25 +32,21 @@ class Pistes(BaseModel):
 
 
 class LLMCall(BaseModel):
-    effort: Literal["low", "medium", "high"]
-    max_tokens: int = Field(gt=0)
-
-
-class Prix(BaseModel):
-    input: float
-    output: float
-    cache_write: float
-    cache_read: float
+    model_config = ConfigDict(extra="forbid")
+    modele: str
+    temperature: float = Field(ge=0)
+    num_ctx: int = Field(gt=0)
+    timeout_s: float = Field(gt=0)
 
 
 class LLMConfig(BaseModel):
-    modele: str
+    model_config = ConfigDict(extra="forbid")
+    fournisseur: Literal["ollama"]
+    url: str
     scoring: LLMCall
     ecriture: LLMCall
     llm_max_appels_jour: int = Field(gt=0)
-    llm_budget_mensuel_eur: float = Field(gt=0)
-    prix_usd_par_mtok: Prix
-    taux_usd_eur: float = Field(gt=0)
+    llm_max_duree_run_s: int = Field(gt=0)
 
 
 class Config(BaseModel):
@@ -73,16 +69,13 @@ class Config(BaseModel):
 
 class Secrets(BaseModel):
     lba_api_key: str | None = None
-    anthropic_api_key: str | None = None
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
-    telegram_webhook_secret: str | None = None
     adzuna_app_id: str | None = None
     adzuna_app_key: str | None = None
     database_url: str = "sqlite:///denicheur.db"
     gmail_user: str | None = None
     gmail_app_password: str | None = None
-    dashboard_password: str | None = None
     ft_client_id: str | None = None
     ft_client_secret: str | None = None
 
