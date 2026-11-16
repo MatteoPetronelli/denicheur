@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -14,6 +15,7 @@ from denicheur.pipeline.run import MODES, Deps, Source, executer
 from denicheur.scoring.llm import OllamaScorer
 from denicheur.sources import SOURCES, adzuna, email_alertes
 from denicheur.telegram.api import TelegramAPI, TelegramError
+from denicheur.telegram.bot import BotDeps, boucle
 from denicheur.telegram.digest import envoyer_digest, envoyer_test
 
 COMMANDES = ("stats",)
@@ -83,6 +85,25 @@ def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     return 0 if bilan.ok else 1
 
 
+def _bot(secrets: Secrets) -> int:
+    if not secrets.telegram_bot_token:
+        print("TELEGRAM_BOT_TOKEN absent du .env : crée le bot avec @BotFather.")
+        return 1
+    if not secrets.telegram_chat_id:
+        print("TELEGRAM_CHAT_ID absent du .env : lance d'abord setup-telegram.")
+        return 1
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
+    for bruyant in ("httpx", "httpcore"):
+        logging.getLogger(bruyant).setLevel(logging.WARNING)  # httpx journalise les URL, donc le jeton
+    migrer(secrets.database_url)
+    api = TelegramAPI(secrets.telegram_bot_token, httpx.Client(), chat_id=secrets.telegram_chat_id)
+    with Session(make_engine(secrets.database_url)) as session:
+        boucle(
+            BotDeps(api, session, load_config(CONFIG), secrets.telegram_chat_id, lambda: datetime.now(UTC))
+        )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="denicheur")
     sub = parser.add_subparsers(dest="commande", required=True)
@@ -91,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run")
     run.add_argument("--mode", choices=MODES, default="auto")
     run.add_argument("--dry-run", action="store_true", help="aucun message Telegram")
+    sub.add_parser("bot")
     sub.add_parser("digest").add_argument("--test", action="store_true", help="envoie une offre factice")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
@@ -105,6 +127,8 @@ def main(argv: list[str] | None = None) -> int:
         migrer(secrets.database_url)
         print("Base initialisée.")
         return 0
+    if args.commande == "bot":
+        return _bot(secrets)
     if args.commande in ("setup-telegram", "digest"):
         if not secrets.telegram_bot_token:
             print("TELEGRAM_BOT_TOKEN absent du .env : crée le bot avec @BotFather.")

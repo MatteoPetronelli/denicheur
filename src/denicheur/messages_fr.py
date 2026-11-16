@@ -2,7 +2,9 @@
 
 from html import escape
 
-from denicheur.models import Offre, ScoreLLM
+from denicheur.config import Config
+from denicheur.db.repo import Stats
+from denicheur.models import Offre, ScoreLLM, Statut
 
 RIEN_DE_NEUF = "Rien de nouveau aujourd'hui"
 MAX_ELEMENTS = 3
@@ -55,3 +57,83 @@ def format_offre(o: Offre, s: ScoreLLM, *, alerte: bool = False) -> str:
 
 def echec_collecte(type_erreur: str) -> str:
     return f"⚠️ La collecte du jour a échoué : {type_erreur}"
+
+
+LIMITE_TELEGRAM = 4096
+AIDE = "\n".join(
+    [
+        "Commandes :",
+        "/aujourdhui · offres du jour",
+        "/stage · meilleurs stages",
+        "/alternance · meilleures alternances",
+        "/candidatures · suivi en cours",
+        "/relances · à relancer",
+        "/stats · chiffres",
+        "/pause · /reprendre · envois",
+        "/config · réglages",
+    ]
+)
+AUCUNE_CANDIDATURE = "Aucune candidature suivie pour l'instant."
+AUCUNE_RELANCE = "Aucune relance à faire."
+PAUSE_ACTIVEE = "⏸️ Pause : le Dénicheur collecte mais n'envoie plus rien."
+PAUSE_LEVEE = "▶️ Reprise : les envois repartent."
+# Réponses aux boutons (fenêtre contextuelle de Telegram, 200 caractères au plus).
+CB_ENVOYEE = "✅ Candidature notée"
+CB_DEJA_ENVOYEE = "Déjà notée comme envoyée."
+CB_GARDEE = "⏰ Offre gardée de côté."
+CB_DEJA_GARDEE = "Déjà gardée de côté."
+CB_IGNOREE = "🚫 Offre ignorée."
+CB_DEJA_IGNOREE = "Déjà ignorée."
+CB_BROUILLON = "Brouillon disponible à l'étape C5"
+CB_INTROUVABLE = "Offre introuvable."
+CB_INCONNU = "Action inconnue."
+
+
+def cb_impossible(statut: str | None) -> str:
+    return f"Impossible : l'offre est déjà « {statut or 'nouvelle'} »."
+
+
+def borner(lignes: list[str]) -> str:
+    """Joint des lignes déjà échappées en s'arrêtant à une ligne entière sous la limite de Telegram."""
+    sortie: list[str] = []
+    taille = 0
+    for ligne in lignes:
+        taille += len(ligne) + 1
+        if taille > LIMITE_TELEGRAM:
+            break
+        sortie.append(ligne)
+    return "\n".join(sortie)
+
+
+def liste_suivi(titre: str, lignes: list[tuple[Offre, Statut | None]]) -> str:
+    corps = [
+        f"• {_e(o.titre, 120)} · {_e(o.entreprise or 'entreprise non précisée', 60)}"
+        + (f" · {s.value}" if s else "")
+        for o, s in lignes
+    ]
+    return borner([f"<b>{titre}</b>", *corps])
+
+
+def texte_stats(s: Stats) -> str:
+    par = [f"• {_e(k, 30)} : {n}" for k, n in sorted(s.par_statut.items())] or ["• aucun suivi"]
+    return borner(
+        [
+            "<b>Statistiques</b>",
+            *par,
+            f"Nouvelles sans suivi : {s.nouvelles}",
+            f"Écartées par le filtre : {s.rejetees}",
+        ]
+    )
+
+
+def texte_config(c: Config, pause: bool) -> str:
+    return borner(
+        [
+            "<b>Réglages</b>",
+            f"Rayon : {c.rayon_km:g} km · âge max : {c.age_max_jours} jours",
+            f"Score minimum : {c.score_min} · alerte alternance dès {c.alerte_immediate_alternance_min}",
+            f"Digest : {c.digest_max_offres} offres max, dès {c.heure_digest}",
+            f"Alertes entre {c.plage_alertes[0]} et {c.plage_alertes[1]}",
+            f"Envois : {'en pause' if pause else 'actifs'}",
+        ]
+    )

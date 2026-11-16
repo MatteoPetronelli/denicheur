@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pytest
@@ -134,3 +135,34 @@ def test_aucun_smtplib_dans_src():
     # L'envoi de candidature reste humain : le code ne parle jamais SMTP.
     racine = Path(__file__).parent.parent / "src"
     assert not [p for p in racine.rglob("*.py") if "smtplib" in p.read_text(encoding="utf-8")]
+
+
+def test_bot_sans_chat_id_aide_et_code_1_sans_reseau(tmp_path, monkeypatch, capsys):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+
+    def interdit(*a, **k):
+        raise AssertionError("aucun appel réseau attendu")
+
+    monkeypatch.setattr(TelegramAPI, "get_updates", interdit)
+    monkeypatch.setattr(TelegramAPI, "delete_webhook", interdit)
+    assert main(["bot"]) == 1
+    assert "TELEGRAM_CHAT_ID" in capsys.readouterr().out
+
+
+def test_bot_sans_jeton_code_1(tmp_path, monkeypatch, capsys):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    assert main(["bot"]) == 1
+    assert "TELEGRAM_BOT_TOKEN" in capsys.readouterr().out
+
+
+def test_bot_lance_la_boucle_pour_le_chat_configure(tmp_path, monkeypatch):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "77")
+    recu = []
+    monkeypatch.setattr("denicheur.__main__.boucle", recu.append)
+    assert main(["bot"]) == 0
+    assert recu[0].chat_id == "77"
+    for nom in ("httpx", "httpcore"):  # leurs URL contiennent le jeton du bot
+        assert logging.getLogger(nom).getEffectiveLevel() >= logging.WARNING

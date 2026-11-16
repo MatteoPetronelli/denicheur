@@ -9,7 +9,7 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
 from denicheur.db.tables import candidatures, executions, offres, parametres, scores
-from denicheur.models import Offre, ScoreLLM, Statut
+from denicheur.models import Offre, Piste, ScoreLLM, Statut
 
 PARIS = ZoneInfo("Europe/Paris")
 # Champs de `Offre` stockés tels quels dans `offres`.
@@ -243,3 +243,47 @@ def stats(session: Session) -> Stats:
         select(func.count()).select_from(offres).where(offres.c.motif_rejet.is_not(None))
     ).scalar_one()
     return Stats(par_statut, nouvelles, rejetees)
+
+
+def _avec_score(session: Session, ids: list[int]) -> list[tuple[int, Offre, ScoreLLM]]:
+    return [(i, lire_offre(session, i), s) for i in ids if (s := lire_score(session, i))]
+
+
+def offres_du_jour(session: Session, jour: date) -> list[tuple[int, Offre, ScoreLLM]]:
+    """Offres notifiées pendant le jour Paris `jour`, sans suivi, meilleur score d'abord."""
+    debut = datetime.combine(jour, time.min, tzinfo=PARIS)
+    ids = session.execute(
+        select(offres.c.id)
+        .join(scores, scores.c.offre_id == offres.c.id)
+        .where(
+            offres.c.notifiee_le >= _utc_naif(debut),
+            offres.c.notifiee_le < _utc_naif(debut + timedelta(days=1)),
+            offres.c.id.not_in(select(candidatures.c.offre_id)),
+        )
+        .order_by(scores.c.score.desc(), offres.c.id)
+    ).scalars()  # fmt: skip
+    return _avec_score(session, list(ids))
+
+
+def meilleures_offres(session: Session, piste: Piste, limite: int) -> list[tuple[int, Offre, ScoreLLM]]:
+    """Meilleures offres notées d'une piste, retenues par le préfiltre et non écartées."""
+    ecartees = select(candidatures.c.offre_id).where(candidatures.c.statut == Statut.IGNOREE.value)
+    ids = session.execute(
+        select(offres.c.id)
+        .join(scores, scores.c.offre_id == offres.c.id)
+        .where(offres.c.piste == piste.value, offres.c.motif_rejet.is_(None), offres.c.id.not_in(ecartees))
+        .order_by(scores.c.score.desc(), offres.c.id)
+        .limit(limite)
+    ).scalars()  # fmt: skip
+    return _avec_score(session, list(ids))
+
+
+def suivi_en_cours(session: Session, limite: int) -> list[tuple[int, Offre, Statut]]:
+    """Candidatures suivies et non écartées, la plus récemment modifiée d'abord."""
+    lignes = session.execute(
+        select(candidatures.c.offre_id, candidatures.c.statut)
+        .where(candidatures.c.statut != Statut.IGNOREE.value)
+        .order_by(candidatures.c.maj_le.desc(), candidatures.c.id.desc())
+        .limit(limite)
+    ).all()
+    return [(oid, lire_offre(session, oid), Statut(statut)) for oid, statut in lignes]
