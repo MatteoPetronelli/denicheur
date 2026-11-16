@@ -8,6 +8,17 @@ schema: spec-driven
 #   context: |
 #     Designs and tasks must cover Windows, macOS, and Linux
 #     Write all artifacts in Spanish
+context: |
+  Authoritative roadmap: docs/plans/2026-11-16-denicheur-roadmap.md (changes C0-C7, lots, contracts, test expectations). Do not redesign.
+  User-facing text (Telegram, drafts, dashboard) in French; code and identifiers in English.
+  Never send an application automatically; never scrape protected pages or bypass CAPTCHAs.
+  No PII (phone, birth date, address) in git, LLM prompts or logs; .env, CV_base/, profile/cv_*.md stay local.
+  Tests run offline: fixtures + httpx.MockTransport + fake LLM; time injected, never datetime.now() in logic.
+
+rules:
+  tasks:
+    - One "## Lot n" heading per lot from the roadmap; numbered checkboxes; quality gate box last
+    - Each lot starts with the skills it names and its blocking first step
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
