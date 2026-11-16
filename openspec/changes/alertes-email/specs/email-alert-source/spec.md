@@ -25,7 +25,7 @@ Le lien d'une offre SHALL être débarrassé des paramètres de suivi et du frag
 - **THEN** elles ont le même lien propre et une seule subsiste après dédoublonnage
 
 ### Requirement: Piste from title
-La piste SHALL être `alternance` si le titre contient « alternance », « apprentissage » ou « apprenti », `stage` s'il contient « stage » ou « stagiaire », sinon `autre`.
+La piste SHALL être `alternance` si le titre contient « alternance », « alternant », « apprentissage » ou « apprenti », `stage` s'il contient « stage » ou « stagiaire », sinon `autre`.
 
 #### Scenario: Alternance title
 - **WHEN** le titre est « Alternance développeur web »
