@@ -11,6 +11,19 @@ class Piste(StrEnum):
     AUTRE = "autre"
 
 
+class Statut(StrEnum):
+    """Suivi d'une candidature ; « nouvelle » = pas de ligne `candidatures`."""
+
+    INTERESSANTE = "interessante"
+    CANDIDATURE_ENVOYEE = "candidature_envoyee"
+    RELANCEE = "relancee"
+    ENTRETIEN = "entretien"
+    REFUS = "refus"
+    OFFRE = "offre"
+    SANS_REPONSE = "sans_reponse"
+    IGNOREE = "ignoree"
+
+
 class Offre(BaseModel):
     source: str
     source_id: str

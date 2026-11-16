@@ -1,14 +1,15 @@
 """Toutes les écritures/lectures SQL passent ici (pas de session brute dans le pipeline)."""
 
-from datetime import UTC, datetime, time
+from dataclasses import dataclass
+from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import case, func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from denicheur.db.tables import executions, offres, parametres, scores
-from denicheur.models import Offre, ScoreLLM
+from denicheur.db.tables import candidatures, executions, offres, parametres, scores
+from denicheur.models import Offre, ScoreLLM, Statut
 
 PARIS = ZoneInfo("Europe/Paris")
 # Champs de `Offre` stockés tels quels dans `offres`.
@@ -144,3 +145,101 @@ def get_param(session: Session, cle: str) -> str | None:
 def set_param(session: Session, cle: str, valeur: str) -> None:
     stmt = sqlite_insert(parametres).values(cle=cle, valeur=valeur)
     session.execute(stmt.on_conflict_do_update(index_elements=["cle"], set_={"valeur": valeur}))
+
+
+class OffreInconnue(Exception):
+    pass
+
+
+class TransitionInvalide(Exception):
+    pass
+
+
+_ISSUES = (Statut.ENTRETIEN, Statut.REFUS, Statut.OFFRE, Statut.SANS_REPONSE)
+# Statut courant (None = nouvelle, sans ligne) -> statuts atteignables ; « ignoree » l'est depuis partout.
+_TRANSITIONS: dict[Statut | None, frozenset[Statut]] = {
+    None: frozenset({Statut.INTERESSANTE, Statut.CANDIDATURE_ENVOYEE, Statut.IGNOREE}),
+    Statut.INTERESSANTE: frozenset({Statut.CANDIDATURE_ENVOYEE, Statut.IGNOREE}),
+    Statut.CANDIDATURE_ENVOYEE: frozenset({Statut.RELANCEE, *_ISSUES, Statut.IGNOREE}),
+    Statut.RELANCEE: frozenset({*_ISSUES, Statut.IGNOREE}),
+    **{s: frozenset({Statut.IGNOREE}) for s in _ISSUES},
+}
+_TRANSITIONS[Statut.IGNOREE] = frozenset()
+
+
+def statut_de(session: Session, offre_id: int) -> Statut | None:
+    brut = session.execute(
+        select(candidatures.c.statut).where(candidatures.c.offre_id == offre_id)
+    ).scalar_one_or_none()
+    return Statut(brut) if brut else None
+
+
+def marquer(session: Session, offre_id: int, statut: Statut, now: datetime) -> None:
+    """Fait avancer le suivi d'une offre ; une seule ligne par offre, créée au premier marquage."""
+    if session.execute(select(offres.c.id).where(offres.c.id == offre_id)).first() is None:
+        raise OffreInconnue(offre_id)
+    courant = statut_de(session, offre_id)
+    if courant == statut:
+        return
+    if statut not in _TRANSITIONS[courant]:
+        raise TransitionInvalide(f"{courant or 'nouvelle'} -> {statut}")
+    maintenant = _utc_naif(now)
+    envoi = {"envoyee_le": maintenant} if statut is Statut.CANDIDATURE_ENVOYEE else {}
+    if (
+        courant is None
+    ):  # shortcut: pas d'index unique sur offre_id (il faudrait Alembic) ; un seul écrivain à la fois
+        session.execute(
+            candidatures.insert().values(
+                offre_id=offre_id, statut=statut.value, cree_le=maintenant, maj_le=maintenant, **envoi
+            )
+        )
+    else:
+        session.execute(
+            candidatures.update()
+            .where(candidatures.c.offre_id == offre_id)
+            .values(statut=statut.value, maj_le=maintenant, **envoi)
+        )
+
+
+def marquer_rappelee(session: Session, offre_id: int, now: datetime) -> None:
+    session.execute(
+        candidatures.update().where(candidatures.c.offre_id == offre_id).values(rappel_le=_utc_naif(now))
+    )
+
+
+def candidatures_a_relancer(session: Session, today: date) -> list[tuple[int, Offre]]:
+    """Candidatures envoyées depuis au moins 7 jours (date Paris) et jamais rappelées."""
+    lignes = session.execute(
+        select(candidatures.c.offre_id, candidatures.c.envoyee_le)
+        .where(candidatures.c.statut == Statut.CANDIDATURE_ENVOYEE.value, candidatures.c.rappel_le.is_(None))
+        .order_by(candidatures.c.envoyee_le)
+    ).all()
+    limite = today - timedelta(days=7)
+    return [
+        (oid, lire_offre(session, oid))
+        for oid, envoyee in lignes
+        if envoyee.replace(tzinfo=UTC).astimezone(PARIS).date() <= limite
+    ]
+
+
+@dataclass
+class Stats:
+    par_statut: dict[str, int]
+    nouvelles: int  # notifiées, sans suivi
+    rejetees: int  # écartées par le préfiltre
+
+
+def stats(session: Session) -> Stats:
+    par_statut: dict[str, int] = dict(
+        session.execute(select(candidatures.c.statut, func.count()).group_by(candidatures.c.statut)).all()
+    )
+    suivies = select(candidatures.c.offre_id)
+    nouvelles = session.execute(
+        select(func.count())
+        .select_from(offres)
+        .where(offres.c.notifiee_le.is_not(None), offres.c.id.not_in(suivies))
+    ).scalar_one()
+    rejetees = session.execute(
+        select(func.count()).select_from(offres).where(offres.c.motif_rejet.is_not(None))
+    ).scalar_one()
+    return Stats(par_statut, nouvelles, rejetees)
