@@ -6,10 +6,10 @@ Gate de chaque lot : `py -m ruff format --check .` · `py -m ruff check .` · `p
 
 Skills : `tdd-workflow`. Étape bloquante : aucune (le lecteur se teste avec un faux serveur IMAP).
 
-- [ ] 1.1 Écrire `mail/imap.py:lire_alertes(user, password, since, imap_factory=imaplib.IMAP4_SSL)` (libellé `Denicheur` en lecture seule, recherche depuis `since`, `BODY.PEEK[]`, retour de `email.message.Message`) ; vérifier avec un faux IMAP : deux messages retournés
-- [ ] 1.2 Garantir l'absence d'effet de bord : le faux IMAP n'accepte qu'une liste blanche de commandes (`LOGIN`, `SELECT` en lecture seule, `SEARCH`, `FETCH` avec `BODY.PEEK`, `CLOSE`, `LOGOUT`) ; vérifier que `STORE`, `COPY`, `MOVE`, `EXPUNGE` font échouer le test (mutation)
-- [ ] 1.3 Fermer la session même en cas d'échec et ne jamais exposer le mot de passe dans une erreur ; vérifier : `logout` appelé quand `fetch` lève, message d'erreur sans mot de passe
-- [ ] 1.4 Gate L1 vert (lancer les quatre commandes, noter les chiffres réels)
+- [x] 1.1 Écrire `mail/imap.py:lire_alertes(user, password, since, imap_factory=imaplib.IMAP4_SSL)` (libellé `Denicheur` en lecture seule, recherche depuis `since`, `BODY.PEEK[]`, retour de `email.message.Message`) ; vérifier avec un faux IMAP : deux messages retournés
+- [x] 1.2 Garantir l'absence d'effet de bord : le faux IMAP n'accepte qu'une liste blanche de commandes (`LOGIN`, `SELECT` en lecture seule, `SEARCH`, `FETCH` avec `BODY.PEEK`, `CLOSE`, `LOGOUT`) ; vérifier que `STORE`, `COPY`, `MOVE`, `EXPUNGE` font échouer le test (mutation)
+- [x] 1.3 Fermer la session même en cas d'échec et ne jamais exposer le mot de passe dans une erreur ; vérifier : `logout` appelé quand `fetch` lève, message d'erreur sans mot de passe
+- [x] 1.4 Gate L1 vert (lancer les quatre commandes, noter les chiffres réels)
 
 ## Lot 2 — Analyseurs et source e-mail
 
