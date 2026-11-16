@@ -42,4 +42,4 @@ Contraintes : 100 % local et gratuit (Ollama, SQLite, Planificateur de tâches, 
 
 ## Migration Plan
 
-Aucune donnée existante. `py -m denicheur init-db` crée `denicheur.db` (ignoré par git) ; retour arrière : supprimer le fichier et désinstaller la tâche (`Unregister-ScheduledTask Denicheur`). Prérequis humains : bot Telegram créé et `TELEGRAM_BOT_TOKEN` renseigné avant L5 ; `ollama pull qwen2.5:7b-instruct` avant L4 ; étiquetage de ~20 offres pendant L4.
+Aucune donnée existante. `py -m denicheur init-db` crée `denicheur.db` (ignoré par git) ; retour arrière : supprimer le fichier et désinstaller la tâche (`Unregister-ScheduledTask Denicheur`). Prérequis humains : bot Telegram créé et `TELEGRAM_BOT_TOKEN` renseigné avant L5 ; `ollama pull llama3.1:8b` avant L4 ; étiquetage de ~20 offres pendant L4.

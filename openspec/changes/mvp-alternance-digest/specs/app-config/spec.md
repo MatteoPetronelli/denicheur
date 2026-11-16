@@ -15,7 +15,7 @@
 
 #### Scenario: Ollama LLM section
 - **WHEN** `load_config` lit `config/recherches.yaml`
-- **THEN** `llm.fournisseur == "ollama"`, `llm.url == "http://localhost:11434"`, `llm.scoring.modele == "qwen2.5:7b-instruct"` avec `temperature == 0.0`, `llm.ecriture.temperature == 0.7`, `llm.llm_max_appels_jour == 150` et `llm.llm_max_duree_run_s == 900`
+- **THEN** `llm.fournisseur == "ollama"`, `llm.url == "http://localhost:11434"`, `llm.scoring.modele == "llama3.1:8b"` avec `temperature == 0.0`, `llm.ecriture.temperature == 0.7`, `llm.llm_max_appels_jour == 150` et `llm.llm_max_duree_run_s == 900`
 
 #### Scenario: Legacy cloud fields rejected
 - **WHEN** la section `llm` contient un champ de facturation (`llm_budget_mensuel_eur`, `prix_usd_par_mtok`)

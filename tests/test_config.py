@@ -22,7 +22,7 @@ def test_llm_ollama():
     llm = load_config(YAML).llm
     assert llm.fournisseur == "ollama"
     assert llm.url == "http://localhost:11434"
-    assert llm.scoring.modele == "qwen2.5:7b-instruct"
+    assert llm.scoring.modele == "llama3.1:8b"
     assert llm.scoring.temperature == 0.0
     assert llm.ecriture.temperature == 0.7
     assert llm.llm_max_appels_jour == 150

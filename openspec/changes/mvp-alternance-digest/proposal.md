@@ -33,5 +33,5 @@ Hors périmètre : bot interactif et boutons (C4), alertes e-mail (C2), Adzuna/s
 ## Impact
 
 - Code : `src/denicheur/` (models, db, http, sources, pipeline, scoring, telegram, messages_fr, clock, config, `__main__`), `config/recherches.yaml`, `config/villes_hors_zone.txt`, `migrations/`, `scripts/` (compare_modeles, installer_taches.ps1), tests et fixtures.
-- Dépendances : retrait de `anthropic` et `psycopg` ; Ollama local (`qwen2.5:7b-instruct`, à télécharger avant L4).
+- Dépendances : retrait de `anthropic` et `psycopg` ; Ollama local (`llama3.1:8b`, à télécharger avant L4).
 - Systèmes : Telegram Bot API, API LBA, Ollama (localhost:11434), Planificateur de tâches Windows. Aucun service payant.

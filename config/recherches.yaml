@@ -18,7 +18,7 @@ heure_digest: "08:30"
 llm:
   fournisseur: "ollama"
   url: "http://localhost:11434"
-  scoring: { modele: "qwen2.5:7b-instruct", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
-  ecriture: { modele: "qwen2.5:7b-instruct", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
+  scoring: { modele: "llama3.1:8b", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
+  ecriture: { modele: "llama3.1:8b", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
   llm_max_appels_jour: 150
   llm_max_duree_run_s: 900

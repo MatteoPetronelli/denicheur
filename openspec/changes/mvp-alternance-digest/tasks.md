@@ -45,7 +45,7 @@ Skills : `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`. Éta
 - [x] 4.3 Écrire `scoring/service.py:scorer_offres` ; vérifier : score stocké avec tokens et secondes, 2e passage sans appel, plafond 1 → un appel, limite de durée, connexion refusée sans crash avec erreur enregistrée
 - [x] 4.4 Mutation-vérifier le cache, le plafond d'appels et la limite de durée
 - [x] 4.5 Écrire `scripts/compare_modeles.py` (`--dry-run` avec le scoreur factice, métriques écart moyen / franchissements de 65 / secondes) ; vérifier en lançant `--dry-run` sur `tests/fixtures/etiquettes.json`
-- [ ] 4.6 Étape humaine : l'utilisateur étiquette ~20 offres dans `etiquettes.json` et lance `py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` ; figer le modèle de plus petit écart dans `config/recherches.yaml` ; arrêter et consulter l'utilisateur si écart moyen > 15 ou plus de 4 franchissements
+- [ ] 4.6 Étape humaine : l'utilisateur étiquette ~20 offres dans `etiquettes.json` et lance `py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` ; figer le modèle de plus petit écart dans `config/recherches.yaml` ; arrêter et consulter l'utilisateur si écart moyen > 15 ou plus de 4 franchissements (comparaison faite sur 4 offres : llama3.1:8b écart 26,2 · qwen2.5 42,0 · mistral 58,8 ; llama3.1:8b figé, les autres supprimés ; écart > 15 et seulement 4 offres étiquetées : à reconfirmer avec ~20)
 - [x] 4.7 Gate L4 vert
 
 ## Lot 5 — Envoi Telegram et messages
