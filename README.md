@@ -2,7 +2,7 @@
 
 Assistant personnel de recherche d'**alternance** (priorité) et de **stage**. Il collecte les offres via des sources officielles, les évalue avec un LLM par rapport au profil du candidat et envoie un digest en français sur Telegram. **L'envoi d'une candidature reste toujours une décision humaine.**
 
-> Statut : phase de cadrage. Les sources ont été testées (script `test_france_travail.py`) ; le code applicatif n'est pas encore écrit.
+> Statut : squelette en place (CLI, configuration, fixture de test). Le pipeline n'est pas encore écrit.
 
 ## Fonctionnement prévu
 
@@ -62,3 +62,20 @@ py test_france_travail.py   # FT_TEST=offres|lbb|entreprises|alternance pour un 
 - [`handoff.md`](handoff.md) : état d'avancement, décisions et prompts de développement.
 - [`entreprises_spontanees_mareil-marly.csv`](entreprises_spontanees_mareil-marly.csv) : entreprises IT proches pour candidatures spontanées.
 - Workflow de changements : OpenSpec (`openspec/`).
+
+## Installation
+
+```bash
+py -m pip install -e ".[dev]"
+cp .env.example .env   # puis renseigner les clés ; .env n'est jamais versionné
+```
+
+La configuration de recherche est dans `config/recherches.yaml`, le profil envoyé au LLM dans `profile/profil.md` (sans données personnelles).
+
+## Commandes
+
+```bash
+py -m denicheur run          # sous-commandes déclarées (run, init-db, stats), pas encore implémentées
+py scripts/make_fixture.py   # régénère tests/fixtures/lba_search.json depuis ft_test_results.json
+py -m ruff format --check . && py -m ruff check . && py -m mypy src && py -m pytest -q
+```

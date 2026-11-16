@@ -14,12 +14,12 @@ Skills : `clean-code`, `commit`. Étape bloquante : `py --version` et `git statu
 
 Skills : `tdd-workflow`, `mutation-verified-testing` (test de scan PII), `avoid-ai-writing` (README). Étape bloquante : mesurer `ft_test_results.json` (blocs, 16 jobs / 150 recruteurs dans le premier).
 
-- [ ] 2.1 Écrire les tests de config en échec (chargement valide, `rayon_km: -1` rejeté, `adzuna_enabled is False` sans clés, `DATABASE_URL` par défaut) ; vérifier qu'ils échouent pour la bonne raison
-- [ ] 2.2 Créer `config/recherches.yaml` (roadmap §3.5) et `src/denicheur/config.py` (`load_config`, `load_secrets`) ; vérifier que les tests de 2.1 passent
-- [ ] 2.3 Créer `profile/profil.md` (spec §2, sans contacts) et un test de scan PII (téléphone, `@`, "né le") ; vérifier le test rouge si une PII est injectée puis restaurer (mutation)
-- [ ] 2.4 Créer `scripts/make_fixture.py`, l'exécuter une fois, committer `tests/fixtures/lba_search.json` ; vérifier par test : 16 `jobs` et 150 `recruiters`
-- [ ] 2.5 Mettre à jour `README.md` en français (installation, `.env`, commandes) ; vérifier que les commandes documentées s'exécutent telles quelles
-- [ ] 2.6 Quality gate complet vert avec chiffres réels ; `graphify update .` ; commit via skill `commit`
+- [x] 2.1 Écrire les tests de config en échec (chargement valide, `rayon_km: -1` rejeté, `adzuna_enabled is False` sans clés, `DATABASE_URL` par défaut) ; vérifier qu'ils échouent pour la bonne raison
+- [x] 2.2 Créer `config/recherches.yaml` (roadmap §3.5) et `src/denicheur/config.py` (`load_config`, `load_secrets`) ; vérifier que les tests de 2.1 passent
+- [x] 2.3 Créer `profile/profil.md` (spec §2, sans contacts) et un test de scan PII (téléphone, `@`, "né le") ; vérifier le test rouge si une PII est injectée puis restaurer (mutation)
+- [x] 2.4 Créer `scripts/make_fixture.py`, l'exécuter une fois, committer `tests/fixtures/lba_search.json` ; vérifier par test : 16 `jobs` et 150 `recruiters`
+- [x] 2.5 Mettre à jour `README.md` en français (installation, `.env`, commandes) ; vérifier que les commandes documentées s'exécutent telles quelles
+- [x] 2.6 Quality gate complet vert avec chiffres réels ; `graphify update .` ; commit via skill `commit`
 
 ## Workflow follow-up
 
