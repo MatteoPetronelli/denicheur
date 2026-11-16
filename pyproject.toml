@@ -20,7 +20,7 @@ where = ["src"]
 [tool.ruff]
 line-length = 110
 target-version = "py312"
-extend-exclude = [".claude", "migrations", "test_france_travail.py", "openspec"]
+extend-exclude = [".claude", "docs", "migrations", "test_france_travail.py", "openspec"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

@@ -17,7 +17,7 @@ Windows scheduled tasks: a periodic `run` (collect, score, notify) and a long-po
 service, no cloud component (decision of 2026-11-16, replaces the Anthropic / GitHub Actions / Neon / Vercel plan).
 
 **Tech stack:** Python ≥3.12 (local interpreter is 3.13), httpx, pydantic v2, SQLAlchemy 2, Alembic, PyYAML,
-python-dotenv, tzdata; pytest, ruff, mypy. LLM: Ollama (local HTTP API, default model `qwen2.5:7b-instruct`). Web:
+python-dotenv, tzdata; pytest, ruff, mypy. LLM: Ollama (local HTTP API, default model `llama3.1:8b`). Web:
 SvelteKit + `better-sqlite3` (npm). Infra: Windows Task Scheduler, Telegram Bot API, Gmail IMAP.
 
 ---
@@ -61,6 +61,9 @@ Measured facts the plan relies on (from `ft_test_results.json`, first block, tod
 | Tests | No network in tests. HTTP mocked with `httpx.MockTransport`; LLM with a fake class implementing the same protocol; time injected (`now` parameter), never `datetime.now()` inside logic. |
 | Telegram lib | None. Plain Bot API over httpx (`sendMessage`, `answerCallbackQuery`, `editMessageReplyMarkup`, `deleteWebhook`, `getUpdates`). |
 | Run guard | Scoring is free but slow: besides `llm_max_appels_jour`, add `llm_max_duree_run_s: 900`; scoring stops for the run when exceeded (remaining offers wait for the next run). |
+| Model (2026-11-16) | `llama3.1:8b`, chosen by the C1 L4 comparison on 4 labelled offers (mean gap 26.2, 0 wrong 65-crossings; `qwen2.5:7b-instruct` 42.0, `mistral` 58.8; both removed from the PC). Gap > 15 on only 4 labels: re-run on ~20 offers. Writing (C5) uses the same model. |
+| On-site only | The school requires presence: any remote work, even partial, rejects the offer (`teletravail`, config `inclure_teletravail`). Supersedes spec §3 "hybride accepté". |
+| Diploma range | LBA `target_diploma` is only the highest level of a range; `access_conditions` is appended to the description and no Bac+5 malus applies when the range includes Bac+3. The Telegram Bac+5 warning (C1 L5) must come from the LLM alert, not from `niveau_diplome == "7"`. |
 | Quality gate | `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`. pre-commit: skipped (YAGNI). |
 
 ---
@@ -233,7 +236,7 @@ session use in pipeline code).
 ```yaml
 centre: { commune: "Mareil-Marly", insee: "78367", lat: 48.8800, lon: 2.0775 }
 rayon_km: 25
-inclure_teletravail_complet: false
+inclure_teletravail: false
 niveau_vise: "6"                      # Bac+3
 pistes:
   alternance: { romes: ["M1805","M1806","M1807"], duree_mois: [12,24], frequence_heures: 3 }
@@ -251,8 +254,8 @@ heure_digest: "08:30"
 llm:
   fournisseur: "ollama"
   url: "http://localhost:11434"
-  scoring:  { modele: "qwen2.5:7b-instruct", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
-  ecriture: { modele: "qwen2.5:7b-instruct", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
+  scoring:  { modele: "llama3.1:8b", temperature: 0.0, num_ctx: 8192, timeout_s: 120 }
+  ecriture: { modele: "llama3.1:8b", temperature: 0.7, num_ctx: 8192, timeout_s: 300 }
   llm_max_appels_jour: 150
   llm_max_duree_run_s: 900
 ```
@@ -291,7 +294,7 @@ log line, never a crash; an empty value counts as missing): `LBA_API_KEY`, `TELE
 Prefilter rules, in this order (first match = `motif_rejet`): `piste_autre` (contract neither stage nor
 alternance) → `expiree` (`expire_le < now`) → `trop_ancienne` (`publiee_le < now - 30 days`) →
 `mot_exclu:<mot>` (normalized title) → `mots_cles_absents` (no `mots_cles_titre` word in normalized title,
-word-boundary match) → `teletravail_complet` (if excluded). Unknown location never rejects.
+word-boundary match) → `teletravail` (any remote work, unless `inclure_teletravail`). Unknown location never rejects.
 
 `lieu_a_verifier`: True when coordinates are missing **or** the normalized description contains, as a whole
 word, a city from `config/villes_hors_zone.txt` (≈50 big French cities outside Île-de-France + Troyes) and
@@ -301,15 +304,25 @@ positives appear.`
 ### 3.7 LLM contract (Ollama, local)
 
 ```python
-r = http.post(f"{cfg.llm.url}/api/chat", json={
-    "model": cfg.llm.scoring.modele,                 # "qwen2.5:7b-instruct"
-    "messages": [{"role": "system", "content": SYSTEM_SCORING},
-                 {"role": "user", "content": user_message(offre, today)}],
-    "format": ScoreLLM.model_json_schema(),          # structured output: JSON constrained by the schema
-    "stream": False,
-    "keep_alive": "10m",
-    "options": {"temperature": cfg.llm.scoring.temperature, "seed": 42, "num_ctx": cfg.llm.scoring.num_ctx},
-}, timeout=cfg.llm.scoring.timeout_s).json()
+r = http.post(
+    f"{cfg.llm.url}/api/chat",
+    json={
+        "model": cfg.llm.scoring.modele,  # "llama3.1:8b"
+        "messages": [
+            {"role": "system", "content": SYSTEM_SCORING},
+            {"role": "user", "content": user_message(offre, today)},
+        ],
+        "format": ScoreLLM.model_json_schema(),  # structured output: JSON constrained by the schema
+        "stream": False,
+        "keep_alive": "10m",
+        "options": {
+            "temperature": cfg.llm.scoring.temperature,
+            "seed": 42,
+            "num_ctx": cfg.llm.scoring.num_ctx,
+        },
+    },
+    timeout=cfg.llm.scoring.timeout_s,
+).json()
 score = ScoreLLM.model_validate_json(r["message"]["content"])
 usage = Usage(r["prompt_eval_count"], r["eval_count"], r["total_duration"] / 1e9)
 ```
@@ -318,7 +331,7 @@ usage = Usage(r["prompt_eval_count"], r["eval_count"], r["total_duration"] / 1e9
 - Connection refused = Ollama not running: skip scoring for the run, error in `executions.erreurs`.
 - `SYSTEM_SCORING` = rubric (spec §6) + track rules + `profile/profil.md`, **byte-stable**: no date, no IDs.
   Today's date goes in the user message. A stable prefix lets Ollama reuse its KV cache.
-- Model: `ollama pull qwen2.5:7b-instruct` (≈4.7 GB, fits the 6 GB GPU). Keep `num_ctx` ≤ 8192 to stay in VRAM.
+- Model: `ollama pull llama3.1:8b` (≈4.9 GB, fits the 6 GB GPU). Keep `num_ctx` ≤ 8192 to stay in VRAM.
   The model is a config value: candidates compared in C1 L4 (`mistral`, `llama3.1:8b`, `qwen3:8b` with
   `"think": false`). If the server answers 400 on an option, drop that option and note it in `design.md`.
 - Small models are weaker than hosted ones: scoring quality is validated by human labelling (C1 L4), not assumed.
@@ -427,7 +440,7 @@ Mutation-verify: radius comparison, `confirme` exclusion, age rule.
 Done when: the three named cases are explained by tests.
 
 **L4 — LLM scoring (Ollama).** Skills: `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`.
-Blocking step: `ollama --version`; `ollama pull qwen2.5:7b-instruct`; `curl http://localhost:11434/api/tags`
+Blocking step: `ollama --version`; `ollama pull llama3.1:8b`; `curl http://localhost:11434/api/tags`
 lists it; one scratch call to `/api/chat` with `format` = `ScoreLLM` schema on the ITIC fixture offer: print the raw
 JSON and the seconds taken. If `format` is rejected or the output is not valid JSON, stop and report (§3.7).
 Files: `scoring/prompts.py` (French system prompt: role, rubric 40/20/15/15/10, track rules incl. Bac+3 vs
@@ -446,6 +459,7 @@ Human step (before freezing the model): user labels ~20 offers in `etiquettes.js
 with the smallest mean |Δ|. If even the best has mean |Δ| > 15 or > 4 offers cross 65, stop and tell the user
 (options: a larger model offloaded to RAM, or a stricter prompt).
 Done when: a fixture offer gets a valid score, is not re-scored on the 2nd run, compare script runs.
+As built: `scorer_offres(session, offres: list[tuple[int, Offre]], config, scorer, now, *, erreurs=None, chrono=time.monotonic)`; failed attempts are counted in `parametres` key `echecs_llm:<date Paris>` toward the daily cap; `etiquettes.json` holds 4 offers (labels set by Claude from the profile, to be reviewed; task 4.6 stays open until ~20).
 
 **L5 — Telegram send + messages.** Skills: `avoid-ai-writing`, `tdd-workflow`.
 Blocking step: user created the bot (handoff §7) and filled `TELEGRAM_BOT_TOKEN`; run
@@ -603,7 +617,7 @@ Done when: all applications are visible and editable from the dashboard.
 
 | Before | Action |
 |---|---|
-| C1 L4 | `ollama pull qwen2.5:7b-instruct` (Ollama running); label ~20 offers for `etiquettes.json` |
+| C1 L4 | `ollama pull llama3.1:8b` (Ollama running); label ~20 offers for `etiquettes.json` |
 | C1 L5 | Create bot via @BotFather, `/start` it; `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` in `.env` |
 | C1 L6 | Run `scripts/installer_taches.ps1` once (PowerShell, no admin); keep the PC on and Ollama running 08–20h; regenerate the francetravail.io secret (handoff §11) |
 | C2 | Gmail 2FA + app password, label + filter, anonymized `.eml` samples; alerts created on Indeed/WTTJ/LinkedIn/JobTeaser |
