@@ -43,7 +43,7 @@ Une offre sans coordonnées, ou dont la description cite en mot entier une ville
 - **THEN** `lieu_a_verifier` est vrai, alors qu'il est faux pour ITIC
 
 ### Requirement: Prefilter rules
-Le préfiltre SHALL appliquer dans l'ordre `piste_autre`, `expiree`, `trop_ancienne`, `mot_exclu:<mot>`, `mots_cles_absents`, `teletravail_complet` ; la première règle déclenchée donne le motif. Les offres rejetées restent dans le résultat avec leur motif.
+Le préfiltre SHALL appliquer dans l'ordre `piste_autre`, `expiree`, `trop_ancienne`, `mot_exclu:<mot>`, `mots_cles_absents`, `teletravail` ; la première règle déclenchée donne le motif. Les offres rejetées restent dans le résultat avec leur motif.
 
 #### Scenario: Retained offers on fixture
 - **WHEN** la fixture est filtrée avec `now = 2026-11-16T09:00+01:00`
@@ -56,6 +56,10 @@ Le préfiltre SHALL appliquer dans l'ordre `piste_autre`, `expiree`, `trop_ancie
 #### Scenario: Missing keywords
 - **WHEN** le titre ne contient aucun mot-clé (MGEN, Wavestone récent)
 - **THEN** le motif est `mots_cles_absents`
+
+#### Scenario: Remote work excluded
+- **WHEN** une offre autorise du télétravail, même partiel (`remote` autre qu'absent ou `onsite`), et que `inclure_teletravail` est faux
+- **THEN** le motif est `teletravail`, car l'école exige du présentiel
 
 #### Scenario: Too old
 - **WHEN** une offre est publiée il y a plus de 30 jours

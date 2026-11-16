@@ -12,7 +12,8 @@ from denicheur.models import Offre, ScoreLLM
 
 PARIS = ZoneInfo("Europe/Paris")
 # Champs de `Offre` stockés tels quels dans `offres`.
-_CHAMPS_OFFRE = [c for c in Offre.model_fields]
+_NON_PERSISTES = {"teletravail"}
+_CHAMPS_OFFRE = [c for c in Offre.model_fields if c not in _NON_PERSISTES]
 
 
 def _utc_naif(dt: datetime) -> datetime:
@@ -22,7 +23,7 @@ def _utc_naif(dt: datetime) -> datetime:
 
 def inserer_offre(session: Session, offre: Offre, *, cle_dedup: str, now: datetime) -> int:
     """Insère l'offre ; si (source, source_id) ou url existe déjà, retourne l'id existant."""
-    valeurs = offre.model_dump()
+    valeurs = offre.model_dump(exclude=_NON_PERSISTES)
     valeurs["piste"] = offre.piste.value
     for champ in ("publiee_le", "expire_le"):
         if valeurs[champ] is not None:

@@ -26,6 +26,8 @@ class Offre(BaseModel):
     debut_des_que_possible: bool = False
     niveau_diplome: str | None
     description: str
+    # Télétravail, même partiel. Non persisté : sert au préfiltre uniquement.
+    teletravail: bool = False
     publiee_le: datetime | None
     expire_le: datetime | None
     # Renseignés par le pipeline.

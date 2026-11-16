@@ -53,6 +53,8 @@ def _offre(j: dict[str, Any]) -> Offre:
         debut_des_que_possible=c.get("start_type") == "des_que_possible",
         niveau_diplome=(o.get("target_diploma") or {}).get("european"),
         description=o.get("description") or "",
+        # Présentiel exigé par l'école : tout `remote` autre que absent/onsite écarte l'offre.
+        teletravail=c.get("remote") not in (None, "onsite"),
         publiee_le=_dt(pub.get("creation")),
         expire_le=_dt(pub.get("expiration")),
     )

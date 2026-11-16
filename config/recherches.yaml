@@ -1,6 +1,6 @@
 centre: { commune: "Mareil-Marly", insee: "78367", lat: 48.8800, lon: 2.0775 }
 rayon_km: 25
-inclure_teletravail_complet: false
+inclure_teletravail: false
 niveau_vise: "6"
 pistes:
   alternance: { romes: ["M1805", "M1806", "M1807"], duree_mois: [12, 24], frequence_heures: 3 }

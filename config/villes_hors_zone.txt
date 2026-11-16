@@ -1,0 +1,51 @@
+Troyes
+Marseille
+Lyon
+Toulouse
+Nice
+Nantes
+Montpellier
+Strasbourg
+Bordeaux
+Lille
+Rennes
+Reims
+Toulon
+Saint-Etienne
+Le Havre
+Grenoble
+Dijon
+Angers
+Nimes
+Villeurbanne
+Clermont-Ferrand
+Le Mans
+Aix-en-Provence
+Brest
+Tours
+Amiens
+Limoges
+Annecy
+Perpignan
+Metz
+Besancon
+Orleans
+Rouen
+Mulhouse
+Caen
+Nancy
+Avignon
+Poitiers
+La Rochelle
+Pau
+Calais
+Dunkerque
+Valence
+Lorient
+Quimper
+Vannes
+Bayonne
+Chambery
+Saint-Nazaire
+Cherbourg
+La Chapelle-Saint-Luc

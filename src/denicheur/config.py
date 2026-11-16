@@ -52,7 +52,7 @@ class LLMConfig(BaseModel):
 class Config(BaseModel):
     centre: Centre
     rayon_km: float = Field(gt=0)
-    inclure_teletravail_complet: bool
+    inclure_teletravail: bool
     niveau_vise: str
     pistes: Pistes
     mots_cles_titre: list[str]

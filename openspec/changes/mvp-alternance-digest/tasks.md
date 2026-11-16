@@ -30,11 +30,11 @@ Skills : `tdd-workflow`, `mutation-verified-testing`. Étape bloquante : charger
 
 Skills : `tdd-workflow`, `mutation-verified-testing`. Étape bloquante : exécuter les fonctions du pipeline sur la fixture dans un script jetable et afficher le tableau de la roadmap §0 (16 → 10 → 2) ; si le résultat diffère, arrêter et rapporter.
 
-- [ ] 3.1 Écrire `pipeline/normalize.py` (`normaliser_texte`) et `dedupe.py` (`cle_dedup`, `dedupliquer`) ; vérifier : 16 → 10 sur la fixture, paires Wavestone de même clé
-- [ ] 3.2 Écrire `pipeline/geo.py` (`haversine_km`, `appliquer_geo`) et `config/villes_hors_zone.txt` (~50 villes + Troyes) ; vérifier : Mareil-Marly→Paris 20e = 23,2 ± 0,3 km, offre à 30 km `hors_zone`, coordonnées absentes gardées avec `lieu_a_verifier`, Woodoo vrai, ITIC faux
-- [ ] 3.3 Écrire `pipeline/prefilter.py` (ordre des motifs, mots entiers) ; vérifier avec `now = 2026-11-16T09:00+01:00` : retenues = ITIC + Woodoo, Capgemini `mot_exclu:confirme`, MGEN `mots_cles_absents`, Wavestone selon le motif mesuré (`trop_ancienne` ou `mots_cles_absents`)
-- [ ] 3.4 Mutation-vérifier la comparaison de rayon, l'exclusion `confirme` et la règle d'âge
-- [ ] 3.5 Gate L3 vert
+- [x] 3.1 Écrire `pipeline/normalize.py` (`normaliser_texte`) et `dedupe.py` (`cle_dedup`, `dedupliquer`) ; vérifier : 16 → 10 sur la fixture, paires Wavestone de même clé
+- [x] 3.2 Écrire `pipeline/geo.py` (`haversine_km`, `appliquer_geo`) et `config/villes_hors_zone.txt` (~50 villes + Troyes) ; vérifier : Mareil-Marly→Paris 20e = 23,2 ± 0,3 km, offre à 30 km `hors_zone`, coordonnées absentes gardées avec `lieu_a_verifier`, Woodoo vrai, ITIC faux
+- [x] 3.3 Écrire `pipeline/prefilter.py` (ordre des motifs, mots entiers) ; vérifier avec `now = 2026-11-16T09:00+01:00` : retenues = ITIC + Woodoo, Capgemini `mot_exclu:confirme`, MGEN `mots_cles_absents`, Wavestone selon le motif mesuré (`trop_ancienne` ou `mots_cles_absents`) ; tout télétravail (`remote` ≠ absent/`onsite`) rejeté avec le motif `teletravail`
+- [x] 3.4 Mutation-vérifier la comparaison de rayon, l'exclusion `confirme` et la règle d'âge
+- [x] 3.5 Gate L3 vert
 
 ## Lot 4 — Scoring LLM (Ollama)
 

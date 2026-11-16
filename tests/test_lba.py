@@ -84,3 +84,16 @@ def test_sans_cle_aucun_appel(caplog):
 
 def test_registre():
     assert SOURCES["lba"] is collecter
+
+
+@pytest.mark.parametrize(
+    ("remote", "attendu"), [(None, False), ("onsite", False), ("hybrid", True), ("remote", True)]
+)
+def test_teletravail_selon_remote(remote, attendu):
+    data = json.loads(json.dumps(FIXTURE))
+    data["jobs"][0]["contract"]["remote"] = remote
+    client = httpx.Client(
+        transport=httpx.MockTransport(lambda r: httpx.Response(200, json=data)),
+        headers={"Authorization": "Bearer k"},
+    )
+    assert collecter(cfg, client, NOW)[0].teletravail is attendu
