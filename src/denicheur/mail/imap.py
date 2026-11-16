@@ -1,4 +1,5 @@
 import email
+import email.policy
 import imaplib
 from collections.abc import Callable
 from datetime import datetime
@@ -36,14 +37,16 @@ def lire_alertes(
             imap.login(user, password)
         except Exception:
             raise ErreurImap("Connexion IMAP refusée") from None
-        imap.select(LIBELLE, readonly=True)
+        statut, _ = imap.select(LIBELLE, readonly=True)
+        if statut != "OK":  # imaplib ne lève pas : un libellé mal nommé donnerait zéro offre en silence
+            raise ErreurImap(f"Libellé Gmail « {LIBELLE} » introuvable")
         selectionne = True
         _, data = imap.uid("SEARCH", None, "SINCE", _date_imap(since))
         messages: list[Message] = []
         for uid in data[0].split():
             _, morceaux = imap.uid("FETCH", uid, "(BODY.PEEK[])")
             brut = morceaux[0][1]
-            messages.append(email.message_from_bytes(brut))
+            messages.append(email.message_from_bytes(brut, policy=email.policy.default))
         return messages
     finally:
         if selectionne:

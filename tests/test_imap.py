@@ -17,7 +17,10 @@ def _mail(sujet: str) -> bytes:
 class FauxImap:
     """Faux serveur IMAP : journalise chaque commande, refuse toute commande d'écriture."""
 
-    def __init__(self, messages: dict[bytes, bytes], *, echec_fetch=False, echec_login=False):
+    def __init__(
+        self, messages: dict[bytes, bytes], *, echec_fetch=False, echec_login=False, libelle_absent=False
+    ):
+        self.libelle_absent = libelle_absent
         self.messages = messages
         self.echec_fetch = echec_fetch
         self.echec_login = echec_login
@@ -35,6 +38,8 @@ class FauxImap:
     def select(self, mailbox="INBOX", readonly=False):
         self.journal.append("select")
         self.selections.append((mailbox, readonly))
+        if self.libelle_absent:
+            return "NO", [b"[NONEXISTENT] Unknown Mailbox"]
         return "OK", [b"2"]
 
     def uid(self, commande, *args):
@@ -105,3 +110,11 @@ def test_login_refuse_ne_fuite_pas_le_mot_de_passe():
     assert exc.value.__suppress_context__
     assert "logout" in faux.journal
     assert "close" not in faux.journal
+
+
+def test_libelle_absent_leve_une_erreur_claire():
+    faux = _faux(libelle_absent=True)
+    with pytest.raises(ErreurImap, match="Denicheur"):
+        lire_alertes("moi@exemple.fr", MOT_DE_PASSE, SINCE, imap_factory=lambda: faux)
+    assert faux.recherches == []
+    assert faux.journal[-1] == "logout"
