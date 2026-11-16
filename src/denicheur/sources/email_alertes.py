@@ -1,7 +1,5 @@
 import hashlib
 import logging
-import re
-import unicodedata
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from email.message import Message
@@ -11,28 +9,16 @@ import httpx
 from denicheur.config import Config
 from denicheur.mail.parsers import OffreMail, analyser
 from denicheur.models import Offre, Piste
+from denicheur.sources.texte import est_teletravail, piste_dans
 
 GEOCODAGE = "https://api-adresse.data.gouv.fr/search/"
 # shortcut : fenêtre glissante sans état, le dédoublonnage absorbe les recouvrements.
 FENETRE = timedelta(days=7)
 log = logging.getLogger(__name__)
 
-_ALTERNANCE = ("alternance", "apprentissage", "apprenti", "alternant")
-_STAGE = ("stage", "stagiaire")
-_TELETRAVAIL = re.compile(r"t[ée]l[ée]travail|hybride|remote", re.IGNORECASE)
-
-
-def _sans_accent(s: str) -> str:
-    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
-
 
 def piste_du_titre(titre: str) -> Piste:
-    t = _sans_accent(titre)
-    if any(m in t for m in _ALTERNANCE):
-        return Piste.ALTERNANCE
-    if any(m in t for m in _STAGE):
-        return Piste.STAGE
-    return Piste.AUTRE
+    return piste_dans(titre) or Piste.AUTRE
 
 
 def _geocoder(http: httpx.Client, ville: str, dep: str) -> tuple[float, float] | None:
@@ -65,7 +51,7 @@ def _offre(o: OffreMail, coord: tuple[float, float] | None) -> Offre:
         debut=None,
         niveau_diplome=None,
         description=o.texte,
-        teletravail=bool(_TELETRAVAIL.search(f"{o.titre} {o.texte}")),
+        teletravail=est_teletravail(f"{o.titre} {o.texte}"),
         publiee_le=None,
         expire_le=None,
     )
