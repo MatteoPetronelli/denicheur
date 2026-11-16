@@ -34,3 +34,4 @@ CLAUDE.local.md
 .idea/
 *.log
 .orchestrator-rules.json
+graphify-out/
