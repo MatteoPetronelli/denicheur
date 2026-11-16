@@ -23,6 +23,8 @@ build/
 # Outils
 graphify-out/cache/
 node_modules/
+.vercel/
+web/.svelte-kit/
 .DS_Store
 .claude/settings.local.json
 CLAUDE.local.md
@@ -31,3 +33,4 @@ CLAUDE.local.md
 .vscode/
 .idea/
 *.log
+.orchestrator-rules.json
