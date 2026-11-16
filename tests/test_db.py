@@ -127,3 +127,20 @@ def test_score_unique_par_offre(session):
         repo.inserer_score(session, oid, _score(), modele="m", prompt_tokens=1, output_tokens=1,
                            duree_s=1, now=now)  # fmt: skip
         session.flush()
+
+
+def test_offres_a_scorer_alternance_d_abord_puis_les_plus_recentes(session):
+    now = datetime(2026, 11, 16, tzinfo=UTC)
+    cas = [  # (source_id, piste, publiee_le) dans l'ordre d'insertion
+        ("s-vieux", Piste.STAGE, datetime(2026, 10, 20, tzinfo=UTC)),
+        ("s-recent", Piste.STAGE, datetime(2026, 11, 14, tzinfo=UTC)),
+        ("s-sans-date", Piste.STAGE, None),
+        ("a-vieux", Piste.ALTERNANCE, datetime(2026, 10, 25, tzinfo=UTC)),
+        ("a-recent", Piste.ALTERNANCE, datetime(2026, 11, 15, tzinfo=UTC)),
+    ]
+    for sid, piste, pub in cas:
+        o = _offre(source_id=sid, url=f"https://x/{sid}", piste=piste, publiee_le=pub)
+        repo.inserer_offre(session, o, cle_dedup=sid, now=now)
+    session.commit()
+    ordre = [o.source_id for _, o in repo.offres_sans_score(session)]
+    assert ordre == ["a-recent", "a-vieux", "s-recent", "s-vieux", "s-sans-date"]

@@ -3,7 +3,7 @@
 from datetime import UTC, datetime, time
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -91,7 +91,13 @@ def offres_sans_score(session: Session) -> list[tuple[int, Offre]]:
         select(offres.c.id)
         .outerjoin(scores, scores.c.offre_id == offres.c.id)
         .where(offres.c.motif_rejet.is_(None), scores.c.offre_id.is_(None))
-        .order_by(offres.c.id)
+        # Alternance d'abord (alerte instantanée), puis les plus récentes : un gros lot de stages
+        # ne retarde pas les alternances, et le plafond d'appels du jour ne frappe que les plus vieilles.
+        .order_by(
+            case((offres.c.piste == "alternance", 0), else_=1),
+            offres.c.publiee_le.desc(),  # SQLite place les dates absentes en dernier
+            offres.c.id,
+        )
     ).scalars()  # fmt: skip
     return [(i, lire_offre(session, i)) for i in list(ids)]
 
