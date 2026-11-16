@@ -188,3 +188,10 @@ def test_un_stage_bien_note_attend_le_digest(env):
     repo.inserer_score(env.session, oid, s, modele="m", prompt_tokens=1, output_tokens=1, duree_s=1, now=T0)
     env.run(T0, sources={})
     assert not env.envoyes[0].startswith("🚨") and "Stage IA" in env.envoyes[1]
+
+
+def test_fin_d_execution_est_l_heure_reelle(env):
+    fin = T0 + timedelta(minutes=5)
+    deps = Deps(env.session, cfg, {}, Scorer(), None, maintenant=lambda: fin)
+    executer("auto", deps, T0)
+    assert env.ligne()["fin"].startswith("2026-11-16 09:05")

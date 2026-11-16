@@ -1,4 +1,5 @@
 import argparse
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -65,6 +66,10 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--dry-run", action="store_true", help="aucun message Telegram")
     sub.add_parser("digest").add_argument("--test", action="store_true", help="envoie une offre factice")
     args = parser.parse_args(argv)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(
+            encoding="utf-8"
+        )  # logs lisibles quand la sortie est redirigée vers un fichier
     load_dotenv()
     secrets = load_secrets()
     if args.commande == "run":

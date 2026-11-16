@@ -2,7 +2,7 @@ import contextlib
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -31,6 +31,7 @@ class Deps:
     scorer: Scorer
     api: TelegramAPI | None = None  # None : aucun envoi (--dry-run)
     chrono: Callable[[], float] = time.monotonic
+    maintenant: Callable[[], datetime] = lambda: datetime.now(UTC)  # heure réelle de fin d'exécution
 
 
 @dataclass
@@ -119,7 +120,8 @@ def executer(mode: str, deps: Deps, now: datetime) -> Bilan:
             with contextlib.suppress(TelegramError):
                 deps.api.send_message(echec_collecte(type(e).__name__))
     repo.clore_execution(
-        s, execution_id, now, offres_collectees=bilan.collectees, offres_retenues=bilan.retenues,
+        s, execution_id, deps.maintenant(), offres_collectees=bilan.collectees,
+        offres_retenues=bilan.retenues,
         offres_scorees=bilan.scorees, offres_notifiees=bilan.notifiees, erreurs=bilan.erreurs,
         duree_llm_s=llm_s,
     )  # fmt: skip

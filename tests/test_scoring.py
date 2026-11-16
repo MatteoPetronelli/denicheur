@@ -14,7 +14,7 @@ from denicheur.db.base import make_engine, migrer
 from denicheur.models import Offre, Piste, ScoreLLM
 from denicheur.pipeline.dedupe import cle_dedup
 from denicheur.scoring.compare import ScorerFactice, comparer
-from denicheur.scoring.llm import OllamaIndisponible, OllamaScorer, ScoreInvalide, Usage
+from denicheur.scoring.llm import OllamaIndisponible, OllamaScorer, ScoreInvalide, Usage, plafonner
 from denicheur.scoring.prompts import system_scoring, user_message
 from denicheur.scoring.service import scorer_offres
 from denicheur.sources.la_bonne_alternance import collecter
@@ -66,7 +66,7 @@ def test_message_utilisateur_contient_la_date_du_jour():
 
 
 def test_description_tronquee_a_6000():
-    assert user_message(_offre(description="x" * 20000), JOUR).count("x") == 6000
+    assert user_message(_offre(description="%" * 20000), JOUR).count("%") == 6000
 
 
 def test_invariant_sans_pii_sur_la_fixture():
@@ -248,4 +248,23 @@ def test_scorer_factice_respecte_le_protocole():
 def test_prompt_ne_penalise_pas_une_fourchette_incluant_bac3():
     s = system_scoring()
     assert "fourchette" in s and "plus haut niveau accepté" in s
-    assert "plus haut niveau accepté" in user_message(_offre(), JOUR)
+    assert "niveau maximal accepté" in user_message(_offre(), JOUR)
+
+
+def test_prompt_contient_les_plafonds_de_score():
+    s = system_scoring()
+    assert "Plafonds impératifs" in s and "20 au maximum" in s and "45 au maximum" in s
+
+
+def test_plafonds_de_lieu_appliques_en_code():
+    assert plafonner(_offre(distance_km=62.0), _score(90)).score == 45
+    assert plafonner(_offre(lieu_a_verifier=True, distance_km=None), _score(90)).score == 40
+    assert plafonner(_offre(lieu_a_verifier=True, distance_km=62.0), _score(90)).score == 40
+    assert plafonner(_offre(distance_km=40.0), _score(90)).score == 90  # 40 km pile : pas de plafond
+    assert plafonner(_offre(distance_km=10.0), _score(30)).score == 30  # jamais relevé
+
+
+def test_le_scorer_ollama_plafonne():
+    contenu = _score(90).model_dump_json()
+    score, _ = _ollama(lambda req: _reponse(contenu)).scorer(_offre(distance_km=62.0), JOUR)
+    assert score.score == 45

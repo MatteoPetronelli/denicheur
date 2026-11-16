@@ -1,6 +1,6 @@
 """Compare des modèles Ollama sur des offres étiquetées à la main.
 
-py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b
+py scripts/compare_modeles.py qwen2.5:14b autre-modele
 py scripts/compare_modeles.py --dry-run
 """
 

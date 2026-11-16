@@ -44,6 +44,19 @@ un malus de localisation et renseigne le champ alerte.
 le lieu indiqué, applique un fort malus de localisation et renseigne le champ alerte avec la ville citée.
 - Bonus léger si l'offre valorise l'usage d'outils d'IA pour développer (Claude Code, Cursor, Copilot).
 
+## Plafonds impératifs
+Applique ces plafonds avant de donner le score ; ils priment sur le barème. Utilise toute l'échelle
+de 0 à 100 et ne donne jamais une note moyenne par défaut.
+- Le poste n'est pas du développement logiciel (RH, paie, conseil en stratégie ou en management,
+  transformation, consultant fonctionnel, analyse métier, sujets de stage de cabinet) : 20 au maximum.
+- L'offre vise un profil confirmé ou senior : 30 au maximum.
+- Lieu à vérifier, ou autre ville citée dans la description : 40 au maximum.
+- Distance supérieure à 40 km du centre : 45 au maximum.
+- Mission de développement (web, logiciel, sécurité) proche du candidat et à moins de 30 km :
+  entre 60 et 85 selon les technologies et le calendrier.
+- Au-dessus de 85 : seulement un poste de développement qui cite React, TypeScript, Python ou l'IA,
+  proche et disponible rapidement.
+
 ## Sortie
 - score : entier de 0 à 100.
 - type : stage, alternance ou autre.
@@ -74,6 +87,7 @@ def user_message(o: Offre, today: date) -> str:
         debut = "dès que possible"
     else:
         debut = o.debut.isoformat() if o.debut else "non précisé"
+    diplome = _DIPLOMES.get(o.niveau_diplome or "", "non précisé")
     duree = f"{o.duree_mois} mois" if o.duree_mois else "non précisée"
     return (
         f"Date du jour : {today.isoformat()}\n"
@@ -83,6 +97,6 @@ def user_message(o: Offre, today: date) -> str:
         f"Piste : {o.piste.value}\n"
         f"Durée : {duree}\n"
         f"Début : {debut}\n"
-        f"Diplôme (plus haut niveau accepté) : {_DIPLOMES.get(o.niveau_diplome or '', 'non précisé')}\n"
+        f"Diplôme (niveau maximal accepté, pas une exigence) : {diplome}\n"
         f"Description :\n{_nettoyer(o.description)[:MAX_DESCRIPTION]}"
     )

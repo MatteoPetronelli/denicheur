@@ -14,7 +14,7 @@ collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM �
 |---|---|
 | Langage | Python 3.13 (httpx, pydantic, SQLAlchemy, pytest, ruff) |
 | Données | SQLite locale (`denicheur.db`, migrations Alembic) |
-| LLM | Ollama en local, modèle `llama3.1:8b` (réglages dans `config/recherches.yaml`) |
+| LLM | Ollama en local, modèle `qwen2.5:14b` (réglages dans `config/recherches.yaml`) |
 | Exécution | `py -m denicheur run`, planifié par le Planificateur de tâches Windows |
 | Zone | 25 km autour de Mareil-Marly (78) |
 
@@ -45,7 +45,7 @@ Les secrets se placent uniquement dans un fichier `.env` local, ignoré par git 
 
 ```bash
 py -m pip install -e ".[dev]"
-ollama pull llama3.1:8b
+ollama pull qwen2.5:14b
 py -m denicheur init-db            # crée denicheur.db
 py -m denicheur setup-telegram     # affiche le chat.id à copier dans .env
 py -m denicheur digest --test      # envoie une offre factice

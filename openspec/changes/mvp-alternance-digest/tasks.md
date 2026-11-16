@@ -45,7 +45,7 @@ Skills : `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`. Éta
 - [x] 4.3 Écrire `scoring/service.py:scorer_offres` ; vérifier : score stocké avec tokens et secondes, 2e passage sans appel, plafond 1 → un appel, limite de durée, connexion refusée sans crash avec erreur enregistrée
 - [x] 4.4 Mutation-vérifier le cache, le plafond d'appels et la limite de durée
 - [x] 4.5 Écrire `scripts/compare_modeles.py` (`--dry-run` avec le scoreur factice, métriques écart moyen / franchissements de 65 / secondes) ; vérifier en lançant `--dry-run` sur `tests/fixtures/etiquettes.json`
-- [ ] 4.6 Étape humaine : l'utilisateur étiquette ~20 offres dans `etiquettes.json` et lance `py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` ; figer le modèle de plus petit écart dans `config/recherches.yaml` ; arrêter et consulter l'utilisateur si écart moyen > 15 ou plus de 4 franchissements (comparaison faite sur 4 offres : llama3.1:8b écart 26,2 · qwen2.5 42,0 · mistral 58,8 ; llama3.1:8b figé, les autres supprimés ; écart > 15 et seulement 4 offres étiquetées : à reconfirmer avec ~20)
+- [x] 4.6 Étape humaine : l'utilisateur étiquette ~20 offres dans `etiquettes.json` et lance `py scripts/compare_modeles.py qwen2.5:7b-instruct mistral llama3.1:8b` ; figer le modèle de plus petit écart dans `config/recherches.yaml` ; arrêter et consulter l'utilisateur si écart moyen > 15 ou plus de 4 franchissements (comparaison faite sur 4 offres : llama3.1:8b écart 26,2 · qwen2.5 42,0 · mistral 58,8 ; llama3.1:8b figé, les autres supprimés ; écart > 15 et seulement 4 offres étiquetées : relancé le 2026-11-16 sur 12 offres réelles (toutes les offres distinctes renvoyées par LBA, 20 introuvables) : llama3.1:8b écart moyen 38,3, pire qu'un score constant à 50 (31,7) ; décision utilisateur requise) ; puis qwen2.5:14b : 36,7, 3 franchissements, 76 s/offre ; retour à llama3.1:8b avec prompt à plafonds impératifs + plafonds de lieu en code : écart moyen 13,8, 0 franchissement, 24 s/offre)
 - [x] 4.7 Gate L4 vert
 
 ## Lot 5 — Envoi Telegram et messages
@@ -68,9 +68,9 @@ Skills : `tdd-workflow`, `systematic-debugging`. Étape bloquante : `py -m denic
 - [x] 6.3 Ajouter les notifications : alerte « 🚨 Alternance » (score ≥ 80, 08:00–20:00, non répétée au digest), digest une fois par jour dès 08:30, `pause=1` sans envoi, Ollama injoignable avec offres déjà notées envoyées, échec non géré avec message et code 1 ; vérifier : Woodoo 85 à 10:00 alerté une fois, 07:00 sans digest, 08:31 digest unique le même jour
 - [x] 6.4 Mutation-vérifier l'idempotence (envoi unique), la plage horaire et le drapeau `pause`
 - [x] 6.5 Brancher la CLI `run --mode auto|alternance|stage|digest [--dry-run]` ; vérifier : mode invalide refusé, `--dry-run` sans envoi, code de sortie 1 sur échec
-- [ ] 6.6 Écrire `scripts/installer_taches.ps1` (tâche `Denicheur`, déclencheur 08:30 répété toutes les heures sur 12 h, `-StartWhenAvailable`, `-MultipleInstances IgnoreNew`, limite 00:30:00, sortie dans `logs/run.log`, remplacement à la réinstallation) ; vérifier : exécuté deux fois, une seule tâche listée
+- [x] 6.6 Écrire `scripts/installer_taches.ps1` (tâche `Denicheur`, déclencheur 08:30 répété toutes les heures sur 12 h, `-StartWhenAvailable`, `-MultipleInstances IgnoreNew`, limite 00:30:00, sortie dans `logs/run.log`, remplacement à la réinstallation) ; vérifier : exécuté deux fois, une seule tâche listée
 - [x] 6.7 Test d'invariant : aucun import `smtplib` dans `src/` (grep dans la suite)
-- [ ] 6.8 Vérification réelle : `py -m denicheur run --mode auto` produit un digest et une ligne `executions`, puis la tâche planifiée s'exécute seule une fois (voir `logs/run.log`)
+- [x] 6.8 Vérification réelle : `py -m denicheur run --mode auto` produit un digest et une ligne `executions`, puis la tâche planifiée s'exécute seule une fois (voir `logs/run.log`)
 - [x] 6.9 Gate L6 vert, puis mettre à jour le README (installation, `.env`, commandes) et la ligne « Statut » de `CLAUDE.md`
 
 ## Workflow follow-up

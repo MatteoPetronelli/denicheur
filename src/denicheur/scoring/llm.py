@@ -15,6 +15,21 @@ class Usage(NamedTuple):
     duree_s: float
 
 
+PLAFOND_LIEU_A_VERIFIER = 40
+PLAFOND_LOIN = 45
+DISTANCE_LOIN_KM = 40
+
+
+def plafonner(offre: Offre, score: ScoreLLM) -> ScoreLLM:
+    """Plafonds de lieu appliqués en code : un petit modèle les oublie malgré le prompt."""
+    plafond = 100
+    if offre.lieu_a_verifier:
+        plafond = PLAFOND_LIEU_A_VERIFIER
+    if offre.distance_km is not None and offre.distance_km > DISTANCE_LOIN_KM:
+        plafond = min(plafond, PLAFOND_LOIN)
+    return score.model_copy(update={"score": min(score.score, plafond)})
+
+
 class OllamaIndisponible(Exception):
     """Connexion refusée : Ollama n'est pas lancé."""
 
@@ -54,4 +69,4 @@ class OllamaScorer:
             raise OllamaIndisponible(str(e)) from e
         except (httpx.HTTPError, ValidationError, KeyError, ValueError) as e:
             raise ScoreInvalide(f"{type(e).__name__}: {e}") from e
-        return score, usage
+        return plafonner(offre, score), usage
