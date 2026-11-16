@@ -1,4 +1,5 @@
-# Installe (ou remplace) la tâche planifiée "Denicheur" pour l'utilisateur courant, sans droits administrateur.
+# Installe (ou remplace) les tâches planifiées "Denicheur" (collecte) et "DenicheurBot" (bot Telegram) pour
+# l'utilisateur courant, sans droits administrateur.
 # Usage : powershell -ExecutionPolicy Bypass -File scripts\installer_taches.ps1
 $ErrorActionPreference = 'Stop'
 $depot = Split-Path -Parent $PSScriptRoot
@@ -20,3 +21,14 @@ $reglages = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances 
 Register-ScheduledTask -TaskName 'Denicheur' -Action $action -Trigger $declencheur -Settings $reglages `
     -Force | Out-Null
 Get-ScheduledTask -TaskName 'Denicheur' | Select-Object TaskName, State
+
+# Bot Telegram : processus long lancé à l'ouverture de session, relancé s'il s'arrête ; sortie dans logs\bot.log.
+$commandeBot = "/c `"`"$python`" -m denicheur bot >> logs\bot.log 2>&1`""
+$actionBot = New-ScheduledTaskAction -Execute 'cmd.exe' -Argument $commandeBot -WorkingDirectory $depot
+$ouverture = New-ScheduledTaskTrigger -AtLogOn -User "$env:USERDOMAIN\$env:USERNAME"
+$reglagesBot = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -RestartCount 999 `
+    -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero) `
+    -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+Register-ScheduledTask -TaskName 'DenicheurBot' -Action $actionBot -Trigger $ouverture -Settings $reglagesBot `
+    -Force | Out-Null
+Get-ScheduledTask -TaskName 'DenicheurBot' | Select-Object TaskName, State

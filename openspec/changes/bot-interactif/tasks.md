@@ -9,15 +9,15 @@
 
 ## 2. Lot 2 : bot en polling (skills : threat-modeling, tdd-workflow, mutation-verified-testing)
 
-- [ ] 2.1 Étape bloquante : script jetable dans le scratchpad (`deleteWebhook`, message avec bouton de test, appui de l'utilisateur, `getUpdates` brut). Consigner dans `design.md` la forme de `callback_query` et le comportement de l'offset. Vérifié par la section ajoutée à `design.md`.
-- [ ] 2.2 `telegram/keyboard.py` : constructeur du clavier et analyse stricte de la donnée de bouton. Vérifié par tests (formes valides, `zzz`, longueur ≤ 64 octets).
-- [ ] 2.3 Textes français et réponses dans `messages_fr.py` (échappement HTML, coupure 4096). Vérifié par tests dont le titre hostile.
-- [ ] 2.4 `telegram/commands.py` : `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config` et commande inconnue. Vérifié par tests (effet en base et texte) ; `/config` sans secret.
-- [ ] 2.5 `telegram/bot.py` : `boucle(deps, *, sleep, continuer)` avec liste blanche, garde `update_id`, `dernier_update_id`, callbacks `p/b/r/x`, `answerCallbackQuery` toujours, erreurs isolées par update, erreur réseau sans arrêt. Vérifié par tests (chat étranger → 0 appel API, doublon ignoré, redémarrage au bon offset, update défectueuse dépassée).
-- [ ] 2.6 Mutation-vérifier la liste blanche (messages et boutons) et la garde `update_id` : casser, voir rouge, restaurer.
-- [ ] 2.7 Sous-commande `bot` dans `__main__.py` (message d'aide et code 1 sans jeton ou sans chat). Vérifié par test CLI.
-- [ ] 2.8 `scripts/installer_taches.ps1` : tâche « à l'ouverture de session » pour le bot, redémarrage sur échec, une instance, réinstallable. Vérifié en relisant le script ; l'enregistrement est lancé par l'utilisateur avec `!`.
-- [ ] 2.9 Gate complète verte et `graphify update .`. Fini quand « ✅ Je postule » sur le téléphone met à jour `denicheur.db` (vérification réelle avec l'utilisateur).
+- [x] 2.1 Étape bloquante : script jetable dans le scratchpad (`deleteWebhook`, message avec bouton de test, appui de l'utilisateur, `getUpdates` brut). Consigner dans `design.md` la forme de `callback_query` et le comportement de l'offset. Vérifié par la section ajoutée à `design.md`.
+- [x] 2.2 `telegram/keyboard.py` : constructeur du clavier et analyse stricte de la donnée de bouton. Vérifié par tests (formes valides, `zzz`, longueur ≤ 64 octets).
+- [x] 2.3 Textes français et réponses dans `messages_fr.py` (échappement HTML, coupure 4096). Vérifié par tests dont le titre hostile.
+- [x] 2.4 `telegram/commands.py` : `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config` et commande inconnue. Vérifié par tests (effet en base et texte) ; `/config` sans secret.
+- [x] 2.5 `telegram/bot.py` : `boucle(deps, *, sleep, continuer)` avec liste blanche, garde `update_id`, `dernier_update_id`, callbacks `p/b/r/x`, `answerCallbackQuery` toujours, erreurs isolées par update, erreur réseau sans arrêt. Vérifié par tests (chat étranger → 0 appel API, doublon ignoré, redémarrage au bon offset, update défectueuse dépassée).
+- [x] 2.6 Mutation-vérifier la liste blanche (messages et boutons) et la garde `update_id` : casser, voir rouge, restaurer.
+- [x] 2.7 Sous-commande `bot` dans `__main__.py` (message d'aide et code 1 sans jeton ou sans chat). Vérifié par test CLI.
+- [x] 2.8 `scripts/installer_taches.ps1` : tâche « à l'ouverture de session » pour le bot, redémarrage sur échec, une instance, réinstallable. Vérifié en relisant le script ; l'enregistrement est lancé par l'utilisateur avec `!`.
+- [x] 2.9 Gate complète verte et `graphify update .`. Fini quand « ✅ Je postule » sur le téléphone met à jour `denicheur.db` (vérification réelle avec l'utilisateur).
 
 ## 3. Lot 3 : boutons sur les offres envoyées et rappel J+7
 

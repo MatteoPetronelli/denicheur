@@ -54,3 +54,13 @@
 ## Open Questions
 
 - « Rappel » = `interessante` (décision 3) : à confirmer à l'usage ; changer ce comportement ne touche pas le schéma.
+
+## Résultat de l'expérience Telegram (tâche 2.1, 2026-11-16)
+
+Script jetable avec le vrai bot : `deleteWebhook`, message avec un bouton `p:123`, appui, `getUpdates` brut.
+
+- Une update d'appui a la forme `{update_id, callback_query: {id, from{id,…}, message{message_id, chat{id,type}, text, reply_markup}, chat_instance, data}}`. Il n'y a **pas** de clé `message` au niveau de l'update : le chat se lit dans `callback_query.message.chat.id`, et la donnée dans `callback_query.data` (ici `p:123`).
+- Chat privé : `callback_query.from.id` est égal à `chat.id` et à `TELEGRAM_CHAT_ID`. La liste blanche vérifie `message.chat.id` ; on contrôle aussi `from.id` pour un appui venant d'un autre compte.
+- `getUpdates(offset=update_id)` renvoie encore l'update ; `offset=update_id + 1` l'acquitte (la purge du script a vidé la file ainsi). Le bot demande donc `dernier_update_id + 1`.
+- `answerCallbackQuery` répond `true`. `editMessageReplyMarkup` n'a pas pu être lu (affichage planté côté console), l'appel lui-même est parti avant l'erreur ; il sera couvert par les tests et la vérification réelle de 2.9.
+- `deleteWebhook` répond `true` ; une update ancienne était déjà en file au démarrage (le bot recevra donc du retard au premier lancement).
