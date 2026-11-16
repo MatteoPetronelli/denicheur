@@ -51,3 +51,7 @@ def format_offre(o: Offre, s: ScoreLLM, *, alerte: bool = False) -> str:
         f'🔗 <a href="{escape(o.url)}">Voir l\'offre</a>',
     ]
     return "\n".join(ligne for ligne in lignes if ligne)
+
+
+def echec_collecte(type_erreur: str) -> str:
+    return f"⚠️ La collecte du jour a échoué : {type_erreur}"

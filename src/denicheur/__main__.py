@@ -6,12 +6,15 @@ import httpx
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from denicheur.config import load_config, load_secrets
+from denicheur.config import Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
+from denicheur.pipeline.run import MODES, Deps, Source, executer
+from denicheur.scoring.llm import OllamaScorer
+from denicheur.sources import SOURCES
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.digest import envoyer_digest, envoyer_test
 
-COMMANDES = ("run", "stats")
+COMMANDES = ("stats",)
 CONFIG = Path(__file__).resolve().parents[2] / "config" / "recherches.yaml"
 
 
@@ -26,15 +29,46 @@ def _setup_telegram(api: TelegramAPI) -> int:
     return 0
 
 
+def _lier(collecter, http: httpx.Client) -> Source:
+    return lambda config, now: collecter(config, http, now)
+
+
+def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
+    migrer(secrets.database_url)  # idempotent : un premier run ne plante pas sur une base vide
+    config = load_config(CONFIG)
+    # La clé LBA voyage dans l'en-tête du client ; absente, la source est ignorée.
+    cle = {"Authorization": f"Bearer {secrets.lba_api_key}"} if secrets.lba_api_key else {}
+    http = httpx.Client(headers=cle)
+    api = None
+    if not dry_run and secrets.telegram_bot_token and secrets.telegram_chat_id:
+        api = TelegramAPI(secrets.telegram_bot_token, httpx.Client(), chat_id=secrets.telegram_chat_id)
+    sources = {nom: _lier(f, http) for nom, f in SOURCES.items()}
+    with Session(make_engine(secrets.database_url)) as session:
+        deps = Deps(session, config, sources, OllamaScorer(config.llm, httpx.Client()), api)
+        bilan = executer(mode, deps, datetime.now(UTC))
+    print(
+        f"Collectées {bilan.collectees} · retenues {bilan.retenues} · notées {bilan.scorees} · "
+        f"notifiées {bilan.notifiees}" + (" (dry-run : aucun envoi)" if dry_run else "")
+    )
+    for e in bilan.erreurs:
+        print(f"Erreur : {e}")
+    return 0 if bilan.ok else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="denicheur")
     sub = parser.add_subparsers(dest="commande", required=True)
     for nom in (*COMMANDES, "init-db", "setup-telegram"):
         sub.add_parser(nom)
+    run = sub.add_parser("run")
+    run.add_argument("--mode", choices=MODES, default="auto")
+    run.add_argument("--dry-run", action="store_true", help="aucun message Telegram")
     sub.add_parser("digest").add_argument("--test", action="store_true", help="envoie une offre factice")
     args = parser.parse_args(argv)
     load_dotenv()
     secrets = load_secrets()
+    if args.commande == "run":
+        return _run(args.mode, args.dry_run, secrets)
     if args.commande == "init-db":
         migrer(secrets.database_url)
         print("Base initialisée.")

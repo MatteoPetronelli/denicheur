@@ -2,9 +2,9 @@
 
 Assistant personnel de recherche d'**alternance** (priorité) et de **stage**. Il collecte les offres via des sources officielles, les évalue avec un LLM par rapport au profil du candidat et envoie un digest en français sur Telegram. **L'envoi d'une candidature reste toujours une décision humaine.**
 
-> Statut : squelette en place (CLI, configuration, fixture de test). Le pipeline n'est pas encore écrit.
+> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Reste à venir : e-mails d'alerte, Adzuna, bot interactif, brouillons.
 
-## Fonctionnement prévu
+## Fonctionnement
 
 ```text
 collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM → digest Telegram
@@ -12,10 +12,10 @@ collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM �
 
 | Élément | Choix |
 |---|---|
-| Langage | Python 3.12 (httpx, pydantic, SQLAlchemy, pytest, ruff) |
-| Données | SQLite en local, puis Postgres (Neon/Supabase) pour le webhook Telegram |
-| LLM | `claude-sonnet-5-5` : effort `low` pour le scoring, `medium` pour la rédaction |
-| Exécution | `py -m denicheur run` en local, puis GitHub Actions (cron, UTC) |
+| Langage | Python 3.13 (httpx, pydantic, SQLAlchemy, pytest, ruff) |
+| Données | SQLite locale (`denicheur.db`, migrations Alembic) |
+| LLM | Ollama en local, modèle `llama3.1:8b` (réglages dans `config/recherches.yaml`) |
+| Exécution | `py -m denicheur run`, planifié par le Planificateur de tâches Windows |
 | Zone | 25 km autour de Mareil-Marly (78) |
 
 ## Sources de données
@@ -31,16 +31,31 @@ Aucun scraping de pages protégées, aucun contournement de CAPTCHA, aucun envoi
 
 ## Configuration
 
-Les secrets se placent uniquement dans un fichier `.env` local (ignoré par git) ou dans les secrets GitHub Actions. Un fichier `.env.example` sans valeurs sera fourni.
+Les secrets se placent uniquement dans un fichier `.env` local, ignoré par git (modèle : `.env.example`).
 
 | Variable | Rôle |
 |---|---|
 | `LBA_API_KEY` | Clé de l'API La bonne alternance |
-| `ANTHROPIC_API_KEY` | Appels LLM |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Bot Telegram (seul ce `chat_id` est autorisé) |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Source stages |
-| `DATABASE_URL` | Base de données |
+| `DATABASE_URL` | Base de données (défaut `sqlite:///denicheur.db`) |
 | `FT_CLIENT_ID`, `FT_CLIENT_SECRET` | France Travail, uniquement si l'accès est accordé |
+
+## Installation et commandes
+
+```bash
+py -m pip install -e ".[dev]"
+ollama pull llama3.1:8b
+py -m denicheur init-db            # crée denicheur.db
+py -m denicheur setup-telegram     # affiche le chat.id à copier dans .env
+py -m denicheur digest --test      # envoie une offre factice
+py -m denicheur run --mode auto    # collecte, filtre, note, notifie (--dry-run : aucun envoi)
+powershell -ExecutionPolicy Bypass -File scripts\installer_taches.ps1   # tâche planifiée « Denicheur »
+```
+
+Modes de `run` : `auto` (selon l'heure et l'état en base), `alternance`, `stage`, `digest`. Le paramètre `pause` à `1` en base suspend les envois. Sortie planifiée dans `logs/run.log`.
+
+Contrôles avant commit : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
 
 ## Test des API
 

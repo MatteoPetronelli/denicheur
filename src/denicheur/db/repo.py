@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from denicheur.db.tables import offres, parametres, scores
+from denicheur.db.tables import executions, offres, parametres, scores
 from denicheur.models import Offre, ScoreLLM
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -83,6 +83,28 @@ def offres_a_notifier(session: Session, score_min: int, limite: int) -> list[tup
         .limit(limite)
     ).scalars()  # fmt: skip
     return [(i, lire_offre(session, i), s) for i in list(ids) if (s := lire_score(session, i))]
+
+
+def offres_sans_score(session: Session) -> list[tuple[int, Offre]]:
+    """Offres retenues pas encore notées (y compris celles dont le scoring a échoué)."""
+    ids = session.execute(
+        select(offres.c.id)
+        .outerjoin(scores, scores.c.offre_id == offres.c.id)
+        .where(offres.c.motif_rejet.is_(None), scores.c.offre_id.is_(None))
+        .order_by(offres.c.id)
+    ).scalars()  # fmt: skip
+    return [(i, lire_offre(session, i)) for i in list(ids)]
+
+
+def ouvrir_execution(session: Session, mode: str, now: datetime) -> int:
+    res = session.execute(executions.insert().values(debut=_utc_naif(now), mode=mode, erreurs=[]))
+    return int(res.inserted_primary_key[0])  # type: ignore[attr-defined]
+
+
+def clore_execution(session: Session, execution_id: int, now: datetime, **champs: object) -> None:
+    session.execute(
+        executions.update().where(executions.c.id == execution_id).values(fin=_utc_naif(now), **champs)
+    )
 
 
 def marquer_notifiee(session: Session, offre_id: int, now: datetime) -> None:

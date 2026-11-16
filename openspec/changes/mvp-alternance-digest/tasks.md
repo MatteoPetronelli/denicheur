@@ -56,22 +56,22 @@ Skills : `avoid-ai-writing`, `tdd-workflow`. Étape bloquante : l'utilisateur a 
 - [x] 5.2 Écrire `messages_fr.py:format_offre` (HTML échappé, 3 éléments max par liste, 4096 caractères max, distance, durée/début) ; vérifier : message ITIC égal à la chaîne de référence, `<script>` échappé
 - [x] 5.3 Écrire `telegram/digest.py` et la commande `digest [--test]` ; vérifier : top 10 ≥ 65 par score décroissant, `notifiee_le` posé, digest vide « Rien de nouveau aujourd'hui »
 - [x] 5.4 Relire les textes français avec `avoid-ai-writing` ; vérifier qu'aucun motif listé par le skill ne reste
-- [ ] 5.5 Vérification réelle : `py -m denicheur digest --test` livre un message sur le téléphone de l'utilisateur
+- [x] 5.5 Vérification réelle : `py -m denicheur digest --test` livre un message sur le téléphone de l'utilisateur
 - [x] 5.6 Gate L5 vert
 
 ## Lot 6 — Commande `run`, exécutions, tâche planifiée
 
 Skills : `tdd-workflow`, `systematic-debugging`. Étape bloquante : `py -m denicheur init-db` crée `denicheur.db` ; `ollama list` montre le modèle retenu.
 
-- [ ] 6.1 Écrire `clock.py` (`paris_now`, `is_daytime`) ; vérifier avec des tests aux bornes 07:00, 08:00, 08:31, 20:00 Paris
-- [ ] 6.2 Écrire `pipeline/run.py:executer` (sources dues, isolation des erreurs, stockage de toutes les offres, scoring, ligne `executions`) ; vérifier : une ligne `executions` avec compteurs, pas de recollecte alternance sous 3 h, source en erreur consignée sans arrêt du run
-- [ ] 6.3 Ajouter les notifications : alerte « 🚨 Alternance » (score ≥ 80, 08:00–20:00, non répétée au digest), digest une fois par jour dès 08:30, `pause=1` sans envoi, Ollama injoignable avec offres déjà notées envoyées, échec non géré avec message et code 1 ; vérifier : Woodoo 85 à 10:00 alerté une fois, 07:00 sans digest, 08:31 digest unique le même jour
-- [ ] 6.4 Mutation-vérifier l'idempotence (envoi unique), la plage horaire et le drapeau `pause`
-- [ ] 6.5 Brancher la CLI `run --mode auto|alternance|stage|digest [--dry-run]` ; vérifier : mode invalide refusé, `--dry-run` sans envoi, code de sortie 1 sur échec
+- [x] 6.1 Écrire `clock.py` (`paris_now`, `is_daytime`) ; vérifier avec des tests aux bornes 07:00, 08:00, 08:31, 20:00 Paris
+- [x] 6.2 Écrire `pipeline/run.py:executer` (sources dues, isolation des erreurs, stockage de toutes les offres, scoring, ligne `executions`) ; vérifier : une ligne `executions` avec compteurs, pas de recollecte alternance sous 3 h, source en erreur consignée sans arrêt du run
+- [x] 6.3 Ajouter les notifications : alerte « 🚨 Alternance » (score ≥ 80, 08:00–20:00, non répétée au digest), digest une fois par jour dès 08:30, `pause=1` sans envoi, Ollama injoignable avec offres déjà notées envoyées, échec non géré avec message et code 1 ; vérifier : Woodoo 85 à 10:00 alerté une fois, 07:00 sans digest, 08:31 digest unique le même jour
+- [x] 6.4 Mutation-vérifier l'idempotence (envoi unique), la plage horaire et le drapeau `pause`
+- [x] 6.5 Brancher la CLI `run --mode auto|alternance|stage|digest [--dry-run]` ; vérifier : mode invalide refusé, `--dry-run` sans envoi, code de sortie 1 sur échec
 - [ ] 6.6 Écrire `scripts/installer_taches.ps1` (tâche `Denicheur`, déclencheur 08:30 répété toutes les heures sur 12 h, `-StartWhenAvailable`, `-MultipleInstances IgnoreNew`, limite 00:30:00, sortie dans `logs/run.log`, remplacement à la réinstallation) ; vérifier : exécuté deux fois, une seule tâche listée
-- [ ] 6.7 Test d'invariant : aucun import `smtplib` dans `src/` (grep dans la suite)
+- [x] 6.7 Test d'invariant : aucun import `smtplib` dans `src/` (grep dans la suite)
 - [ ] 6.8 Vérification réelle : `py -m denicheur run --mode auto` produit un digest et une ligne `executions`, puis la tâche planifiée s'exécute seule une fois (voir `logs/run.log`)
-- [ ] 6.9 Gate L6 vert, puis mettre à jour le README (installation, `.env`, commandes) et la ligne « Statut » de `CLAUDE.md`
+- [x] 6.9 Gate L6 vert, puis mettre à jour le README (installation, `.env`, commandes) et la ligne « Statut » de `CLAUDE.md`
 
 ## Workflow follow-up
 

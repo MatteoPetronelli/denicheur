@@ -13,8 +13,8 @@ Rules:
 
 Outil personnel : collecte offres alternance/stage (La bonne alternance, Adzuna, e-mails d'alerte), scoring LLM, digest Telegram. **Envoi de candidature toujours humain.** Contexte complet : `handoff.md`, `Denicheur-specifications.md`.
 
-- Statut : C0 `bootstrap-projet` terminé (squelette, config, fixture LBA) ; pipeline à venir avec C1 (roadmap `docs/plans/2026-11-16-denicheur-roadmap.md`). Installation : `py -m pip install -e ".[dev]"`. Gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
-- Stack prévue : Python 3.12, httpx, pydantic, SQLAlchemy (SQLite), pytest, ruff. Lancement prévu : `py -m denicheur run`.
+- Statut : C0 terminé ; C1 `mvp-alternance-digest` codé (LBA, filtres, scoring Ollama, Telegram, `run`, tâche planifiée), vérification réelle et archivage en cours (roadmap `docs/plans/2026-11-16-denicheur-roadmap.md`). Commandes : `init-db`, `setup-telegram`, `digest [--test]`, `run --mode auto [--dry-run]`. Installation : `py -m pip install -e ".[dev]"`. Gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
+- Stack prévue : Python 3.13, httpx, pydantic, SQLAlchemy (SQLite), pytest, ruff. Lancement prévu : `py -m denicheur run`.
 - Langue : tout ce que voit l'utilisateur (Telegram, brouillons) en **français** ; code et identifiants en anglais.
 - 100 % local et gratuit (décision 2026-11-16) : LLM = **Ollama** (`llama3.1:8b` par défaut, modèle et options dans `config/recherches.yaml`), exécution par le Planificateur de tâches Windows, SQLite, bot Telegram en polling. Aucun service payant ni cloud (ni API Anthropic, ni GitHub Actions/Neon/Vercel). Ne jamais changer le modèle ni les options entre requêtes du même type.
 - Secrets/données perso : jamais dans git ni envoyés au LLM (`.env`, `identifiants_*.json`, `CV_base/`, `profile/cv_*.md`) ; accès refusé dans `.claude/settings.json`.
