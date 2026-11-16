@@ -73,6 +73,22 @@ def lire_score(session: Session, offre_id: int) -> ScoreLLM | None:
     )  # fmt: skip
 
 
+def offres_a_notifier(session: Session, score_min: int, limite: int) -> list[tuple[int, Offre, ScoreLLM]]:
+    """Offres retenues, notées ≥ `score_min`, pas encore notifiées, meilleur score d'abord."""
+    ids = session.execute(
+        select(offres.c.id)
+        .join(scores, scores.c.offre_id == offres.c.id)
+        .where(offres.c.notifiee_le.is_(None), offres.c.motif_rejet.is_(None), scores.c.score >= score_min)
+        .order_by(scores.c.score.desc(), offres.c.id)
+        .limit(limite)
+    ).scalars()  # fmt: skip
+    return [(i, lire_offre(session, i), s) for i in list(ids) if (s := lire_score(session, i))]
+
+
+def marquer_notifiee(session: Session, offre_id: int, now: datetime) -> None:
+    session.execute(offres.update().where(offres.c.id == offre_id).values(notifiee_le=_utc_naif(now)))
+
+
 def urls_connues(session: Session) -> set[str]:
     return set(session.execute(select(offres.c.url)).scalars())
 

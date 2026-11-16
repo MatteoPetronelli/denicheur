@@ -52,12 +52,12 @@ Skills : `prompt-engineering`, `tdd-workflow`, `mutation-verified-testing`. Éta
 
 Skills : `avoid-ai-writing`, `tdd-workflow`. Étape bloquante : l'utilisateur a créé le bot et renseigné `TELEGRAM_BOT_TOKEN` ; `py -m denicheur setup-telegram` affiche le `chat.id` lu dans `getUpdates`.
 
-- [ ] 5.1 Écrire `telegram/api.py` (`send_message`, `answer_callback`, `edit_keyboard`, `delete_webhook`, `get_updates`, lié à `TELEGRAM_CHAT_ID`, pause d'1 s entre envois) et la commande `setup-telegram` ; vérifier avec `MockTransport` capturant les requêtes (destination = chat configuré)
-- [ ] 5.2 Écrire `messages_fr.py:format_offre` (HTML échappé, 3 éléments max par liste, 4096 caractères max, distance, durée/début) ; vérifier : message ITIC égal à la chaîne de référence, `<script>` échappé
-- [ ] 5.3 Écrire `telegram/digest.py` et la commande `digest [--test]` ; vérifier : top 10 ≥ 65 par score décroissant, `notifiee_le` posé, digest vide « Rien de nouveau aujourd'hui »
-- [ ] 5.4 Relire les textes français avec `avoid-ai-writing` ; vérifier qu'aucun motif listé par le skill ne reste
+- [x] 5.1 Écrire `telegram/api.py` (`send_message`, `answer_callback`, `edit_keyboard`, `delete_webhook`, `get_updates`, lié à `TELEGRAM_CHAT_ID`, pause d'1 s entre envois) et la commande `setup-telegram` ; vérifier avec `MockTransport` capturant les requêtes (destination = chat configuré)
+- [x] 5.2 Écrire `messages_fr.py:format_offre` (HTML échappé, 3 éléments max par liste, 4096 caractères max, distance, durée/début) ; vérifier : message ITIC égal à la chaîne de référence, `<script>` échappé
+- [x] 5.3 Écrire `telegram/digest.py` et la commande `digest [--test]` ; vérifier : top 10 ≥ 65 par score décroissant, `notifiee_le` posé, digest vide « Rien de nouveau aujourd'hui »
+- [x] 5.4 Relire les textes français avec `avoid-ai-writing` ; vérifier qu'aucun motif listé par le skill ne reste
 - [ ] 5.5 Vérification réelle : `py -m denicheur digest --test` livre un message sur le téléphone de l'utilisateur
-- [ ] 5.6 Gate L5 vert
+- [x] 5.6 Gate L5 vert
 
 ## Lot 6 — Commande `run`, exécutions, tâche planifiée
 
