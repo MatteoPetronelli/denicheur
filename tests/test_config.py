@@ -77,3 +77,27 @@ def test_fixture_lba():
     data = json.loads((RACINE / "tests" / "fixtures" / "lba_search.json").read_text(encoding="utf-8"))
     assert len(data["jobs"]) == 16
     assert len(data["recruiters"]) == 150
+
+
+def test_stage_lieu_et_mots_cles():
+    stage = load_config(YAML).pistes.stage
+    assert stage.lieu_recherche == "Marly-le-Roi"  # Adzuna ne connaît pas Mareil-Marly
+    assert 1 <= len(stage.mots_cles_recherche) <= 10
+
+
+@pytest.mark.parametrize("mots", [[], [f"mot{i}" for i in range(11)]])
+def test_mots_cles_stage_bornes(tmp_path, mots):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    data["pistes"]["stage"]["mots_cles_recherche"] = mots
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_config(f)
+
+
+def test_dix_mots_cles_acceptes(tmp_path):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    data["pistes"]["stage"]["mots_cles_recherche"] = [f"mot{i}" for i in range(10)]
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    assert len(load_config(f).pistes.stage.mots_cles_recherche) == 10

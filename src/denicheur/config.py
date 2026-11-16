@@ -21,6 +21,8 @@ class PisteAlternance(BaseModel):
 
 
 class PisteStage(BaseModel):
+    lieu_recherche: str  # commune connue d'Adzuna (« Mareil-Marly » ne l'est pas)
+    mots_cles_recherche: list[str] = Field(min_length=1, max_length=10)  # 1 requête Adzuna chacun
     duree_mois: list[int]
     debut: list[str]
     frequence_heures: int = Field(gt=0)

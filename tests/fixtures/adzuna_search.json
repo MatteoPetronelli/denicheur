@@ -1,0 +1,1604 @@
+{
+  "mean": 32920,
+  "count": 53,
+  "__CLASS__": "Adzuna::API::Response::JobSearchResults",
+  "results": [
+    {
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTM2ODQxNTY3In0.LI0kgT5mak4FGWG8dGMiIHYRcg-2gjh4Yl2dzo7ApLA",
+      "longitude": 2.344631,
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "CGI"
+      },
+      "description": "Position Description: En rejoignant CGI, entreprise canadienne et leader mondial du conseil et des services numériques, tu seras au cœur de la transformation digitale des entreprises et de la société. Intelligence artificielle, blockchain, cybersécurité, transformation des modèles économiques, autant d’enjeux qui rythmeront ton quotidien aux côtés de nos professionnels. Pour ton stage, tu seras Développeur(se) au sein d’une équipe projet pour l’un de nos clients, selon tes préférences sectoriel…",
+      "title": "Stage : Développeur(se) F/H",
+      "redirect_url": "https://www.adzuna.fr/details/5936841567?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5936841567",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "category": {
+        "tag": "creative-design-jobs",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Création et Design"
+      },
+      "salary_is_predicted": "0",
+      "created": "2026-10-21T17:56:48Z",
+      "latitude": 48.863839
+    },
+    {
+      "created": "2026-11-02T16:47:06Z",
+      "contract_time": "full_time",
+      "latitude": 48.78283,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "display_name": "Vélizy-Villacoublay, Versailles"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "id": "5950706328",
+      "redirect_url": "https://www.adzuna.fr/details/5950706328?utm_medium=api&utm_source=APPID_MASQUE",
+      "description": "Lieu : Vélizy-Villacoublay, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d’activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l’environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d’euros par an en Recherche & Développement, notamment dans des domaines clés de l’inno…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Thales"
+      },
+      "longitude": 2.19001,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTUwNzA2MzI4In0.Gex4KdxdmD6tK1FFLz3CppUElwqNdPk_z3ysmn6YUnw",
+      "title": "STAGE - Développeur SysOps – H/F"
+    },
+    {
+      "latitude": 48.93349,
+      "contract_time": "full_time",
+      "created": "2026-10-18T18:17:48Z",
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "salary_is_predicted": "0",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Gennevilliers, Nanterre",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Gennevilliers"
+        ]
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5933475238?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5933475238",
+      "title": "STAGE - Développeur LOGICIEL CODEC F/H",
+      "longitude": 2.29927,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTMzNDc1MjM4In0.KGCUb4e6vIS0xgkERikJNCx-nrY7hq8sHQp_I6lmZ-A",
+      "description": "Lieu : Gennevilliers, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d’activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l’environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d’euros par an en Recherche & Développement, notamment dans des domaines clés de l’innovation…",
+      "company": {
+        "display_name": "Thales",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      }
+    },
+    {
+      "created": "2026-10-18T18:24:09Z",
+      "latitude": 48.93349,
+      "contract_time": "full_time",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Gennevilliers, Nanterre",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Gennevilliers"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "unknown"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5933489477?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5933489477",
+      "longitude": 2.29927,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzMzQ4OTQ3NyIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.ZZ4UghQ-rVg0xgQxcxYEFL3xdxwIphOofKdwSIDCjIw",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Thales"
+      },
+      "description": "Lieu : Gennevilliers, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d’activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l’environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d’euros par an en Recherche & Développement, notamment dans des domaines clés de l’innovation…",
+      "title": "STAGE - Développeur Boot sécurisé F/H"
+    },
+    {
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Forums Talents Handicap"
+      },
+      "description": "Dassault Systèmes, l'entreprise de la 3DEXPERIENCE, est un « accélérateur de progrès humain ». Elle propose aux entreprises et aux particuliers des environnements virtuels collaboratifs qui leur permettent d'imaginer des innovations plus durables. En développant un jumeau virtuel du monde réel, grâce à la plateforme 3DEXPERIENCE et à ses applications, Dassault Systèmes donne à ses clients les moyens de repousser les limites de l'innovation, de l'apprentissage et de la production. Les 20000 coll…",
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQzODkyODE0In0.54HMwPSvjE2Oor-2lP6KsJX5k_SIgpGuvnm-DLnYBro",
+      "longitude": 2.19001,
+      "title": "STAGE - Développeur - Assistant de simulation (F/H)",
+      "id": "5943892814",
+      "redirect_url": "https://www.adzuna.fr/details/5943892814?utm_medium=api&utm_source=APPID_MASQUE",
+      "location": {
+        "display_name": "Vélizy-Villacoublay, Versailles",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ]
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "created": "2026-10-28T02:38:54Z",
+      "latitude": 48.78283
+    },
+    {
+      "created": "2026-10-28T02:38:47Z",
+      "latitude": 48.78283,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "display_name": "Vélizy-Villacoublay, Versailles"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "it-jobs"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5943891620?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5943891620",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQzODkxNjIwIn0.ca7brex531Bi4IisoPdbGSZ27oqISs4laLdV5ETKRc8",
+      "longitude": 2.19001,
+      "description": "Au sein du département R&D CATIA Cyber Systems, vous intégrerez l'équipe Multi-Physics Modeling & Simulation en charge du développement d'applications pour la simulation 0D/1D de systèmes cyber-physiques complexes, s'appuyant sur le langage ouvert Modelica. Les applications CATIA permettent de modéliser des systèmes notamment via des représentations schématiques fluidiques (P&ID, PFD) et électriques. Le dimensionnement et la validation de ces modèles nécessite souvent de les simuler. La créatio…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "DASSAULT SYSTEMES"
+      },
+      "contract_type": "contract",
+      "title": "STAGE - Développeur - Assistant de simulation (F/H)"
+    },
+    {
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "display_name": "Gennevilliers, Nanterre",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Gennevilliers"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "contract_time": "full_time",
+      "latitude": 48.93349,
+      "created": "2026-10-27T17:12:44Z",
+      "title": "STAGE - Développeur LOGICIEL FIE (F/H)",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Thales"
+      },
+      "description": "Lieu : Gennevilliers, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d’activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l’environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d’euros par an en Recherche & Développement, notamment dans des domaines clés de l’innovation…",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0MzU4OTEyOCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.6SSrfMi7Ghk2pcug3ECoosqkzK0pzTzyvVNPnft9AFw",
+      "longitude": 2.29927,
+      "id": "5943589128",
+      "redirect_url": "https://www.adzuna.fr/details/5943589128?utm_medium=api&utm_source=APPID_MASQUE"
+    },
+    {
+      "id": "5952310621",
+      "redirect_url": "https://www.adzuna.fr/details/5952310621?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "STAGE - Développeur Full-Stack H/F",
+      "company": {
+        "display_name": "ATIXIS",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "À propos de BLOOKOD Chez BLOOKOD, on transforme les idées en produits digitaux qui marchent vraiment. Sites web, applications web et mobiles, plateformes sur mesure : chaque projet est pensé pour ses utilisateurs, et construit avec le souci du détail. Née en 2022, BLOOKOD n'est pourtant pas partie de zéro. Elle est le fruit de l'expertise digitale développée pendant des années au sein d'ATIXIS et de TERAO, deux sociétés reconnues dans l'ingénierie du bâtiment et l'aménagement durable. Cet hérit…",
+      "contract_type": "contract",
+      "longitude": 2.344631,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTUyMzEwNjIxIn0.TRB1NMw1Fdc3sVj5FACM4nLFPzMwQECIiwTx9WYmKEw",
+      "latitude": 48.863839,
+      "created": "2026-11-04T04:31:30Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Diplômés",
+        "tag": "graduate-jobs"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "display_name": "Paris, Ile-de-France"
+      }
+    },
+    {
+      "id": "5948451458",
+      "redirect_url": "https://www.adzuna.fr/details/5948451458?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "Stage - DEVELOPPEUR FULL STACK H/F",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQ4NDUxNDU4In0.KqV1a-YPqCXajqiuIjqNi3B2sBXlUeIiMZlTM4rofw8",
+      "longitude": 2.344631,
+      "salary_max": 45000,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "company": {
+        "display_name": "Braaxe",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "Nous sommes une agence digitale à taille humaine composée d’experts en stratégie, conseil, création et production. Nous concevons des expériences de marques authentiques en nous impliquant pour créer des communautés engagées, des plateformes uniques et des stratégies innovantes. Nous accompagnons des marques comme Passionata, Spotify, Subway, Chantelle, Transavia, Sushi Shop. Nous croyons à une approche humaine et transparente auprès de nos clients. Pas d’artifice, pas de jargon mais des partis…",
+      "contract_type": "permanent",
+      "latitude": 48.863839,
+      "salary_min": 35000,
+      "created": "2026-11-01T03:22:34Z",
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Paris, Ile-de-France"
+      }
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5943432612?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5943432612",
+      "title": "STAGE - Développeur - Assistant de simulation (F/H)",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0MzQzMjYxMiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.YODktHTrpVcrr0MpAn-0BhIJE0Dmot15LkfGYm4Cvz4",
+      "longitude": 1.954423,
+      "description": "En tant qu'organisateur de forums de recrutement, Talents Handicap accompagne de très nombreuses entreprises & organisations en France dans leurs recrutements de collaborateurs en situation de handicap. Participant actuellement à l'un de nos forums. L'entreprise Dassault Systèmes recherche actuellement des profils : Dassault Systèmes, l'entreprise de la 3DEXPERIENCE, est un « accélérateur de progrès humain ». Elle propose aux entreprises et aux particuliers des environnements virtuels collabora…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Dassault Systèmes"
+      },
+      "latitude": 48.84045,
+      "created": "2026-10-27T14:08:17Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown",
+        "tag": "unknown"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Yvelines, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      }
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5964770236?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5964770236",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NDc3MDIzNiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.Gwg8E3UQOsznsHUHEJhSOwv7N33W1tmGKsUUL2vzk7Q",
+      "longitude": 2.29963,
+      "company": {
+        "display_name": "Amundi",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "Informations générales Entité Premier gérant d'actifs européen parmi les 10 premiers acteurs mondiaux (1), Amundi propose à ses 100 millions de clients - particuliers, institutionnels et entreprises - une gamme complète de solutions d'épargne et d'investissement en gestion active et passive, en actifs traditionnels ou réels. Cette offre est enrichie de services et d'outils technologiques qui permettent de couvrir toute la chaîne de valeur de l'épargne. Filiale du groupe Crédit Agricole, Amundi …",
+      "title": "Stage - Développeur RPA UI Path H/F",
+      "created": "2026-11-13T17:46:46Z",
+      "latitude": 48.84167,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris",
+          "15ème Arrondissement"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "15ème Arrondissement, Paris"
+      },
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "salary_is_predicted": "0"
+    },
+    {
+      "latitude": 48.82583,
+      "created": "2026-10-31T03:04:04Z",
+      "category": {
+        "tag": "it-jobs",
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Hauts-de-Seine, Ile-de-France"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "id": "5947395476",
+      "redirect_url": "https://www.adzuna.fr/details/5947395476?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "Stage - Développeur Fullstack – Défense & Sécurité – Île-de-France",
+      "company": {
+        "display_name": "Forums Talents Handicap",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe, avec 51000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services et solutions numériques. Il aide ses clients à mener leur transformation digitale et à obtenir des bénéfices concrets et durables. Le Groupe apporte une réponse globale aux enjeux de compétitivité des grandes entreprises et organisations, en combinant une connaissance approfondie des secteurs d’activité et des techn…",
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0NzM5NTQ3NiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.qToPqhjhxfd9yDj7yDCTvDVqVchL6GNjLeDmnJ4RMRI",
+      "longitude": 2.245857
+    },
+    {
+      "created": "2026-10-31T03:04:04Z",
+      "latitude": 48.82583,
+      "location": {
+        "display_name": "Hauts-de-Seine, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "it-jobs",
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "id": "5947395472",
+      "redirect_url": "https://www.adzuna.fr/details/5947395472?utm_medium=api&utm_source=APPID_MASQUE",
+      "description": "Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe avec 56 000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services numériques et d’édition de logiciels. Il aide ses clients à mener leur transformation digitale et à obtenir des bénéfices concrets et durables. Le Groupe apporte une réponse globale aux enjeux de compétitivité des grandes entreprises et organisations, combinant une connaissance approfondie des secteurs d’activité et…",
+      "company": {
+        "display_name": "Forums Talents Handicap",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0NzM5NTQ3MiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.bj8UJcgoJkLc__cxD-JGMZeud2Y6lLsRNs9Qw0ho71M",
+      "longitude": 2.245857,
+      "title": "Stage Développeur/se - Java - Energie & Telecom - Ile-de-France"
+    },
+    {
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "latitude": 48.863839,
+      "created": "2026-10-22T08:04:10Z",
+      "title": "Stage : STAGE - Développeur Fullstack (F/H) – PARIS",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Groupe BPCE"
+      },
+      "description": "Description de l'entreprise BPCE Solutions informatiques, c’est un acteur IT de référence implanté au cœur des territoires. Ce sont près de 2 600 femmes et hommes au service des Banques Populaires, des Caisses d’Epargne et de plusieurs métiers spécialisés du Groupe BPCE, 2e acteur bancaire en France. Nous imaginons et développons des solutions IT innovantes pour faciliter le quotidien de nos utilisateurs. Chaque jour, ce sont près de 1 français sur 2 qui utilisent nos solutions ! Entreprise inc…",
+      "contract_type": "contract",
+      "longitude": 2.344631,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNzUxMjQ3NSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.5yHDSSWn3WsYCvNRs0qgWjNb7ucCkXc8vqoqbFv_uq4",
+      "id": "5937512475",
+      "redirect_url": "https://www.adzuna.fr/details/5937512475?utm_medium=api&utm_source=APPID_MASQUE"
+    },
+    {
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNzUxMjQ2NyIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.khNlrZvOz2kOyUKzFwkIMudofGN0zsIRFJ3drBwqZC8",
+      "longitude": 2.344631,
+      "contract_type": "contract",
+      "description": "Description de l'entreprise BPCE Solutions informatiques, c’est un acteur IT de référence implanté au cœur des territoires. Ce sont près de 2 600 femmes et hommes au service des Banques Populaires, des Caisses d’Epargne et de plusieurs métiers spécialisés du Groupe BPCE, 2e acteur bancaire en France. Nous imaginons et développons des solutions IT innovantes pour faciliter le quotidien de nos utilisateurs. Chaque jour, ce sont près de 1 français sur 2 qui utilisent nos solutions ! Entreprise inc…",
+      "company": {
+        "display_name": "Groupe BPCE",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "title": "Stage : Stage - Développeur Java (F/H) - Paris",
+      "redirect_url": "https://www.adzuna.fr/details/5937512467?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5937512467",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ]
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "created": "2026-10-22T08:04:10Z",
+      "latitude": 48.863839
+    },
+    {
+      "id": "5963991385",
+      "redirect_url": "https://www.adzuna.fr/details/5963991385?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "Stage - Développeur RPA UI Path H/F",
+      "description": "Au sein du Secrétariat Général de la Ligne Métier Business Support & Opérations (BSO), l'équipe d'Experts Opérations et Projets intervient sur une variété de projets transversaux et de missions ad-hoc dans le domaine des « Opérations », en soutien aux différentes équipes BSO. Les Experts Opérations et Projets participent à l'analyse des processus existants, à l'investigation des problèmes identifiés, à la recherche d'améliorations et à la mise en œuvre de solutions. Ils sont également impliqués…",
+      "contract_type": "contract",
+      "company": {
+        "display_name": "Amundi",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "longitude": 2.29963,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTYzOTkxMzg1In0.BJKrjw0BDL6lC_zxUAM39Nu8St2wcs5Qq9LpwrKNtEQ",
+      "latitude": 48.84167,
+      "created": "2026-11-13T04:45:14Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "accounting-finance-jobs",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Comptabilité et Finance"
+      },
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris",
+          "15ème Arrondissement"
+        ],
+        "display_name": "15ème Arrondissement, Paris"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job"
+    },
+    {
+      "id": "5946965390",
+      "redirect_url": "https://www.adzuna.fr/details/5946965390?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "Stage Développeur/se - Java - Energie & Telecom - Ile-de-France",
+      "description": "En tant qu'organisateur de forums de recrutement, Talents Handicap accompagne de très nombreuses entreprises & organisations en France dans leurs recrutements de collaborateurs en situation de handicap. Participant actuellement à l'un de nos forums. L'entreprise Sopra Steria recherche actuellement des profils : Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe avec 56 000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services numé…",
+      "company": {
+        "display_name": "Sopra Steria",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0Njk2NTM5MCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.iG6xcrsps7j8g1kvGYgf72YvbWvrcpd-MT-6E5sHrKM",
+      "longitude": 2.245857,
+      "latitude": 48.82583,
+      "created": "2026-10-30T14:46:59Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "display_name": "Hauts-de-Seine, Ile-de-France"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job"
+    },
+    {
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "unknown"
+      },
+      "location": {
+        "display_name": "Hauts-de-Seine, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "latitude": 48.82583,
+      "created": "2026-10-30T14:46:59Z",
+      "title": "Stage - Développeur Fullstack – Défense & Sécurité – Île-de-France",
+      "longitude": 2.245857,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0Njk2NTQxOCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.VmiWtKB8bICAXLpJ5fu8df9td0ThVydlfAHi3u0e63c",
+      "company": {
+        "display_name": "Sopra Steria",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "En tant qu'organisateur de forums de recrutement, Talents Handicap accompagne de très nombreuses entreprises & organisations en France dans leurs recrutements de collaborateurs en situation de handicap. Participant actuellement à l'un de nos forums. L'entreprise Sopra Steria recherche actuellement des profils : Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe, avec 51000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services et s…",
+      "redirect_url": "https://www.adzuna.fr/details/5946965418?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5946965418"
+    },
+    {
+      "latitude": 48.78677,
+      "created": "2026-11-14T08:33:09Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Boulogne-Billancourt",
+          "Meudon"
+        ],
+        "display_name": "Meudon, Boulogne-Billancourt"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "id": "5965467172",
+      "redirect_url": "https://www.adzuna.fr/details/5965467172?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "STAGE - Développeur Automatisation Robotique des Processus – H/F",
+      "description": "Lieu : Meudon, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d'activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l'environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d'euros par an en Recherche & Développement, notamment dans des domaines clés de l'innovation tels q…",
+      "company": {
+        "display_name": "Thales",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NTQ2NzE3MiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.HO9G0r0T42l-M1H_VPMhxo0ceYlwzxfrj0mkpw8OvXA",
+      "longitude": 2.22843
+    },
+    {
+      "id": "5965600503",
+      "redirect_url": "https://www.adzuna.fr/details/5965600503?utm_medium=api&utm_source=APPID_MASQUE",
+      "contract_type": "contract",
+      "description": "VOTRE RÔLE ET VOS MISSIONS Dans le cadre de sa campagne de stage Axa France recrute un Développeur Outils et Data (F/H). Tes missions Au sein d’une équipe à taille humaine, tu bénéficieras d’une réelle autonomie pour : · Écouter les utilisateurs et comprendre leurs besoins opérationnels. · Proposer des solutions adaptées et en définir l’architecture. · Développer des applications web internes et des outils métier. · Automatiser les tâches manuelles et fluidifier les processus. · Exploiter les d…",
+      "company": {
+        "display_name": "AXA",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTY1NjAwNTAzIn0.Lp1prD3MWo4eOUbg52QsojAKkoCnkfse68TpZ9WEGx0",
+      "longitude": 2.245857,
+      "title": "Stage : Développeur Outils et Data (F/H) - stage",
+      "created": "2026-11-14T11:08:05Z",
+      "latitude": 48.82583,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Hauts-de-Seine, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "graduate-jobs",
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      }
+    },
+    {
+      "contract_type": "contract",
+      "description": "Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe, avec 51000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services et solutions numériques. Il aide ses clients à mener leur transformation digitale et à obtenir des bénéfices concrets et durables. Le Groupe apporte une réponse globale aux enjeux de compétitivité des grandes entreprises et organisations, en combinant une connaissance approfondie des secteurs d’activité et des techn…",
+      "company": {
+        "display_name": "Forums Talents Handicap",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "longitude": 2.245857,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzMTM2NDU4MSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.RpvQ_D-_iRNnLdUdhdddmbnIfguFnMuFpWOvSAJZGJc",
+      "title": "Stage - Développeur(se) Java / Cobol - Services Financiers - Ile de France",
+      "id": "5931364581",
+      "redirect_url": "https://www.adzuna.fr/details/5931364581?utm_medium=api&utm_source=APPID_MASQUE",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "display_name": "Hauts-de-Seine, Ile-de-France"
+      },
+      "category": {
+        "tag": "it-jobs",
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_is_predicted": "0",
+      "created": "2026-10-17T03:19:24Z",
+      "latitude": 48.82583
+    },
+    {
+      "id": "5943892742",
+      "redirect_url": "https://www.adzuna.fr/details/5943892742?utm_medium=api&utm_source=APPID_MASQUE",
+      "contract_type": "contract",
+      "description": "Dassault Systèmes, l'entreprise de la 3DEXPERIENCE, est un « accélérateur de progrès humain ». Elle propose aux entreprises et aux particuliers des environnements virtuels collaboratifs qui leur permettent d'imaginer des innovations plus durables. En développant un jumeau virtuel du monde réel, grâce à la plateforme 3DEXPERIENCE et à ses applications, Dassault Systèmes donne à ses clients les moyens de repousser les limites de l'innovation, de l'apprentissage et de la production. Les 20000 coll…",
+      "company": {
+        "display_name": "Forums Talents Handicap",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0Mzg5Mjc0MiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.GjhOx6kKmYkS7HrtWy6O-QPomPkx5TwUMkRNYMuflHI",
+      "longitude": 2.19001,
+      "title": "STAGE - Développeur - Skill de conversion Matlab/Scilab (F/H)",
+      "created": "2026-10-28T02:38:54Z",
+      "latitude": 48.78283,
+      "location": {
+        "display_name": "Vélizy-Villacoublay, Versailles",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      }
+    },
+    {
+      "id": "5943891599",
+      "redirect_url": "https://www.adzuna.fr/details/5943891599?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "STAGE - Développeur - Skill de conversion Matlab/Scilab (F/H)",
+      "description": "Au sein du département R&D CATIA Cyber Systems, vous intégrerez l'équipe Numerical Computation and Scripting en charge du développement d'applications de calcul numérique. Scilab (https://www.scilab.org) est un logiciel libre de calcul numérique, utilisé dans l'enseignement, la recherche et l'industrie pour l'analyse de données, la modélisation, la simulation et le calcul scientifique. Intégré à l'environnement Scilab, l'assistant conversationnel (« compagnon ») est capable d'aider l'utilisateu…",
+      "contract_type": "contract",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "DASSAULT SYSTEMES"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0Mzg5MTU5OSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.hFS1ns74PbuTUixNHx0RiyUoWCJ_vTSnjiB5o9BqCmU",
+      "longitude": 2.19001,
+      "latitude": 48.78283,
+      "created": "2026-10-28T02:38:46Z",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Informatique",
+        "tag": "it-jobs"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Vélizy-Villacoublay, Versailles"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job"
+    },
+    {
+      "location": {
+        "display_name": "La Défense, Courbevoie",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Courbevoie",
+          "La Défense"
+        ]
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "graduate-jobs",
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "created": "2026-10-31T07:16:46Z",
+      "latitude": 48.89683,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0Nzc0OTU1OCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.-K6Wk6LGbYXlPWEXsWCyDK_SQ1wXx2H5DaQ0UffUTPQ",
+      "longitude": 2.25651,
+      "description": "Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe, avec 51 000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services et solutions numériques. Il aide ses clients à mener leur transformation digitale et à obtenir des bénéfices concrets et durables. Le Groupe apporte une réponse globale aux enjeux de compétitivité des grandes entreprises et organisations, en combinant une connaissance approfondie des secteurs d’activité et des tech…",
+      "company": {
+        "display_name": "Sopra-Steria",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "contract_type": "contract",
+      "title": "Stage : Stage - Développeur Fullstack – Défense & Sécurité – Île-de-France",
+      "redirect_url": "https://www.adzuna.fr/details/5947749558?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5947749558"
+    },
+    {
+      "created": "2026-10-31T07:16:46Z",
+      "latitude": 48.89683,
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Courbevoie",
+          "La Défense"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "La Défense, Courbevoie"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Diplômés",
+        "tag": "graduate-jobs"
+      },
+      "salary_is_predicted": "0",
+      "id": "5947749551",
+      "redirect_url": "https://www.adzuna.fr/details/5947749551?utm_medium=api&utm_source=APPID_MASQUE",
+      "company": {
+        "display_name": "Sopra-Steria",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "Description de l'entreprise Sopra Steria , acteur majeur de la Tech en Europe avec 56 000 collaborateurs dans près de 30 pays, est reconnu pour ses activités de conseil, de services numériques et d’édition de logiciels. Il aide ses clients à mener leur transformation digitale et à obtenir des bénéfices concrets et durables. Le Groupe apporte une réponse globale aux enjeux de compétitivité des grandes entreprises et organisations, combinant une connaissance approfondie des secteurs d’activité et…",
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQ3NzQ5NTUxIn0.86_fv9aE7AYZ9fb5R6PppwI8OFSHOhFlXcfuMZqQUT4",
+      "longitude": 2.25651,
+      "title": "Stage : Stage Développeur/se - Java - Energie & Telecom - Ile-de-France"
+    },
+    {
+      "title": "STAGE 2027- Stage Développeur Logiciel & IA (H/F)",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NzAyMTkyNiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.mIgAYY_HHgTJWba79KVaWx9WP82Jd8I9ewRriHepyw4",
+      "longitude": 2.344631,
+      "description": "Job Description: Envie de déployer vos ailes ? Et si votre aventure commençait avec nous ? Quel que soit le métier de vos rêves, nous avons peut-être le stage qu’il vous faut ! Vous êtes étudiant(e) et à la recherche d'un stage ou d'une année de césure vous permettant de valider votre diplôme et qui fera décoller votre carrière ? Imaginez-vous au cœur d’une entreprise reconnue à l’international, implantée sur tous les continents du monde et riche d’une diversité de parcours, d’expertise et de c…",
+      "company": {
+        "display_name": "Airbus",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5967021926?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5967021926",
+      "category": {
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "unknown"
+      },
+      "salary_is_predicted": "0",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ]
+      },
+      "latitude": 48.863839,
+      "contract_time": "full_time",
+      "created": "2026-11-15T18:04:09Z"
+    },
+    {
+      "title": "STAGE - Développeur - Skill de conversion Matlab/Scilab (F/H)",
+      "description": "En tant qu'organisateur de forums de recrutement, Talents Handicap accompagne de très nombreuses entreprises & organisations en France dans leurs recrutements de collaborateurs en situation de handicap. Participant actuellement à l'un de nos forums. L'entreprise Dassault Systèmes recherche actuellement des profils : Dassault Systèmes, l'entreprise de la 3DEXPERIENCE, est un « accélérateur de progrès humain ». Elle propose aux entreprises et aux particuliers des environnements virtuels collabora…",
+      "company": {
+        "display_name": "Dassault Systèmes",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQzNDMyNjQ5In0.bhXI_8eChC4lh_hG0oZmeE9UJoBadFJD4lq4JRNosL0",
+      "longitude": 1.954423,
+      "id": "5943432649",
+      "redirect_url": "https://www.adzuna.fr/details/5943432649?utm_medium=api&utm_source=APPID_MASQUE",
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown",
+        "tag": "unknown"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Yvelines, Ile-de-France",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines"
+        ]
+      },
+      "latitude": 48.84045,
+      "created": "2026-10-27T14:08:17Z"
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5937512478?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5937512478",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNzUxMjQ3OCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.RVOwT70BHEo-4FMdNH_z7HoJhMa03YZt2-N1j28T5Ws",
+      "longitude": 2.344631,
+      "description": "Description de l'entreprise BPCE Solutions informatiques, c’est un acteur IT de référence implanté au cœur des territoires. Ce sont près de 2 600 femmes et hommes au service des Banques Populaires, des Caisses d’Epargne et de plusieurs métiers spécialisés du Groupe BPCE, 2e acteur bancaire en France. Nous imaginons et développons des solutions IT innovantes pour faciliter le quotidien de nos utilisateurs. Chaque jour, ce sont près de 1 français sur 2 qui utilisent nos solutions ! Entreprise inc…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Caisse d'Epargne"
+      },
+      "contract_type": "contract",
+      "title": "Stage : STAGE – Développeur Solutions Technologiques du SI (F/H) – PARIS",
+      "created": "2026-10-22T08:04:10Z",
+      "latitude": 48.863839,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Paris, Ile-de-France"
+      },
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "salary_is_predicted": "0"
+    },
+    {
+      "company": {
+        "display_name": "EDF",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "⚡⚡ Rejoignez EDF et mettez vos compétences en systèmes d'information au service de la transition énergétique. Venez contribuer à des projets stratégiques au cœur de l’innovation numérique du Groupe. ⚡⚡ Au sein d'EDF, la Direction Optimisation Amont/Aval Trading (DOAAT ) assure l'équilibre physique entre l’amont (Production) et l’aval (Consommation clients) d'EDF en France et maximise le revenu de l'ensemble intégré amont/aval. Elle optimise à différents horizons de temps pour satisfaire les eng…",
+      "contract_type": "contract",
+      "location": {
+        "display_name": "Saint-Denis, Seine-Saint-Denis",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Seine-Saint-Denis",
+          "Saint-Denis"
+        ]
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "it-jobs",
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_min": 14760,
+      "created": "2026-11-05T04:17:57Z",
+      "latitude": 48.93607,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk1MzcyMDgyMSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.3MjhNN3DCGcsqhGy_vTBU-OF53XjWizyDWr0edH9dTY",
+      "longitude": 2.36488,
+      "title": "STAGE - Développeur/euse Full Stack - Java /Angular F/H",
+      "id": "5953720821",
+      "redirect_url": "https://www.adzuna.fr/details/5953720821?utm_medium=api&utm_source=APPID_MASQUE",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_max": 14760
+    },
+    {
+      "id": "5956286661",
+      "redirect_url": "https://www.adzuna.fr/details/5956286661?utm_medium=api&utm_source=APPID_MASQUE",
+      "contract_type": "contract",
+      "description": "Au sein de la Direction des Risques Groupe (DRG), vous rejoindrez le service des Risques Financiers Groupe (RFG) qui est responsable du pilotage et de l'animation métier des entités du Groupe exposées principalement aux risques financiers (banque d'investissement, gestion d'actifs et assurances). Vous intégrerez l'équipe Risques de Marché qui assure l'identification et le suivi des risques de marché/ contrepartie sur opérations de marché portés par l'ensemble des entités du groupe. Après une ph…",
+      "company": {
+        "display_name": "Crédit Agricole SA",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "longitude": 2.31993,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk1NjI4NjY2MSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.JLCj7d_-N94ATrCxAl96OTzuO8lqgZUj5zMLJGw3KPM",
+      "title": "STAGE - Développeur d'outils d'analyse de risque de marché H/F",
+      "created": "2026-11-07T05:00:36Z",
+      "latitude": 48.81846,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Montrouge, Antony",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Antony",
+          "Montrouge"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Comptabilité et Finance",
+        "tag": "accounting-finance-jobs"
+      }
+    },
+    {
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Massy, Palaiseau",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Essonne",
+          "Palaiseau",
+          "Massy"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "salary_is_predicted": "0",
+      "created": "2026-11-14T08:28:29Z",
+      "latitude": 48.7303,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NTQ1ODI0MSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.mha4bx9SrmFgTsSErZHazbBxBZUpmtr5mxstmRAQji8",
+      "longitude": 2.27287,
+      "contract_type": "contract",
+      "description": "Lieu : Massy, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d'activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l'environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d'euros par an en Recherche & Développement, notamment dans des domaines clés de l'innovation tels qu…",
+      "company": {
+        "display_name": "Thales",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "title": "STAGE – Développeur solution Web / IA (Solution offres et projets) – F/H",
+      "redirect_url": "https://www.adzuna.fr/details/5965458241?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5965458241"
+    },
+    {
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "location": {
+        "display_name": "9ème Arrondissement, Paris",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris",
+          "9ème Arrondissement"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "latitude": 48.87284,
+      "created": "2026-11-12T11:51:29Z",
+      "title": "STAGE - S3NS - Développeur support reverse enginee H/F (Stage)",
+      "longitude": 2.34043,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTYyOTMzODAyIn0.14jf8wxv-IchxNnE_xn2n7wvMnK_jD_zMlhdS9_X3y0",
+      "contract_type": "contract",
+      "description": "Depuis plus de vingt ans, Thales déploie de façon proactive une politique affirmée en matière de responsabilité d’entreprise fondée sur les standards internationaux les plus élevés. Celle ci est en parfait accord avec la raison d’être que l’entreprise a adoptée en 2020, Construisons ensemble un avenir de confiance. À travers cette démarche, le Groupe répond aux demandes de ses clients, de ses collaborateurs, des investisseurs et des marchés financiers pour une entreprise toujours plus performan…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "THALES SA"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5962933802?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5962933802"
+    },
+    {
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Emplois Comptabilité et Finance",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "accounting-finance-jobs"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Essonne",
+          "Palaiseau",
+          "Massy"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Massy, Palaiseau"
+      },
+      "latitude": 48.7303,
+      "contract_time": "full_time",
+      "created": "2026-10-24T17:59:31Z",
+      "title": "Stage 2027 Développeur Open H/F",
+      "longitude": 2.27287,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQwNjUyODU0In0.vj7JSmTqW3cMWpewy3F1YNNdSLDzpGYsWfYtgGtUnI4",
+      "company": {
+        "display_name": "Crédit Agricole Personal Finance & Mobility",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "Qui sommes nous ?  Crédit Agricole Personal Finance & Mobility, filiale à 100 % du Groupe Crédit Agricole, est un leader du financement personnel et un acteur majeur de la mobilité durable en Europe. Présent dans 22 pays, le groupe accompagne chaque jour les particuliers dans la réalisation de leurs projets grâce à une large gamme de solutions de financement, de paiement, d’assurance et de mobilité. À travers ses activités il contribue également à la transition énergétique dans les domaines de …",
+      "redirect_url": "https://www.adzuna.fr/details/5940652854?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5940652854"
+    },
+    {
+      "id": "5936851698",
+      "redirect_url": "https://www.adzuna.fr/details/5936851698?utm_medium=api&utm_source=APPID_MASQUE",
+      "company": {
+        "display_name": "Thales",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "description": "QUI SOMMES-NOUS ? S3NS est né du partenariat industriel entre Thales, leader mondial de la cyber sécurité, et Google Cloud, leader mondial des solutions cloud. Nous avons pour ambition d’offrir le meilleur des deux mondes à l’ensemble des organisations soucieuses de protéger leurs données sensibles (institutions publiques, OIV, OSE…). C’est-à-dire une solution équivalente à Google Cloud Platform (incluant à la fois les services IaaS et PaaS de GCP) et respectant les exigences du label SecNumClo…",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTM2ODUxNjk4In0.Ia-3pveVV96HAuh3Dc232XKJ5a2I3oAmOrkJnskRdQc",
+      "longitude": 2.34043,
+      "title": "STAGE - S3NS - Développeur support reverse engineering (H/F)",
+      "created": "2026-10-21T18:14:22Z",
+      "contract_time": "full_time",
+      "latitude": 48.87284,
+      "location": {
+        "display_name": "9ème Arrondissement, Paris",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris",
+          "9ème Arrondissement"
+        ]
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "category": {
+        "tag": "unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown"
+      },
+      "salary_is_predicted": "0"
+    },
+    {
+      "description": "Description de l'offre Environnement de travail : Rejoignez l'équipe Dataviz de la Direction des Systèmes d'Information (DSI) d'Enedis. L’équipe est composée de 16 collaborateurs aux profils variés : développeurs Power BI, administrateurs de plateforme, Product Owners et experts Data Visualisation. Rattachée au département DOP au sein du pôle SI Data, elle est garante de l'offre de visualisation de données basée sur Power BI pour l'ensemble des utilisateurs Enedis. Notre mission est de fournir …",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Enedis"
+      },
+      "contract_type": "contract",
+      "longitude": 2.25651,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTQ1Mzg0NTAzIn0.559fcCjXJBJoXaL_YXqhipnWGeSb-jUAeaqoC-5C9GI",
+      "title": "Stage : Stage - Concepteur Développeur PBIM F/H (2026-185555)",
+      "id": "5945384503",
+      "redirect_url": "https://www.adzuna.fr/details/5945384503?utm_medium=api&utm_source=APPID_MASQUE",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Nanterre",
+          "Courbevoie",
+          "La Défense"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "La Défense, Courbevoie"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Diplômés",
+        "tag": "graduate-jobs"
+      },
+      "created": "2026-10-29T07:15:15Z",
+      "latitude": 48.89683
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5967501967?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5967501967",
+      "longitude": 2.344631,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTY3NTAxOTY3In0.-uHdapGkMQNCoUB2hhVLUwxJ1F5UQ7ho7EVlrNF0XPA",
+      "description": "Depuis plus de vingt ans, Thales déploie de façon proactive une politique affirmée en matière de responsabilité d’entreprise fondée sur les standards internationaux les plus élevés. Celle ci est en parfait accord avec la raison d’être que l’entreprise a adoptée en 2020, Construisons ensemble un avenir de confiance. À travers cette démarche, le Groupe répond aux demandes de ses clients, de ses collaborateurs, des investisseurs et des marchés financiers pour une entreprise toujours plus performan…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "THALES SA"
+      },
+      "contract_type": "permanent",
+      "title": "STAGE - S3NS - Développeur support reverse enginee H/F (Stage)",
+      "created": "2026-11-16T07:59:13Z",
+      "latitude": 48.863839,
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Vente",
+        "tag": "sales-jobs"
+      },
+      "salary_is_predicted": "0"
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5955404726?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5955404726",
+      "title": "Stage : Stage Ingénieur Développeur - Business Enablers Roaming International F/H",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk1NTQwNDcyNiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.RGXUon_pifxFv1bHXSQpPIxWtLhRKktI3GbgF8wr3LM",
+      "longitude": 2.27338,
+      "description": "Date de publication : Nov 04, 2026, 9:52AM Durée du contrat : 5 mois Sous la responsabilité d’un chef de projet transformation digitale, vous contribuerez à la conception et au développement d’un PoC (Proof of Concept) reproduisant les principales règles de gestion d’une application métier exploitée en mode SaaS et d'autres cas d'usage métier pour la communauté Roaming. Ce prototype permettra aux équipes Roaming International de simuler et d’évaluer la valeur de ces différents cas d’usage. · Vo…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Orange"
+      },
+      "contract_type": "contract",
+      "latitude": 48.8231,
+      "created": "2026-11-06T09:12:49Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "graduate-jobs",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Diplômés"
+      },
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Boulogne-Billancourt",
+          "Issy-les-Moulineaux"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Issy-les-Moulineaux, Boulogne-Billancourt"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job"
+    },
+    {
+      "description": "Date de publication : Nov 04, 2026, 12:18PM Durée du contrat : 6 mois Stagede 6mois Vosmissions : Analysez, développez, expliquez : l'équipe REDESIGN vous attend ! En appui à l'équipe REDESIGN, vous participerez à la conception d'outils data et applicatifs qui soutiennent le pilotage de la transformation : · Développer des applications et outils internes intégrant des technologies back-end Python/Django, front-end VueJS/Node.js et HTML/JavaScript. · Concevoir, industrialiser et maintenir des ta…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Orange"
+      },
+      "contract_type": "contract",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk1NTQwNDU4NyIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.gpFcU-0qHIr_MG94JFEcb-5aAlcHEWWf6oZb12C4N9M",
+      "longitude": 2.27338,
+      "title": "Stage : Stage - Data Scientist / Développeur F/H",
+      "id": "5955404587",
+      "redirect_url": "https://www.adzuna.fr/details/5955404587?utm_medium=api&utm_source=APPID_MASQUE",
+      "location": {
+        "display_name": "Issy-les-Moulineaux, Boulogne-Billancourt",
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Boulogne-Billancourt",
+          "Issy-les-Moulineaux"
+        ]
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "graduate-jobs",
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "created": "2026-11-06T09:12:48Z",
+      "latitude": 48.8231
+    },
+    {
+      "title": "STAGE - ASSISTANT INGÉNIEUR DÉVELOPPEUR INTEGRATEUR (H/F)",
+      "longitude": 2.344631,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NTQwMjU0OCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.Aq4FtLZgOEN2R577tm3NZCZRcjBayewFvrwianSt1LY",
+      "description": "Être Ingénieur en Développement et Intégration au sein de BASSETTI ? C'est employer vos compétences dans la réalisation de nouveaux challenges. En collaboration avec un Ingénieur en Développement et Intégration, vous travaillez sur des projets techniques dans leur globalité ; vous vous plongez dans le métier et usages de nos clients pour les comprendre et proposer des solutions techniques qui répondent à leurs besoins spécifiques : - Vous rédigez avec le client un cahier des charges notifiant s…",
+      "company": {
+        "display_name": "BASSETTI",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5965402548?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5965402548",
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "it-jobs",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Informatique"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "latitude": 48.863839,
+      "contract_time": "full_time",
+      "created": "2026-11-14T08:11:26Z"
+    },
+    {
+      "created": "2026-10-20T07:58:36Z",
+      "latitude": 48.863839,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Paris, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "graduate-jobs",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Diplômés"
+      },
+      "redirect_url": "https://www.adzuna.fr/details/5935181298?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5935181298",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNTE4MTI5OCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.7bVsXM3OSTZKrs7A_Ccr_HQm38fm4PgJ-PWBKJ88DEY",
+      "longitude": 2.344631,
+      "description": "Description de l’entreprise Institution financière internationale de premier plan, Natixis Corporate & Investment Banking met à disposition des entreprises, institutions financières, fonds d’investissement, agences souverains et supranationaux une palette de services en conseil, investment banking, financements, banque commerciale et sur les marchés de capitaux. Ses équipes d’experts, présentes dans environ 30 pays, conseillent les clients sur leur développement stratégique en les accompagnant …",
+      "contract_type": "contract",
+      "company": {
+        "display_name": "Caisse d'Epargne",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "title": "Stage : Stage – 6 mois – Développeur Quantitatif – F/H"
+    },
+    {
+      "contract_type": "permanent",
+      "description": "Contexte de la mission Grande institution financière publique, DSI, équipe de comptabilité détaillée (environ 9 personnes, Île-de-France). L?équipe est responsable d?une application de gestion des écritures comptables détaillées : collecte des écritures et des données de gestion, rapprochements mensuels compte-gestion. Cette application est construite sur Data Stage. La DSI veut en sortir pour aller vers Python ou Java, avec une ambition de fin mi-2027. L?équipe manque de ressources sur le suje…",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "R&S TELECOM"
+      },
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France"
+        ],
+        "display_name": "Ile-de-France, France"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Emplois Informatique",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "it-jobs"
+      },
+      "created": "2026-10-28T22:04:13Z",
+      "salary_min": 40000,
+      "latitude": 48.811332,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0NDg5ODgyOSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.5aVOvMGB9bpap1LSojHI_hUCz-xgekVUPQv0uiDSHjg",
+      "longitude": 2.351634,
+      "title": "Développeur Data Stage / Python-Java (IT)",
+      "id": "5944898829",
+      "redirect_url": "https://www.adzuna.fr/details/5944898829?utm_medium=api&utm_source=APPID_MASQUE",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_max": 48000
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5963991449?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5963991449",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTYzOTkxNDQ5In0.1qUHvEOCkT6uyEPnOiPX4K9HhgbUfK_r1XUfAnY-fTs",
+      "longitude": 2.31993,
+      "description": "Le Groupe Crédit Agricole, acteur bancaire et assurantiel de premier plan, place l'engagement et le développement de ses collaborateurs au cœur de sa stratégie. La Direction des Achats Groupe (DAG), rattachée au Pôle Pilotage et Contrôle, joue un rôle stratégique dans l'organisation et l'animation de la Ligne Métier Achats du Groupe. Elle assure la coordination des activités achats, le pilotage de la performance, la gestion des risques et de la conformité fournisseurs, ainsi que la digitalisati…",
+      "company": {
+        "display_name": "Crédit Agricole SA",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "contract_type": "contract",
+      "title": "Stage - Analyste data développeur power BI Travel & Véhicules H/F",
+      "created": "2026-11-13T04:45:14Z",
+      "latitude": 48.81846,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine",
+          "Antony",
+          "Montrouge"
+        ],
+        "display_name": "Montrouge, Antony"
+      },
+      "salary_is_predicted": "0",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Emplois Comptabilité et Finance",
+        "tag": "accounting-finance-jobs"
+      }
+    },
+    {
+      "latitude": 48.82583,
+      "created": "2026-11-12T19:51:29Z",
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "unknown"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Hauts-de-Seine, Ile-de-France",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Hauts-de-Seine"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "id": "5963557891",
+      "redirect_url": "https://www.adzuna.fr/details/5963557891?utm_medium=api&utm_source=APPID_MASQUE",
+      "title": "Développeuse / Développeur logiciel - Stage H/F (Stage)",
+      "contract_type": "contract",
+      "description": "Choisir Capgemini, c'est choisir une entreprise où vous serez en mesure de façonner votre carrière selon vos aspirations. Avec le soutien et l'inspiration d'une communauté d'experts dans le monde entier , vous pourrez réécrire votre futur . Rejoignez nous pour redéfinir les limites de ce qui est possible, contribuer à libérer la valeur de la technologie pour les plus grandes organisations et participer à la construction d'un monde plus durable et inclusif. Missions * Participer à l'analyse des …",
+      "company": {
+        "display_name": "CAPGEMINI FRANCE",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "longitude": 2.245857,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTYzNTU3ODkxIn0.5LZc49SUNacEj8kZ05RI1Le0AFn4xYaZTFzae43e6ww"
+    },
+    {
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "unknown"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "1er Arrondissement, Paris",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris",
+          "1er Arrondissement"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "latitude": 48.86023,
+      "created": "2026-11-13T19:53:18Z",
+      "title": "Développeur/Développeuse logiciel - Stage H/F (Stage)",
+      "description": "Choisir Capgemini, c'est choisir une entreprise où vous serez en mesure de façonner votre carrière selon vos aspirations. Avec le soutien et l'inspiration d'une communauté d'experts dans le monde entier, vous pourrez réécrire votre futur. Rejoignez nous pour redéfinir les limites de ce qui est possible, contribuer à libérer la valeur de la technologie pour les plus grandes organisations et participer à la construction d'un monde plus durable et inclusif. Vos missions Vous interviendrez en stage…",
+      "contract_type": "contract",
+      "company": {
+        "display_name": "CAPGEMINI FRANCE",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk2NDg4Nzg2NiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.nDHcRoVMcSb5fkz88N-MnLXeN3DD4A0vpwD3JVnYwkk",
+      "longitude": 2.34107,
+      "id": "5964887866",
+      "redirect_url": "https://www.adzuna.fr/details/5964887866?utm_medium=api&utm_source=APPID_MASQUE"
+    },
+    {
+      "salary_is_predicted": "0",
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "display_name": "Vélizy-Villacoublay, Versailles",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "contract_time": "full_time",
+      "latitude": 48.78283,
+      "created": "2026-10-21T18:13:41Z",
+      "title": "STAGE - Ingénieur IVVQ Tests Automatisés (F/H)",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "Thales"
+      },
+      "description": "Lieu : Vélizy-Villacoublay, France Construisons ensemble un avenir de confiance Thales est un leader mondial des hautes technologies spécialisé dans trois secteurs d’activité : Défense & Sécurité, Aéronautique & Spatial, et Cyber & Digital. Il développe des produits et solutions qui contribuent à un monde plus sûr, plus respectueux de l’environnement et plus inclusif. Le Groupe investit près de 4,5 milliards d’euros par an en Recherche & Développement, notamment dans des domaines clés de l’inno…",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNjg1MTM5MiIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.96abwwBdY6RXUo4sPNcblQCUTe8AOjvu1zhGan5X53I",
+      "longitude": 2.19001,
+      "id": "5936851392",
+      "redirect_url": "https://www.adzuna.fr/details/5936851392?utm_medium=api&utm_source=APPID_MASQUE"
+    },
+    {
+      "redirect_url": "https://www.adzuna.fr/details/5945385393?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5945385393",
+      "title": "Stage : Stage - 6 mois - Développeur fullstack Web & Sales Solutions (F/H)",
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk0NTM4NTM5MyIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.08KmSi_pR6a3gIOGaQ1loCYgNhg-U3WM39V72P-QEZ4",
+      "longitude": 2.344631,
+      "description": "Description de l’entreprise Institution financière internationale de premier plan, Natixis Corporate & Investment Banking met à disposition des entreprises, institutions financières, fonds d’investissement, agences souverains et supranationaux une palette de services en conseil, investment banking, financements, banque commerciale et sur les marchés de capitaux. Ses équipes d’experts, présentes dans environ 30 pays, conseillent les clients sur leur développement stratégique en les accompagnant …",
+      "company": {
+        "display_name": "Groupe BPCE",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "contract_type": "contract",
+      "latitude": 48.863839,
+      "created": "2026-10-29T07:15:24Z",
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "salary_is_predicted": "0",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Paris, Ile-de-France"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job"
+    },
+    {
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Paris, Ile-de-France"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "salary_is_predicted": "0",
+      "category": {
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "tag": "graduate-jobs"
+      },
+      "created": "2026-10-20T07:58:36Z",
+      "latitude": 48.863839,
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNTE4MTI5MyIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.3NGoqg_ue-6clOOxbtBNNitXYh5f5LKr8RwAXrpBK58",
+      "longitude": 2.344631,
+      "contract_type": "contract",
+      "description": "Description de l'entreprise Rejoignez une entreprise au cœur des activités du Groupe BPCE, de ses évolutions et de son développement. Organe central du Groupe, BPCE assure la coordination, la cohérence et les synergies entre les différentes marques (Banque Populaire, Caisse d’Epargne, Natixis). Les missions confiées à nos collaborateurs offrent une vision transversale des enjeux économiques et stratégiques du Groupe. BPCE Vie conçoit des solutions d’assurances de personnes (assurance vie, éparg…",
+      "company": {
+        "display_name": "Caisse d'Epargne",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "title": "Stage : Stage – 6 mois – Développeur web (Front et Back) F/H",
+      "redirect_url": "https://www.adzuna.fr/details/5935181293?utm_medium=api&utm_source=APPID_MASQUE",
+      "id": "5935181293"
+    },
+    {
+      "created": "2026-11-05T08:32:22Z",
+      "latitude": 48.863839,
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "display_name": "Paris, Ile-de-France"
+      },
+      "category": {
+        "tag": "graduate-jobs",
+        "label": "Emplois Diplômés",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_is_predicted": "0",
+      "id": "5953949505",
+      "redirect_url": "https://www.adzuna.fr/details/5953949505?utm_medium=api&utm_source=APPID_MASQUE",
+      "description": "Description de l’entreprise Institution financière internationale de premier plan, Natixis Corporate & Investment Banking met à disposition des entreprises, institutions financières, fonds d’investissement, agences souverains et supranationaux une palette de services en conseil, investment banking, financements, banque commerciale et sur les marchés de capitaux. Ses équipes d’experts, présentes dans environ 30 pays, conseillent les clients sur leur développement stratégique en les accompagnant …",
+      "contract_type": "contract",
+      "company": {
+        "display_name": "Groupe BPCE",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTk1Mzk0OTUwNSIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.9DPQTdiFSdE-og164lL2_HMenCyFibqeOMJKX5sv7do",
+      "longitude": 2.344631,
+      "title": "Stage : Stage - 6 mois - Développeur Python Finance Valuation Group F/H"
+    },
+    {
+      "description": "Tu as envie … •De trouver LE stage de fin d'études en SI qui te permet de monter en compétences ? •De travailler avec différents langages ? •De participer à la révolution digitale de la finance dans des projets innovants (ERP, IA, IoT) ? •De rejoindre une équipe passionnée par les nouvelles technos ? Nous te proposons … •De te faire coder… mais pas seulement ! •De te permettre de développer de nouvelles skills techniques avec une casquette de consultant (gestion de projet, relation client…) •D’…",
+      "company": {
+        "display_name": "Sharp DX",
+        "__CLASS__": "Adzuna::API::Response::Company"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJzIjoiMksxZG1Qbmg4UkdsaTdBeF9PQmZDZyIsImkiOiI1OTUzODk3OTYwIn0._7d94YB9BMOfy0vNo7dGtADAvNsU17dOOzVp7P4j_Jc",
+      "longitude": 2.344631,
+      "title": "Développeur Junior - Stage Fin d'études (H/F)",
+      "id": "5953897960",
+      "redirect_url": "https://www.adzuna.fr/details/5953897960?utm_medium=api&utm_source=APPID_MASQUE",
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "location": {
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Paris"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location",
+        "display_name": "Paris, Ile-de-France"
+      },
+      "category": {
+        "tag": "unknown",
+        "label": "Unknown",
+        "__CLASS__": "Adzuna::API::Response::Category"
+      },
+      "salary_is_predicted": "0",
+      "created": "2026-11-05T07:31:04Z",
+      "latitude": 48.863839
+    },
+    {
+      "id": "5935546108",
+      "redirect_url": "https://www.adzuna.fr/details/5935546108?utm_medium=api&utm_source=APPID_MASQUE",
+      "description": "Depuis plus de vingt ans, Thales déploie de façon proactive une politique affirmée en matière de responsabilité d’entreprise fondée sur les standards internationaux les plus élevés. Celle ci est en parfait accord avec la raison d’être que l’entreprise a adoptée en 2020, Construisons ensemble un avenir de confiance. À travers cette démarche, le Groupe répond aux demandes de ses clients, de ses collaborateurs, des investisseurs et des marchés financiers pour une entreprise toujours plus performan…",
+      "contract_type": "contract",
+      "company": {
+        "__CLASS__": "Adzuna::API::Response::Company",
+        "display_name": "THALES SA"
+      },
+      "adref": "eyJhbGciOiJIUzI1NiJ9.eyJpIjoiNTkzNTU0NjEwOCIsInMiOiIySzFkbVBuaDhSR2xpN0F4X09CZkNnIn0.q4aVidM-In4f7kBQqcYqU8iYbiPGBBt1dm1RWt0b5oM",
+      "longitude": 2.19001,
+      "title": "Stage - ingénieur ivvq tests automatisés (f/h) (Stage)",
+      "created": "2026-10-20T17:41:19Z",
+      "latitude": 48.78283,
+      "location": {
+        "display_name": "Vélizy-Villacoublay, Versailles",
+        "area": [
+          "France",
+          "Ile-de-France",
+          "Yvelines",
+          "Versailles",
+          "Vélizy-Villacoublay"
+        ],
+        "__CLASS__": "Adzuna::API::Response::Location"
+      },
+      "__CLASS__": "Adzuna::API::Response::Job",
+      "category": {
+        "__CLASS__": "Adzuna::API::Response::Category",
+        "label": "Unknown",
+        "tag": "unknown"
+      },
+      "salary_is_predicted": "0"
+    }
+  ]
+}

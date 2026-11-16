@@ -4,7 +4,8 @@ inclure_teletravail: false
 niveau_vise: "6"
 pistes:
   alternance: { romes: ["M1805", "M1806", "M1807"], duree_mois: [12, 24], frequence_heures: 3 }
-  stage: { duree_mois: [5, 6], debut: ["2027-01", "2027-02"], frequence_heures: 24 }
+  stage: { lieu_recherche: "Marly-le-Roi", mots_cles_recherche: ["développeur", "développeur web",
+      "développeur python", "data", "intelligence artificielle"], duree_mois: [5, 6], debut: ["2027-01", "2027-02"], frequence_heures: 24 }
 mots_cles_titre: [developpeur, developpeuse, developer, dev, web, full stack, fullstack, front, back,
   logiciel, software, data, ia, ai, llm, python, react, typescript, javascript, informatique]
 mots_exclus: [senior, confirme, experimente, manager, lead, "3 ans d'experience", "5 ans d'experience"]
