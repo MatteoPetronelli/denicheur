@@ -13,11 +13,14 @@ Chaque exécution SHALL créer une ligne `executions` avec le mode, les compteur
 - **THEN** une ligne `executions` existe avec les compteurs attendus
 
 ### Requirement: Due sources
-Les sources d'offres d'alternance SHALL être collectées si la dernière collecte date d'au moins 3 h et qu'il est entre 08:00 et 20:00 Paris ; un run tardif rattrape un run manqué. La source e-mail SHALL faire partie des sources collectées lorsque `GMAIL_USER` et `GMAIL_APP_PASSWORD` sont présents, et SHALL être absente sinon. Les sources de stage SHALL être collectées une seule fois par jour Paris, entre 08:00 et 20:00, tant que la date de la dernière collecte de stage n'est pas celle du jour ; `--mode stage` SHALL forcer cette collecte et `--mode alternance` SHALL forcer la seule collecte d'alternance. La source Adzuna SHALL faire partie des sources de stage lorsque `ADZUNA_APP_ID` et `ADZUNA_APP_KEY` sont présents, et SHALL être absente sinon.
+Les sources d'offres d'alternance SHALL être collectées si la dernière collecte date d'au moins 3 h et qu'il est entre 08:00 et 20:00 Paris ; un run tardif rattrape un run manqué. `--mode alternance` SHALL forcer cette seule collecte.
 
 #### Scenario: Recent collection
 - **WHEN** une collecte d'alternance a eu lieu il y a moins de 3 h
 - **THEN** aucune nouvelle collecte d'alternance n'est faite
+
+### Requirement: Stage sources due once a day
+Les sources de stage SHALL être collectées une seule fois par jour Paris, entre 08:00 et 20:00, tant que la date de la dernière collecte de stage n'est pas celle du jour ; `--mode stage` SHALL forcer cette collecte sans collecter l'alternance.
 
 #### Scenario: Stage collected once a day
 - **WHEN** `run --mode auto` tourne à 09:00 Paris et que la dernière collecte de stage date de la veille
@@ -34,6 +37,9 @@ Les sources d'offres d'alternance SHALL être collectées si la dernière collec
 #### Scenario: Stage error isolated
 - **WHEN** la source Adzuna lève une erreur
 - **THEN** l'erreur est consignée sans la clé et la collecte d'alternance de ce run n'est pas affectée
+
+### Requirement: Optional sources need credentials
+La source e-mail SHALL faire partie des sources collectées lorsque `GMAIL_USER` et `GMAIL_APP_PASSWORD` sont présents, et la source Adzuna lorsque `ADZUNA_APP_ID` et `ADZUNA_APP_KEY` sont présents ; elles SHALL être absentes sinon, sans erreur.
 
 #### Scenario: Email source enabled
 - **WHEN** les identifiants Gmail sont présents
