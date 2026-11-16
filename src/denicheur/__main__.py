@@ -9,9 +9,10 @@ from sqlalchemy.orm import Session
 
 from denicheur.config import Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
+from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
 from denicheur.scoring.llm import OllamaScorer
-from denicheur.sources import SOURCES
+from denicheur.sources import SOURCES, email_alertes
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.digest import envoyer_digest, envoyer_test
 
@@ -34,6 +35,14 @@ def _lier(collecter, http: httpx.Client) -> Source:
     return lambda config, now: collecter(config, http, now)
 
 
+def _source_email(user: str, password: str) -> Source:
+    # Client distinct : la clé LBA ne doit pas partir vers api-adresse.
+    geo = httpx.Client()
+    return lambda config, now: email_alertes.collecter(
+        config, now, lambda since: lire_alertes(user, password, since), geo
+    )
+
+
 def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     migrer(secrets.database_url)  # idempotent : un premier run ne plante pas sur une base vide
     config = load_config(CONFIG)
@@ -44,6 +53,8 @@ def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     if not dry_run and secrets.telegram_bot_token and secrets.telegram_chat_id:
         api = TelegramAPI(secrets.telegram_bot_token, httpx.Client(), chat_id=secrets.telegram_chat_id)
     sources = {nom: _lier(f, http) for nom, f in SOURCES.items()}
+    if secrets.gmail_user and secrets.gmail_app_password:
+        sources["email"] = _source_email(secrets.gmail_user, secrets.gmail_app_password)
     with Session(make_engine(secrets.database_url)) as session:
         deps = Deps(session, config, sources, OllamaScorer(config.llm, httpx.Client()), api)
         bilan = executer(mode, deps, datetime.now(UTC))

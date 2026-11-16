@@ -29,7 +29,7 @@ def test_init_db_migre_la_base(tmp_path, monkeypatch, capsys):
 
 def _env_sans_reseau(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'run.db'}")
-    for cle in ("LBA_API_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
+    for cle in ("LBA_API_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GMAIL_USER", "GMAIL_APP_PASSWORD"):
         monkeypatch.setenv(cle, "")  # vide = absent ; load_dotenv n'écrase pas
 
 
@@ -52,6 +52,33 @@ def test_run_dry_run_sans_envoi(tmp_path, monkeypatch, capsys):
     assert "dry-run" in capsys.readouterr().out
     with Session(make_engine(f"sqlite:///{tmp_path / 'run.db'}")) as s:
         assert s.execute(text("select count(*) from executions")).scalar() == 1
+
+
+def test_run_sans_mot_de_passe_aucune_connexion_imap(tmp_path, monkeypatch, capsys):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("GMAIL_USER", "moi@exemple.fr")  # mot de passe absent
+
+    def interdit(*a, **k):
+        raise AssertionError("connexion IMAP sans mot de passe")
+
+    monkeypatch.setattr("imaplib.IMAP4_SSL", interdit)
+    assert main(["run", "--mode", "alternance", "--dry-run"]) == 0
+    assert "Erreur" not in capsys.readouterr().out
+
+
+def test_run_avec_identifiants_la_source_email_est_collectee(tmp_path, monkeypatch, capsys):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("GMAIL_USER", "moi@exemple.fr")
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "secret")
+    appels = []
+
+    def faux_lire(user, password, since):
+        appels.append((user, password))
+        return []
+
+    monkeypatch.setattr("denicheur.__main__.lire_alertes", faux_lire)
+    assert main(["run", "--mode", "alternance", "--dry-run"]) == 0
+    assert appels == [("moi@exemple.fr", "secret")]
 
 
 def test_run_echec_code_1(tmp_path, monkeypatch, capsys):
