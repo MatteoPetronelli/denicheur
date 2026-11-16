@@ -29,7 +29,15 @@ def test_init_db_migre_la_base(tmp_path, monkeypatch, capsys):
 
 def _env_sans_reseau(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'run.db'}")
-    for cle in ("LBA_API_KEY", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GMAIL_USER", "GMAIL_APP_PASSWORD"):
+    for cle in (
+        "LBA_API_KEY",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
+        "GMAIL_USER",
+        "GMAIL_APP_PASSWORD",
+        "ADZUNA_APP_ID",
+        "ADZUNA_APP_KEY",
+    ):
         monkeypatch.setenv(cle, "")  # vide = absent ; load_dotenv n'écrase pas
 
 
@@ -79,6 +87,35 @@ def test_run_avec_identifiants_la_source_email_est_collectee(tmp_path, monkeypat
     monkeypatch.setattr("denicheur.__main__.lire_alertes", faux_lire)
     assert main(["run", "--mode", "alternance", "--dry-run"]) == 0
     assert appels == [("moi@exemple.fr", "secret")]
+
+
+@pytest.mark.parametrize("present", ["ADZUNA_APP_ID", "ADZUNA_APP_KEY"])
+def test_run_avec_une_seule_valeur_adzuna_aucune_requete(tmp_path, monkeypatch, capsys, present):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv(present, "valeur-seule")
+    appels = []
+    monkeypatch.setattr("denicheur.__main__.adzuna.collecter", lambda *a, **k: appels.append(a) or [])
+    assert main(["run", "--mode", "stage", "--dry-run"]) == 0
+    assert appels == [] and "Erreur" not in capsys.readouterr().out
+
+
+def test_run_avec_cles_adzuna_la_source_est_appelee_sans_cle_lba(tmp_path, monkeypatch, capsys):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("LBA_API_KEY", "cle-lba-secrete")
+    monkeypatch.setenv("ADZUNA_APP_ID", "mon-id")
+    monkeypatch.setenv("ADZUNA_APP_KEY", "ma-cle")
+    appels = []
+
+    def faux(config, http, now, app_id, app_key):
+        appels.append((app_id, app_key, dict(http.headers)))
+        return []
+
+    monkeypatch.setattr("denicheur.__main__.adzuna.collecter", faux)
+    assert main(["run", "--mode", "stage", "--dry-run"]) == 0
+    assert [(a, k) for a, k, _ in appels] == [("mon-id", "ma-cle")]
+    assert "authorization" not in {h.lower() for h in appels[0][2]}  # la clé LBA ne part pas chez Adzuna
+    sortie = capsys.readouterr().out
+    assert "ma-cle" not in sortie and "mon-id" not in sortie
 
 
 def test_run_echec_code_1(tmp_path, monkeypatch, capsys):

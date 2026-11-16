@@ -27,9 +27,10 @@ Source = Callable[[Config, datetime], list[Offre]]
 class Deps:
     session: Session
     config: Config
-    sources: dict[str, Source]  # sources alternance ; les stages arrivent avec C3
+    sources: dict[str, Source]  # alternance et e-mail, collectées toutes les 3 h
     scorer: Scorer
     api: TelegramAPI | None = None  # None : aucun envoi (--dry-run)
+    sources_stage: dict[str, Source] = field(default_factory=dict)  # une collecte par jour
     chrono: Callable[[], float] = time.monotonic
     maintenant: Callable[[], datetime] = lambda: datetime.now(UTC)  # heure réelle de fin d'exécution
 
@@ -56,24 +57,40 @@ def _alternance_due(deps: Deps, mode: str, now: datetime) -> bool:
     return ecart >= deps.config.pistes.alternance.frequence_heures * 3600
 
 
-def _collecter(deps: Deps, mode: str, now: datetime, bilan: Bilan) -> None:
-    if not _alternance_due(deps, mode, now):
-        return
+def _stage_due(deps: Deps, mode: str, now: datetime) -> bool:
+    if mode == "stage":
+        return True
+    if mode != "auto" or not is_daytime(now, *deps.config.plage_alertes):
+        return False
+    return repo.get_param(deps.session, "derniere_collecte:stage") != paris_now(now).date().isoformat()
+
+
+def _collecter_sources(
+    deps: Deps, sources: dict[str, Source], param: str, valeur: str, now: datetime, bilan: Bilan
+) -> None:
     s = deps.session
     brutes: list[Offre] = []
-    for nom, source in deps.sources.items():
+    for nom, source in sources.items():
         try:
             brutes += source(deps.config, now)
         except Exception as e:  # une source en panne ne bloque pas le run
             bilan.erreurs.append(f"source {nom} : {type(e).__name__}")
-    repo.set_param(s, "derniere_collecte:alternance", now.isoformat())
-    bilan.collectees = len(brutes)
+    repo.set_param(s, param, valeur)
+    bilan.collectees += len(brutes)
     nouvelles = dedupliquer(brutes, repo.urls_connues(s), repo.cles_connues(s))
     nouvelles = prefiltrer(appliquer_geo(nouvelles, deps.config), deps.config, now)
     for o in nouvelles:
         repo.inserer_offre(s, o, cle_dedup=cle_dedup(o), now=now)
-    bilan.retenues = sum(o.motif_rejet is None for o in nouvelles)
+    bilan.retenues += sum(o.motif_rejet is None for o in nouvelles)
     s.commit()
+
+
+def _collecter(deps: Deps, mode: str, now: datetime, bilan: Bilan) -> None:
+    if _alternance_due(deps, mode, now):
+        _collecter_sources(deps, deps.sources, "derniere_collecte:alternance", now.isoformat(), now, bilan)
+    if deps.sources_stage and _stage_due(deps, mode, now):
+        jour = paris_now(now).date().isoformat()
+        _collecter_sources(deps, deps.sources_stage, "derniere_collecte:stage", jour, now, bilan)
 
 
 def _notifier(deps: Deps, mode: str, now: datetime) -> int:

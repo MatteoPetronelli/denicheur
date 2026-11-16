@@ -12,7 +12,7 @@ from denicheur.db.base import make_engine, migrer
 from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
 from denicheur.scoring.llm import OllamaScorer
-from denicheur.sources import SOURCES, email_alertes
+from denicheur.sources import SOURCES, adzuna, email_alertes
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.digest import envoyer_digest, envoyer_test
 
@@ -43,6 +43,12 @@ def _source_email(user: str, password: str) -> Source:
     )
 
 
+def _source_adzuna(app_id: str, app_key: str) -> Source:
+    # Client distinct : la clé LBA ne doit pas partir vers Adzuna, ni l'inverse.
+    http = httpx.Client()
+    return lambda config, now: adzuna.collecter(config, http, now, app_id, app_key)
+
+
 def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     migrer(secrets.database_url)  # idempotent : un premier run ne plante pas sur une base vide
     config = load_config(CONFIG)
@@ -55,8 +61,18 @@ def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     sources = {nom: _lier(f, http) for nom, f in SOURCES.items()}
     if secrets.gmail_user and secrets.gmail_app_password:
         sources["email"] = _source_email(secrets.gmail_user, secrets.gmail_app_password)
+    sources_stage = {}
+    if secrets.adzuna_app_id and secrets.adzuna_app_key:
+        sources_stage["adzuna"] = _source_adzuna(secrets.adzuna_app_id, secrets.adzuna_app_key)
     with Session(make_engine(secrets.database_url)) as session:
-        deps = Deps(session, config, sources, OllamaScorer(config.llm, httpx.Client()), api)
+        deps = Deps(
+            session,
+            config,
+            sources,
+            OllamaScorer(config.llm, httpx.Client()),
+            api,
+            sources_stage=sources_stage,
+        )
         bilan = executer(mode, deps, datetime.now(UTC))
     print(
         f"Collectées {bilan.collectees} · retenues {bilan.retenues} · notées {bilan.scorees} · "

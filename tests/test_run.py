@@ -14,6 +14,7 @@ from denicheur.db.base import make_engine, migrer
 from denicheur.models import ScoreLLM
 from denicheur.pipeline.run import Deps, executer
 from denicheur.scoring.llm import OllamaIndisponible, Usage
+from denicheur.sources.adzuna import collecter as collecter_adzuna
 from denicheur.sources.la_bonne_alternance import collecter
 from denicheur.telegram.api import TelegramAPI
 
@@ -66,13 +67,14 @@ class Env:
         self.api = TelegramAPI("t", httpx.Client(transport=httpx.MockTransport(envoi)), chat_id="1",
                                sleep=lambda s: None)  # fmt: skip
 
-    def run(self, now, mode="auto", scorer=None, sources=None, api="defaut"):
+    def run(self, now, mode="auto", scorer=None, sources=None, api="defaut", sources_stage=None):
         deps = Deps(
             self.session,
             cfg,
             {"lba": self.source} if sources is None else sources,
             scorer or Scorer(),
             self.api if api == "defaut" else api,
+            sources_stage=sources_stage or {},
         )
         return executer(mode, deps, now)
 
@@ -195,3 +197,86 @@ def test_fin_d_execution_est_l_heure_reelle(env):
     deps = Deps(env.session, cfg, {}, Scorer(), None, maintenant=lambda: fin)
     executer("auto", deps, T0)
     assert env.ligne()["fin"].startswith("2026-11-16 09:05")
+
+
+# --- stage (Adzuna) ---
+ADZUNA = json.loads((RACINE / "tests" / "fixtures" / "adzuna_search.json").read_text(encoding="utf-8"))
+
+
+class SourceStage:
+    """Source Adzuna réelle (fixture) qui compte ses collectes."""
+
+    def __init__(self, erreur=None):
+        self.collectes = 0
+        self.erreur = erreur
+        self.client = httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(200, json=ADZUNA)))
+
+    def __call__(self, config, now):
+        self.collectes += 1
+        if self.erreur:
+            raise self.erreur
+        return collecter_adzuna(config, self.client, now, "id", "cle", sleep=lambda s: None)
+
+    @property
+    def dict(self):
+        return {"adzuna": self}
+
+
+def test_stage_collecte_une_fois_par_jour(env):
+    stage = SourceStage()
+    env.run(T0, sources_stage=stage.dict)
+    assert stage.collectes == 1
+    assert repo.get_param(env.session, "derniere_collecte:stage") == "2026-11-16"
+    env.run(T0 + timedelta(hours=3), sources_stage=stage.dict)
+    assert stage.collectes == 1  # déjà fait aujourd'hui
+    env.run(T0 + timedelta(days=1), sources_stage=stage.dict)
+    assert stage.collectes == 2  # nouveau jour
+
+
+def test_stage_hors_plage_horaire_pas_collecte_en_auto(env):
+    stage = SourceStage()
+    env.run(datetime(2026, 11, 16, 6, tzinfo=UTC), sources_stage=stage.dict)  # 07:00 Paris
+    env.run(datetime(2026, 11, 16, 19, tzinfo=UTC), sources_stage=stage.dict)  # 20:00 Paris
+    assert stage.collectes == 0
+
+
+def test_mode_stage_force_la_collecte_de_stage_seule(env):
+    stage = SourceStage()
+    env.run(T0, sources_stage=stage.dict)
+    nuit = datetime(2026, 11, 16, 23, 30, tzinfo=UTC)  # 00:30 Paris, le lendemain
+    env.run(nuit, mode="stage", sources_stage=stage.dict)
+    assert stage.collectes == 2 and env.collectes == 1  # l'alternance n'est pas refaite
+    assert repo.get_param(env.session, "derniere_collecte:stage") == "2026-11-17"  # date de Paris
+
+
+def test_mode_alternance_ne_collecte_pas_le_stage(env):
+    stage = SourceStage()
+    env.run(T0, mode="alternance", sources_stage=stage.dict)
+    assert env.collectes == 1 and stage.collectes == 0
+    assert repo.get_param(env.session, "derniere_collecte:stage") is None
+
+
+def test_sans_source_de_stage_aucune_trace_de_collecte(env):
+    env.run(T0, mode="stage")
+    assert repo.get_param(env.session, "derniere_collecte:stage") is None
+
+
+def test_offres_de_stage_retenues_et_notees(env):
+    b = env.run(T0, mode="stage", sources_stage=SourceStage().dict, api=None)
+    assert b.ok and b.collectees == 50 and b.retenues > 40 and b.scorees == b.retenues
+    assert env.collectes == 0
+
+
+def test_erreur_stage_isolee_et_sans_cle(env):
+    stage = SourceStage(erreur=RuntimeError("https://api.adzuna.com/?app_key=SECRET"))
+    b = env.run(T0, sources_stage=stage.dict)
+    assert b.ok and b.collectees == 16  # l'alternance est collectée normalement
+    assert b.erreurs == ["source adzuna : RuntimeError"]
+    assert "SECRET" not in json.dumps(env.ligne()["erreurs"])
+
+
+def test_run_auto_cumule_alternance_et_stage(env):
+    b = env.run(T0, sources_stage=SourceStage().dict, api=None)
+    assert (b.collectees, b.retenues) == (16 + 50, 2 + 45)
+    ligne = env.ligne()
+    assert (ligne["offres_collectees"], ligne["offres_retenues"]) == (66, 47)
