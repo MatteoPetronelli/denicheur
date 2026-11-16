@@ -1,0 +1,5 @@
+{
+  "protected": ["modele/", "docs/", "CONCEPTION.md"],
+  "push": "deny",
+  "forbidTrailers": ["Co-Authored-By: Claude", "Generated with [Claude Code]"]
+}

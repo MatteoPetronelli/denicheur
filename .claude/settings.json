@@ -1,0 +1,70 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/era92/.local/bin/graphify.EXE hook-guard search",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/era92/.local/bin/graphify.EXE hook-guard read",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:/Users/era92/.local/bin/graphify.EXE hook-guard compact",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(py -m pytest:*)",
+      "Bash(py -m ruff check:*)",
+      "Bash(py -m ruff format:*)",
+      "Bash(ruff check:*)",
+      "Bash(ruff format:*)",
+      "Bash(openspec list:*)",
+      "Bash(openspec status:*)",
+      "Bash(openspec validate:*)",
+      "Bash(graphify query:*)",
+      "Bash(graphify path:*)",
+      "Bash(graphify explain:*)",
+      "Bash(graphify update:*)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./identifiants_*.json)",
+      "Read(./CV_base/**)",
+      "Read(./profile/cv_*.md)",
+      "Edit(./.env)",
+      "Edit(./identifiants_*.json)"
+    ]
+  }
+}

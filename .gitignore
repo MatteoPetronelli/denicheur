@@ -1,0 +1,33 @@
+# Données personnelles / secrets (handoff §11)
+CV_base/
+profile/cv_*.md
+.env
+.env.*
+!.env.example
+identifiants_*.json
+ft_test_results.json
+*.db
+*.sqlite
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Outils
+graphify-out/cache/
+node_modules/
+.DS_Store
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Éditeurs / logs
+.vscode/
+.idea/
+*.log
