@@ -8,7 +8,7 @@ Skills : `clean-code`, `commit`. Étape bloquante : `py --version` et `git statu
 - [x] 1.2 Créer `src/denicheur/__init__.py` et `__main__.py` (argparse, sous-commandes stubs "non implémenté") ; vérifier `py -m denicheur run` affiche "non implémenté"
 - [x] 1.3 Créer `.env.example` (toutes les clés de la roadmap §3.5, valeurs vides) ; vérifier que `.env.example` est suivi par git (`git check-ignore` ne le liste pas)
 - [x] 1.4 Écrire `tests/test_smoke.py` (import du paquet + stub CLI) ; vérifier qu'il passe
-- [ ] 1.5 Quality gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q` verts avec chiffres réels ; `graphify update .` ; commit via skill `commit`
+- [x] 1.5 Quality gate : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q` verts avec chiffres réels ; `graphify update .` ; commit via skill `commit`
 
 ## Lot 2 — Config, profil, fixture
 
