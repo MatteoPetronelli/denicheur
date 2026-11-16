@@ -2,7 +2,7 @@
 
 Assistant personnel de recherche d'**alternance** (priorité) et de **stage**. Il collecte les offres via des sources officielles, les évalue avec un LLM par rapport au profil du candidat et envoie un digest en français sur Telegram. **L'envoi d'une candidature reste toujours une décision humaine.**
 
-> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed et Jobtome lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Stages collectés via Adzuna (une fois par jour, autour de Marly-le-Roi). Reste à venir : bot interactif, brouillons.
+> Statut : MVP La bonne alternance en place (collecte, filtres, scoring Ollama, digest et alertes Telegram, tâche planifiée). Alertes e-mail Indeed et Jobtome lues dans Gmail (autres sites : un analyseur par expéditeur dès qu'un e-mail réel existe). Stages collectés via Adzuna (une fois par jour, autour de Marly-le-Roi). Bot Telegram interactif (suivi des candidatures, rappel J+7). Reste à venir : brouillons.
 
 ## Fonctionnement
 
@@ -45,15 +45,18 @@ Les secrets se placent uniquement dans un fichier `.env` local, ignoré par git 
 
 ```bash
 py -m pip install -e ".[dev]"
-ollama pull qwen2.5:14b
+ollama pull llama3.1:8b
 py -m denicheur init-db            # crée denicheur.db
 py -m denicheur setup-telegram     # affiche le chat.id à copier dans .env
 py -m denicheur digest --test      # envoie une offre factice
 py -m denicheur run --mode auto    # collecte, filtre, note, notifie (--dry-run : aucun envoi)
-powershell -ExecutionPolicy Bypass -File scripts\installer_taches.ps1   # tâche planifiée « Denicheur »
+py -m denicheur bot                # bot Telegram en polling (boutons et commandes)
+powershell -ExecutionPolicy Bypass -File scripts\installer_taches.ps1   # tâches « Denicheur » (collecte) et « DenicheurBot » (bot, à l'ouverture de session)
 ```
 
-Modes de `run` : `auto` (selon l'heure et l'état en base), `alternance`, `stage`, `digest`. Le paramètre `pause` à `1` en base suspend les envois. Sortie planifiée dans `logs/run.log`.
+Modes de `run` : `auto` (selon l'heure et l'état en base), `alternance`, `stage`, `digest`. Le paramètre `pause` à `1` en base suspend les envois. Sortie planifiée dans `logs/run.log` (bot : `logs/bot.log`).
+
+Bot Telegram : chaque offre envoyée porte quatre boutons (Je postule, Brouillon, Rappel, Ignorer) ; commandes `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config`. Seul ton chat est servi. Sept jours après « Je postule », un rappel part une seule fois. Les brouillons arrivent à l'étape C5.
 
 Contrôles avant commit : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
 

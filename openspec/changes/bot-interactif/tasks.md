@@ -21,14 +21,14 @@
 
 ## 3. Lot 3 : boutons sur les offres envoyées et rappel J+7
 
-- [ ] 3.1 `envoyer_digest` et l'alerte instantanée joignent le clavier ; en-têtes et messages de test sans clavier. Vérifié par tests sur `MockTransport` (corps de requête).
-- [ ] 3.2 Étape de rappel dans `executer` : fenêtre 08:00–20:00, `pause`, `rappel_le` renseigné après envoi, texte français. Vérifié par tests : rappel à J+7, pas à J+6, pas deux fois, pas en pause, un échec d'envoi laisse la candidature due.
-- [ ] 3.3 Mutation-vérifier la règle « une seule fois » (retirer l'écriture de `rappel_le`) et le seuil J+7.
-- [ ] 3.4 Gate complète verte, `openspec validate bot-interactif --strict`, `graphify update .`. Fini quand une candidature antidatée déclenche un seul rappel.
+- [x] 3.1 `envoyer_digest` et l'alerte instantanée joignent le clavier ; en-têtes et messages de test sans clavier. Vérifié par tests sur `MockTransport` (corps de requête).
+- [x] 3.2 Étape de rappel dans `executer` : fenêtre 08:00–20:00, `pause`, `rappel_le` renseigné après envoi, texte français. Vérifié par tests : rappel à J+7, pas à J+6, pas deux fois, pas en pause, un échec d'envoi laisse la candidature due.
+- [x] 3.3 Mutation-vérifier la règle « une seule fois » (retirer l'écriture de `rappel_le`) et le seuil J+7.
+- [x] 3.4 Gate complète verte, `openspec validate bot-interactif --strict`, `graphify update .`. Fini quand une candidature antidatée déclenche un seul rappel.
 
 ## 4. Clôture
 
-- [ ] 4.1 Mettre à jour `README.md` (commande `bot`, tâche de session, boutons) et `CLAUDE.md` (statut). Vérifié par relecture.
+- [x] 4.1 Mettre à jour `README.md` (commande `bot`, tâche de session, boutons) et `CLAUDE.md` (statut). Vérifié par relecture.
 - [ ] 4.2 Archiver avec `openspec archive bot-interactif --yes` ; `openspec validate --specs --strict` vert.
 
 ## Workflow follow-up
