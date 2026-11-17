@@ -8,12 +8,12 @@
 
 ## 2. Lot 2 : service de rédaction (skills : prompt-engineering, avoid-ai-writing, tdd-workflow, mutation-verified-testing)
 
-- [ ] 2.1 `redaction/prompts.py` : message système (règles + modèle de lettre + profil, stable) et message utilisateur (type, offre, projet à citer, disponibilité de la piste). Vérifié par tests : système identique d'un appel à l'autre, aucun fragment de `cv_*.md`, adresse ou téléphone dans le prompt (mutation : concaténer un `cv_*.md` → test rouge), fichier de profil absent → erreur française sans appel.
-- [ ] 2.2 `redaction/service.py` : `rediger(offre, score, type)` avec `llm.ecriture` de la configuration, type inconnu refusé, `OllamaIndisponible` et réponse inutilisable convertis en erreur dédiée. Vérifié par tests avec transport factice (corps de requête = options de la config, Ollama arrêté, délai dépassé).
-- [ ] 2.3 Contrôle de longueur : e-mail 120–180 mots, lettre 250–300, un seul second essai (seulement si le premier a duré moins de 45 s), meilleur texte livré avec la note « ⚠️ longueur hors plage ». Vérifié par tests : dans la plage = 1 appel, 90 puis 140 mots = texte du second, deux échecs = pas de troisième appel ; mutation : retirer la limite d'un essai → rouge.
-- [ ] 2.4 Ligne « Éléments du profil utilisés » conservée en dernier ou ajoutée si absente ; marqueur `[à compléter : détail sur l'entreprise]` conservé tel quel. Vérifié par tests (ligne présente, absente, marqueur intact dans le texte livré).
-- [ ] 2.5 Abaisser `llm.ecriture.timeout_s` de 300 à 90 dans `config/recherches.yaml` sans toucher au modèle ni aux autres options. Vérifié par `load_config` et le test d'options.
-- [ ] 2.6 Gate complète verte (`ruff format --check`, `ruff check`, `mypy src`, `pytest -q`) et `graphify update .`. Vérifié par les comptes affichés.
+- [x] 2.1 `redaction/prompts.py` : message système (règles + modèle de lettre + profil, stable) et message utilisateur (type, offre, projet à citer, disponibilité de la piste). Vérifié par tests : système identique d'un appel à l'autre, aucun fragment de `cv_*.md`, adresse ou téléphone dans le prompt (mutation : concaténer un `cv_*.md` → test rouge), fichier de profil absent → erreur française sans appel.
+- [x] 2.2 `redaction/service.py` : `rediger(offre, score, type)` avec `llm.ecriture` de la configuration, type inconnu refusé, `OllamaIndisponible` et réponse inutilisable convertis en erreur dédiée. Vérifié par tests avec transport factice (corps de requête = options de la config, Ollama arrêté, délai dépassé).
+- [x] 2.3 Contrôle de longueur : e-mail 120–180 mots, lettre 250–300, un seul second essai (seulement si le premier a duré moins de 45 s), meilleur texte livré avec la note « ⚠️ longueur hors plage ». Vérifié par tests : dans la plage = 1 appel, 90 puis 140 mots = texte du second, deux échecs = pas de troisième appel ; mutation : retirer la limite d'un essai → rouge.
+- [x] 2.4 Ligne « Éléments du profil utilisés » conservée en dernier ou ajoutée si absente ; marqueur `[à compléter : détail sur l'entreprise]` conservé tel quel. Vérifié par tests (ligne présente, absente, marqueur intact dans le texte livré).
+- [x] 2.5 Abaisser `llm.ecriture.timeout_s` de 300 à 90 dans `config/recherches.yaml` sans toucher au modèle ni aux autres options. Vérifié par `load_config` et le test d'options.
+- [x] 2.6 Gate complète verte (`ruff format --check`, `ruff check`, `mypy src`, `pytest -q`) et `graphify update .`. Vérifié par les comptes affichés.
 
 ## 3. Lot 3 : branchement Telegram et brouillons Gmail (skills : tdd-workflow, mutation-verified-testing, threat-modeling)
 
