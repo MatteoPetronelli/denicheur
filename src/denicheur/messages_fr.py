@@ -84,13 +84,33 @@ CB_GARDEE = "⏰ Offre gardée de côté."
 CB_DEJA_GARDEE = "Déjà gardée de côté."
 CB_IGNOREE = "🚫 Offre ignorée."
 CB_DEJA_IGNOREE = "Déjà ignorée."
-CB_BROUILLON = "Brouillon disponible à l'étape C5"
+CB_ATTENTE = "⏳ Rédaction…"
+CB_REDACTION_ABSENTE = "Rédaction non configurée."
+CB_SANS_SCORE = "Offre non notée : brouillon impossible."
+CB_RELANCE_DEJA = "Une seule relance par candidature : déjà faite."
+CB_DEJA_DEPOSE = "Déjà déposé dans Gmail."
+CB_DEPOSE = "📥 Brouillon Gmail créé"
+CB_GMAIL_ABSENT = "Gmail non configuré : identifiants absents du .env."
+CB_GMAIL_ECHEC = "Échec du dépôt Gmail : réessaie plus tard."
+ECHEC_OLLAMA = "⚠️ Ollama ne répond pas : lance-le puis réessaie."
+ECHEC_REDACTION = "⚠️ La rédaction a échoué ou a dépassé le délai : réessaie."
 CB_INTROUVABLE = "Offre introuvable."
 CB_INCONNU = "Action inconnue."
 
 
 def cb_impossible(statut: str | None) -> str:
     return f"Impossible : l'offre est déjà « {statut or 'nouvelle'} »."
+
+
+def echec_profil(message: str) -> str:
+    return f"⚠️ {_e(message, 200)}"
+
+
+def texte_brouillon(type_: str, texte: str) -> str:
+    """Le brouillon à relire, échappé pour Telegram (HTML) et borné sous la limite."""
+    titre = "Relance" if type_ == "relance" else "Brouillon d'e-mail"
+    entete = f"✍️ <b>{titre}</b>\n\n"
+    return entete + escape(texte)[: LIMITE_TELEGRAM - len(entete)]
 
 
 def borner(lignes: list[str]) -> str:

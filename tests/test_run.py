@@ -323,6 +323,15 @@ def test_rappel_a_j_plus_7_une_seule_fois(env):
     assert len(_rappels(env)) == 1
 
 
+def test_rappel_porte_le_bouton_relance_de_l_offre(env):
+    oid = _candidature_envoyee_le(env, T0)
+    env.corps.clear()
+    env.run(T0 + timedelta(days=7))
+    (rappel,) = [c for c in env.corps if c["text"].startswith("⏰")]
+    boutons = [b for ligne in rappel["reply_markup"]["inline_keyboard"] for b in ligne]
+    assert boutons == [{"text": "✉️ Relance", "callback_data": f"l:{oid}"}]
+
+
 def test_pas_de_rappel_a_j_plus_6(env):
     _candidature_envoyee_le(env, T0)
     env.run(T0 + timedelta(days=6))

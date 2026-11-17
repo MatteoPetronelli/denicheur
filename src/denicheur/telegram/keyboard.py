@@ -3,7 +3,7 @@
 import re
 from typing import Any
 
-_DONNEE = re.compile(r"[pbrx]:[0-9]{1,9}")
+_DONNEE = re.compile(r"[pbrxgl]:[0-9]{1,9}")
 
 
 def clavier_offre(offre_id: int) -> dict[str, Any]:
@@ -16,6 +16,22 @@ def clavier_offre(offre_id: int) -> dict[str, Any]:
             [bouton("⏰ Rappel", "r"), bouton("🚫 Ignorer", "x")],
         ]
     }
+
+
+def _un_bouton(texte: str, donnee: str) -> dict[str, Any]:
+    return {"inline_keyboard": [[{"text": texte, "callback_data": donnee}]]}
+
+
+def clavier_brouillon(brouillon_id: int) -> dict[str, Any]:
+    return _un_bouton("📥 Créer le brouillon Gmail", f"g:{brouillon_id}")
+
+
+def clavier_depose() -> dict[str, Any]:
+    return _un_bouton("✅ Brouillon Gmail créé", "noop")
+
+
+def clavier_rappel(offre_id: int) -> dict[str, Any]:
+    return _un_bouton("✉️ Relance", f"l:{offre_id}")
 
 
 def clavier_envoyee() -> dict[str, Any]:

@@ -18,7 +18,7 @@ from denicheur.scoring.llm import Scorer
 from denicheur.scoring.service import scorer_offres
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.digest import envoyer_digest
-from denicheur.telegram.keyboard import clavier_offre
+from denicheur.telegram.keyboard import clavier_offre, clavier_rappel
 
 MODES = ("auto", "alternance", "stage", "digest")
 Source = Callable[[Config, datetime], list[Offre]]
@@ -114,7 +114,7 @@ def _notifier(deps: Deps, mode: str, now: datetime) -> int:
         s.commit()
     if is_daytime(now, *cfg.plage_alertes):
         for offre_id, offre in repo.candidatures_a_relancer(s, paris_now(now).date()):
-            api.send_message(rappel_j7(offre))
+            api.send_message(rappel_j7(offre), clavier_rappel(offre_id))
             repo.marquer_rappelee(s, offre_id, now)  # après l'envoi : un échec laisse le rappel dû
             s.commit()
     return envoyees

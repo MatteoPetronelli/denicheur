@@ -12,6 +12,8 @@ from denicheur.config import Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
 from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
+from denicheur.redaction.gmail_drafts import creer_brouillon
+from denicheur.redaction.service import Redacteur
 from denicheur.scoring.llm import OllamaScorer
 from denicheur.sources import SOURCES, adzuna, email_alertes
 from denicheur.telegram.api import TelegramAPI, TelegramError
@@ -97,10 +99,21 @@ def _bot(secrets: Secrets) -> int:
         logging.getLogger(bruyant).setLevel(logging.WARNING)  # httpx journalise les URL, donc le jeton
     migrer(secrets.database_url)
     api = TelegramAPI(secrets.telegram_bot_token, httpx.Client(), chat_id=secrets.telegram_chat_id)
+    config = load_config(CONFIG)
+    deposer = None
+    if secrets.gmail_user and secrets.gmail_app_password:
+        user, mdp = secrets.gmail_user, secrets.gmail_app_password
+
+        def deposer(sujet: str, corps: str) -> None:
+            creer_brouillon(user, mdp, sujet, corps)
+
     with Session(make_engine(secrets.database_url)) as session:
         boucle(
-            BotDeps(api, session, load_config(CONFIG), secrets.telegram_chat_id, lambda: datetime.now(UTC))
-        )
+            BotDeps(
+                api, session, config, secrets.telegram_chat_id, lambda: datetime.now(UTC),
+                redacteur=Redacteur(config.llm, httpx.Client()), deposer=deposer,
+            )
+        )  # fmt: skip
     return 0
 
 

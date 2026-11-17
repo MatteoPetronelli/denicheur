@@ -5,17 +5,21 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Protocol
 
 from sqlalchemy.orm import Session
 
 from denicheur import messages_fr as fr
 from denicheur.config import Config
 from denicheur.db import repo
-from denicheur.models import Statut
+from denicheur.models import Offre, ScoreLLM, Statut
+from denicheur.redaction.gmail_drafts import ErreurGmail, corps_pour_gmail, sujet_brouillon
+from denicheur.redaction.prompts import ProfilManquant
+from denicheur.redaction.service import RedactionInvalide
+from denicheur.scoring.llm import OllamaIndisponible
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.commands import repondre
-from denicheur.telegram.keyboard import clavier_envoyee, lire_donnee
+from denicheur.telegram.keyboard import clavier_brouillon, clavier_depose, clavier_envoyee, lire_donnee
 
 log = logging.getLogger(__name__)
 ATTENTE_ERREUR_S = 5
@@ -29,6 +33,10 @@ _ACTIONS = {
 }
 
 
+class Redacteur(Protocol):
+    def rediger(self, offre: Offre, score: ScoreLLM, type_: str) -> str: ...
+
+
 @dataclass
 class BotDeps:
     api: TelegramAPI
@@ -36,6 +44,73 @@ class BotDeps:
     config: Config
     chat_id: str
     maintenant: Callable[[], datetime]
+    redacteur: Redacteur | None = None
+    deposer: Callable[[str, str], None] | None = None  # (sujet, corps) -> brouillon Gmail
+
+
+def _rediger(deps: BotDeps, cq: dict[str, Any], offre_id: int, type_: str) -> None:
+    """Génère, enregistre et envoie un brouillon ; la boucle bloque pendant l'appel au modèle."""
+    api, session = deps.api, deps.session
+    if deps.redacteur is None:
+        api.answer_callback(cq["id"], fr.CB_REDACTION_ABSENTE)
+        return
+    try:
+        repo.verifier_brouillon(session, offre_id, type_)  # avant l'appel au modèle : un refus ne coûte rien
+    except repo.OffreInconnue:
+        api.answer_callback(cq["id"], fr.CB_INTROUVABLE)
+        return
+    except repo.RelanceDejaFaite:
+        api.answer_callback(cq["id"], fr.CB_RELANCE_DEJA)
+        return
+    except repo.TransitionInvalide:
+        courant = repo.statut_de(session, offre_id)
+        api.answer_callback(cq["id"], fr.cb_impossible(courant.value if courant else None))
+        return
+    score = repo.lire_score(session, offre_id)
+    if score is None:
+        api.answer_callback(cq["id"], fr.CB_SANS_SCORE)
+        return
+    api.answer_callback(cq["id"], fr.CB_ATTENTE)
+    debut = time.monotonic()
+    try:
+        texte = deps.redacteur.rediger(repo.lire_offre(session, offre_id), score, type_)
+    except OllamaIndisponible:
+        api.send_message(fr.ECHEC_OLLAMA)
+        return
+    except RedactionInvalide:
+        api.send_message(fr.ECHEC_REDACTION)
+        return
+    except ProfilManquant as e:
+        api.send_message(fr.echec_profil(str(e)))
+        return
+    log.info("rédaction %s offre %s : %.1f s", type_, offre_id, time.monotonic() - debut)
+    brouillon_id = repo.enregistrer_brouillon(session, offre_id, type_, texte, deps.maintenant())
+    session.commit()
+    api.send_message(fr.texte_brouillon(type_, texte), clavier_brouillon(brouillon_id))
+
+
+def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
+    api, session = deps.api, deps.session
+    brouillon = repo.lire_brouillon(session, brouillon_id)
+    if brouillon is None:
+        api.answer_callback(cq["id"], fr.CB_INTROUVABLE)
+        return
+    if brouillon.depose:
+        api.answer_callback(cq["id"], fr.CB_DEJA_DEPOSE)
+        return
+    if deps.deposer is None:
+        api.answer_callback(cq["id"], fr.CB_GMAIL_ABSENT)
+        return
+    offre = repo.lire_offre(session, brouillon.offre_id)
+    try:
+        deps.deposer(sujet_brouillon(brouillon.type, offre), corps_pour_gmail(brouillon.contenu))
+    except ErreurGmail:
+        api.answer_callback(cq["id"], fr.CB_GMAIL_ECHEC)
+        return
+    repo.marquer_depose(session, brouillon_id)
+    session.commit()
+    api.answer_callback(cq["id"], fr.CB_DEPOSE)
+    api.edit_keyboard(cq["message"]["message_id"], clavier_depose())
 
 
 def _bouton(deps: BotDeps, cq: dict[str, Any]) -> None:
@@ -48,8 +123,11 @@ def _bouton(deps: BotDeps, cq: dict[str, Any]) -> None:
         api.answer_callback(cq["id"], fr.CB_INCONNU)
         return
     action, offre_id = lu
-    if action == "b":
-        api.answer_callback(cq["id"], fr.CB_BROUILLON)
+    if action in ("b", "l"):
+        _rediger(deps, cq, offre_id, "email" if action == "b" else "relance")
+        return
+    if action == "g":
+        _deposer(deps, cq, offre_id)  # ici l'identifiant est celui d'un brouillon
         return
     statut, fait, deja = _ACTIONS[action]
     try:

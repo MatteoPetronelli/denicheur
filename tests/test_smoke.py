@@ -166,3 +166,31 @@ def test_bot_lance_la_boucle_pour_le_chat_configure(tmp_path, monkeypatch):
     assert recu[0].chat_id == "77"
     for nom in ("httpx", "httpcore"):  # leurs URL contiennent le jeton du bot
         assert logging.getLogger(nom).getEffectiveLevel() >= logging.WARNING
+
+
+def test_bot_branche_la_redaction_et_le_depot_gmail_quand_les_identifiants_existent(tmp_path, monkeypatch):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "77")
+    monkeypatch.setenv("GMAIL_USER", "moi@exemple.fr")
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "mdp")
+    recu, depots = [], []
+    monkeypatch.setattr("denicheur.__main__.boucle", recu.append)
+    monkeypatch.setattr("denicheur.__main__.creer_brouillon", lambda *a, **k: depots.append(a))
+    assert main(["bot"]) == 0
+    deps = recu[0]
+    assert deps.redacteur is not None and deps.deposer is not None
+    deps.deposer("Sujet", "Corps")
+    assert depots == [("moi@exemple.fr", "mdp", "Sujet", "Corps")]
+
+
+def test_bot_sans_identifiants_gmail_pas_de_depot(tmp_path, monkeypatch):
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "77")
+    monkeypatch.setenv("GMAIL_USER", "")  # vide = absent ; delenv laisserait load_dotenv relire le vrai .env
+    monkeypatch.setenv("GMAIL_APP_PASSWORD", "")
+    recu = []
+    monkeypatch.setattr("denicheur.__main__.boucle", recu.append)
+    assert main(["bot"]) == 0
+    assert recu[0].deposer is None and recu[0].redacteur is not None
