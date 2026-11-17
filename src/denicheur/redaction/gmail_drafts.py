@@ -3,9 +3,9 @@
 import imaplib
 import re
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from email.message import EmailMessage
-from typing import Any
+from typing import Any, NamedTuple
 
 from denicheur.models import Offre
 from denicheur.redaction.prompts import LIGNE_PROFIL
@@ -15,6 +15,12 @@ _DOSSIER = re.compile(r'\(([^)]*)\)\s+(?:"[^"]*"|NIL)\s+(.+)')
 
 class ErreurGmail(Exception):
     """Erreur IMAP sans détail susceptible de contenir l'adresse ou le mot de passe."""
+
+
+class Piece(NamedTuple):
+    nom: str
+    type_mime: str  # « application/pdf »
+    octets: bytes
 
 
 def _gmail() -> Any:
@@ -56,6 +62,8 @@ def creer_brouillon(
     corps: str,
     a: str = "",
     imap_factory: Callable[[], Any] = _gmail,
+    *,
+    pieces: Sequence[Piece] = (),
 ) -> None:
     """Ajoute exactement un message au dossier des brouillons (attribut \\Drafts, toute langue)."""
     message = EmailMessage()
@@ -63,6 +71,11 @@ def creer_brouillon(
     if a:
         message["To"] = _ligne(a)
     message.set_content(corps)
+    for piece in pieces:
+        genre, _, sous_genre = piece.type_mime.partition("/")
+        if not (genre and sous_genre) or "/" in sous_genre or " " in piece.type_mime:
+            raise ErreurGmail("Type de pièce jointe invalide")
+        message.add_attachment(piece.octets, maintype=genre, subtype=sous_genre, filename=_ligne(piece.nom))
     imap = imap_factory()
     try:
         try:

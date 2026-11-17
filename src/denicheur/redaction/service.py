@@ -1,5 +1,6 @@
 """Rédaction d'un brouillon avec le modèle d'écriture : longueur contrôlée en code, rien d'envoyé."""
 
+import logging
 import re
 import time
 from collections.abc import Callable
@@ -11,7 +12,6 @@ from denicheur.config import LLMConfig
 from denicheur.models import Offre, ScoreLLM
 from denicheur.redaction.prompts import (
     LIGNE_PROFIL,
-    MARQUEUR_DETAIL,
     PLAGES,
     PROFILE,
     TYPES,
@@ -20,16 +20,22 @@ from denicheur.redaction.prompts import (
 )
 from denicheur.scoring.llm import OllamaIndisponible
 
-__all__ = ["MARQUEUR_DETAIL", "Redacteur", "RedactionInvalide"]
+__all__ = ["Redacteur", "RedactionInvalide"]
 
-NOTE_LONGUEUR = "⚠️ longueur hors plage"
+log = logging.getLogger(__name__)
 SANS_LIGNE_PROFIL = f"{LIGNE_PROFIL} : non listés par le modèle, vérification impossible."
 _INTRO = re.compile(r"Voici .{0,120}:")
+# Un texte prêt à envoyer n'a aucun trou : « [à compléter : … ] » est retiré s'il échappe au modèle.
+_A_COMPLETER = re.compile(r"\s*\[[^\]]*compl[ée]ter[^\]]*\]", re.IGNORECASE)
 SECOND_ESSAI_MAX_S = 45  # au-delà, un second essai ferait attendre l'utilisateur plus de 90 s
 
 
 class RedactionInvalide(Exception):
     """Réponse inutilisable (erreur HTTP, délai dépassé, JSON ou texte vide) ; sans détail interne."""
+
+
+def _sans_trou(texte: str) -> str:
+    return _A_COMPLETER.sub("", texte).strip()
 
 
 def _separer(brut: str) -> tuple[str, str | None]:
@@ -39,8 +45,8 @@ def _separer(brut: str) -> tuple[str, str | None]:
         lignes = lignes[1:]
     for i in range(len(lignes) - 1, -1, -1):
         if lignes[i].strip().startswith(LIGNE_PROFIL):
-            return "\n".join(lignes[:i]).strip(), lignes[i].strip()
-    return "\n".join(lignes).strip(), None
+            return _sans_trou("\n".join(lignes[:i])), lignes[i].strip()
+    return _sans_trou("\n".join(lignes)), None
 
 
 def _ecart(corps: str, plage: tuple[int, int]) -> int:
@@ -101,6 +107,6 @@ class Redacteur:
             corps2, ligne2, _ = self._essai(systeme, utilisateur + rappel)
             if _ecart(corps2, plage) <= _ecart(corps, plage):
                 corps, ligne = corps2, ligne2
-        fin = [NOTE_LONGUEUR] if _ecart(corps, plage) else []
-        fin.append(ligne or SANS_LIGNE_PROFIL)
-        return corps + "\n\n" + "\n".join(fin)
+        if _ecart(corps, plage):  # le texte part tel quel : la longueur n'est signalée que dans le journal
+            log.info("rédaction %s hors plage : %d mots (%d à %d)", type_, len(corps.split()), *plage)
+        return corps + "\n\n" + (ligne or SANS_LIGNE_PROFIL)

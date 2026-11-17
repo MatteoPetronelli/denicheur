@@ -1,6 +1,6 @@
 # Modèle de lettre
 
-Modèle de structure et de ton. Les accolades marquent ce que le brouillon remplace : `{entreprise}`, `{poste}`, `{projet}`, `{detail}`. Ne pas recopier le texte tel quel : l'adapter à l'offre, avec les faits du profil seulement. Les phrases entre parenthèses sont des consignes, jamais du texte à recopier. Ne rien affirmer sur l'offre ou l'entreprise qui ne figure pas dans l'offre.
+Modèle de structure et de ton. Les accolades marquent ce que le brouillon remplace : `{entreprise}`, `{poste}`, `{projet}`, `{detail}`. Ne pas recopier le texte tel quel : l'adapter à l'offre, avec les faits du profil seulement. Les phrases entre parenthèses sont des consignes, jamais du texte à recopier. Ne rien affirmer sur l'offre ou l'entreprise qui ne figure pas dans l'offre. `{detail}` est une phrase complète tirée de l'offre ; sans détail disponible, la remplacer par une phrase sur les missions du poste, jamais par un trou à compléter.
 
 ---
 

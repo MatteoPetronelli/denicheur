@@ -16,7 +16,7 @@ Ces règles s'appliquent à tout brouillon : e-mail, lettre, relance, candidatur
 
 ## Structure
 1. Appel : « Madame, Monsieur, » (ou le nom du contact s'il figure dans l'offre).
-2. Accroche : le poste visé et une raison précise de choisir cette entreprise, tirée de l'offre. Si l'offre ne permet pas de citer un détail propre à l'entreprise, écrire exactement `[à compléter : détail sur l'entreprise]` à cet endroit.
+2. Accroche : le poste visé et une raison précise de choisir cette entreprise, tirée de l'offre. Si l'offre ne permet pas de citer un détail propre à l'entreprise, parler du poste et de ses missions tels que l'offre les décrit, sans rien inventer sur l'entreprise. Le texte est toujours complet et prêt à envoyer : jamais de crochets, jamais de passage à compléter.
 3. Un seul projet concret du profil, celui qui se rapproche le plus de l'offre : ce qui a été construit, avec quelles technologies, ce que cela prouve pour le poste.
 4. Disponibilité, avec la phrase fournie pour la piste concernée.
 5. Clôture : proposer un échange. E-mail : « Cordialement, ». Lettre : « Dans l'attente de vous lire, je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées. »

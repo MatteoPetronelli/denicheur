@@ -10,7 +10,6 @@ PROFILE = Path(__file__).resolve().parents[3] / "profile"
 FICHIERS = ("regles_ecriture.md", "lettre_modele.md", "profil.md")
 TYPES = ("email", "lettre", "relance", "spontanee")
 LIGNE_PROFIL = "Éléments du profil utilisés"
-MARQUEUR_DETAIL = "[à compléter : détail sur l'entreprise]"
 # type -> (plage de mots, consigne)
 PLAGES = {"email": (120, 180), "lettre": (250, 300), "relance": (120, 180), "spontanee": (120, 180)}
 _CONSIGNES = {
@@ -49,14 +48,16 @@ def message_utilisateur(offre: Offre, score: ScoreLLM, type_: str) -> str:
     bas, haut = PLAGES[type_]
     description = _nettoyer(offre.description)[:MAX_DESCRIPTION]
     return (
-        f"{_CONSIGNES[type_]}, de {bas} à {haut} mots.\n"
+        f"{_CONSIGNES[type_]}, de {bas} à {haut} mots "
+        f"(vise {(bas + haut) // 2} mots, jamais moins de {bas}).\n"
         f"Poste : {_nettoyer(offre.titre)}\n"
         f"Entreprise : {offre.entreprise or 'non précisée'}\n"
         f"Lieu : {offre.commune or 'non précisé'}\n"
         f"Projet à citer : {score.projet_a_citer}\n"
         f"Disponibilité à indiquer : {_DISPONIBILITE[offre.piste]}\n"
-        f"Si l'offre ne donne aucun détail propre à l'entreprise, écris exactement "
-        f"{MARQUEUR_DETAIL} à la place.\n"
+        "Le texte doit être complet et prêt à envoyer : aucun texte entre crochets, aucun trou à compléter. "
+        "Si l'offre ne donne aucun détail propre à l'entreprise, parle du poste et de ses missions tels que "
+        "l'offre les décrit, sans rien inventer sur l'entreprise.\n"
         "Réponds uniquement par le texte demandé, sans phrase d'introduction ni commentaire.\n"
         f"Termine par une ligne « {LIGNE_PROFIL} : … ».\n"
         f"Description de l'offre :\n{description}"

@@ -7,7 +7,13 @@ from pathlib import Path
 import pytest
 
 from denicheur.models import Offre, Piste
-from denicheur.redaction.gmail_drafts import ErreurGmail, corps_pour_gmail, creer_brouillon, sujet_brouillon
+from denicheur.redaction.gmail_drafts import (
+    ErreurGmail,
+    Piece,
+    corps_pour_gmail,
+    creer_brouillon,
+    sujet_brouillon,
+)
 
 SRC = Path(__file__).parent.parent / "src" / "denicheur"
 USER, MDP = "moi@exemple.fr", "mdp-app-secret"
@@ -145,11 +151,6 @@ def test_corps_pour_gmail_retire_la_ligne_de_profil_et_la_note():
     assert corps_pour_gmail(texte) == "Madame, Monsieur,\n\nCorps."
 
 
-def test_corps_pour_gmail_garde_le_marqueur_a_completer():
-    texte = "Bonjour [à compléter : détail sur l'entreprise]\nÉléments du profil utilisés : x"
-    assert "[à compléter : détail sur l'entreprise]" in corps_pour_gmail(texte)
-
-
 def _offre(titre="Développeur web"):
     return Offre(
         source="t", source_id="1", url="u", titre=titre, entreprise="ACME", commune="Paris", lat=None,
@@ -180,3 +181,50 @@ def test_aucun_module_n_importe_smtplib():
             if any(n.split(".")[0] == "smtplib" for n in noms):
                 fautifs.append(chemin.name)
     assert fautifs == []
+
+
+# --- pièces jointes ---
+def _message_depose(imap):
+    return email.message_from_bytes(imap.de_type("append")[0][3], policy=email.policy.default)
+
+
+def test_pdf_en_piece_jointe_un_seul_append_et_octets_intacts():
+    imap = FauxImap()
+    pdf = b"%PDF-1.4\n\x00\xff\xfe binaire"
+    creer_brouillon(
+        USER, MDP, "Sujet", "Corps é", imap_factory=lambda: imap,
+        pieces=[Piece("Lettre de motivation ACME.pdf", "application/pdf", pdf)],
+    )  # fmt: skip
+    assert len(imap.de_type("append")) == 1
+    message = _message_depose(imap)
+    (piece,) = list(message.iter_attachments())
+    assert piece.get_content_type() == "application/pdf"
+    assert piece.get_filename() == "Lettre de motivation ACME.pdf"
+    assert piece.get_content() == pdf
+    assert message.get_body().get_content().strip() == "Corps é"
+
+
+def test_sans_piece_jointe_aucune_piece():
+    imap = FauxImap()
+    _creer(imap)
+    assert list(_message_depose(imap).iter_attachments()) == []
+
+
+def test_nom_de_piece_jointe_sur_une_ligne():
+    imap = FauxImap()
+    creer_brouillon(
+        USER, MDP, "S", "C", imap_factory=lambda: imap,
+        pieces=[Piece("a\r\nBcc: x@exemple.fr.pdf", "application/pdf", b"x")],
+    )  # fmt: skip
+    message = _message_depose(imap)
+    assert message["Bcc"] is None and "\n" not in list(message.iter_attachments())[0].get_filename()
+
+
+def test_type_mime_invalide_refuse_sans_append():
+    imap = FauxImap()
+    with pytest.raises(ErreurGmail):
+        creer_brouillon(
+            USER, MDP, "S", "C", imap_factory=lambda: imap,
+            pieces=[Piece("a.pdf", "pas-un-type", b"x")],
+        )  # fmt: skip
+    assert imap.de_type("append") == []

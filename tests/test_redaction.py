@@ -8,7 +8,7 @@ from denicheur.config import load_config
 from denicheur.models import Offre, Piste, ScoreLLM
 from denicheur.redaction import prompts
 from denicheur.redaction.prompts import ProfilManquant, message_systeme, message_utilisateur
-from denicheur.redaction.service import MARQUEUR_DETAIL, Redacteur, RedactionInvalide
+from denicheur.redaction.service import Redacteur, RedactionInvalide
 from denicheur.scoring.llm import OllamaIndisponible
 
 RACINE = Path(__file__).parent.parent
@@ -115,7 +115,7 @@ def test_message_utilisateur_porte_offre_projet_et_disponibilite():
     m = message_utilisateur(_offre(entreprise="Globex"), SCORE, "email")
     assert "Globex" in m and "RiftMind" in m and "Développeur Python" in m
     assert "une semaine d'école pour deux semaines en entreprise" in m and "dès que possible" in m
-    assert MARQUEUR_DETAIL in m
+    assert "aucun trou à compléter" in m and "vise 150 mots" in m
 
 
 def test_disponibilite_du_stage():
@@ -193,19 +193,19 @@ def test_deux_echecs_livre_le_plus_proche_avec_note_sans_troisieme_appel(profil)
     texte = _redacteur(ollama, profil).rediger(_offre(), SCORE, "email")
     assert len(ollama.requetes) == 2
     assert "b109" in texte and "a59" not in texte
-    assert "⚠️ longueur hors plage" in texte
+    assert "⚠" not in texte and texte.splitlines()[-1].startswith(LIGNE)
 
 
 def test_le_meilleur_est_aussi_le_premier(profil):
     ollama = Ollama(_texte(115, tag="a"), _texte(40, tag="b"))
     texte = _redacteur(ollama, profil).rediger(_offre(), SCORE, "email")
-    assert "a114" in texte and "b39" not in texte and "⚠️" in texte
+    assert "a114" in texte and "b39" not in texte and "⚠" not in texte
 
 
 def test_premier_essai_lent_pas_de_second_appel(profil):
     ollama = Ollama(_texte(90), _texte(140))
     texte = _redacteur(ollama, profil, _horloge(0.0, 46.0)).rediger(_offre(), SCORE, "email")
-    assert len(ollama.requetes) == 1 and "⚠️ longueur hors plage" in texte
+    assert len(ollama.requetes) == 1 and "⚠" not in texte
 
 
 def test_premier_essai_rapide_autorise_le_second(profil):
@@ -260,17 +260,36 @@ def test_ce_qui_suit_la_ligne_de_profil_est_ecarte(profil):
     assert texte.splitlines()[-1].startswith(LIGNE) and "changements" not in texte
 
 
-def test_la_note_precede_la_ligne_de_profil(profil):
-    texte = _redacteur(Ollama(_texte(60), _texte(70)), profil).rediger(_offre(), SCORE, "email")
-    lignes = texte.splitlines()
-    assert lignes[-1].startswith(LIGNE) and "⚠️" in lignes[-2]
+def test_hors_plage_aucune_note_dans_le_texte_mais_une_ligne_de_journal(profil, caplog):
+    with caplog.at_level("INFO", logger="denicheur.redaction.service"):
+        texte = _redacteur(Ollama(_texte(60), _texte(70)), profil).rediger(_offre(), SCORE, "email")
+    assert "⚠" not in texte and "hors plage" not in texte
+    assert texte.splitlines()[-1].startswith(LIGNE)
+    (message,) = [r.getMessage() for r in caplog.records if r.name == "denicheur.redaction.service"]
+    assert "email hors plage" in message and "70 mots" in message and "120 à 180" in message
 
 
-def test_marqueur_de_detail_conserve_tel_quel(profil):
-    corps = f"Bonjour, {MARQUEUR_DETAIL} " + _mots(140)
+def test_aucun_journal_quand_la_longueur_est_bonne(profil, caplog):
+    with caplog.at_level("INFO", logger="denicheur.redaction.service"):
+        _redacteur(Ollama(_texte(150)), profil).rediger(_offre(), SCORE, "email")
+    assert [r for r in caplog.records if r.name == "denicheur.redaction.service"] == []
+
+
+@pytest.mark.parametrize(
+    "trou",
+    ["[à compléter : détail sur l'entreprise]", "[A COMPLETER]", "[à compléter]", "[ à compléter : le nom ]"],
+)
+def test_aucun_trou_a_completer_ne_survit_dans_le_texte_livre(profil, trou):
+    corps = f"Madame, Monsieur, je postule. {trou} " + _mots(140)
     texte = _redacteur(Ollama(corps + f"\n{LIGNE} : Python"), profil).rediger(_offre(), SCORE, "email")
-    assert MARQUEUR_DETAIL in texte
-    assert MARQUEUR_DETAIL == "[à compléter : détail sur l'entreprise]"
+    assert "[" not in texte and "compl" not in texte.lower().replace("complet", "")
+    assert "je postule. mot0" in texte  # pas de double espace après le retrait
+
+
+def test_les_crochets_sans_trou_sont_conserves(profil):
+    corps = "Madame, Monsieur, voir [1] ci-dessous. " + _mots(140)
+    texte = _redacteur(Ollama(corps + f"\n{LIGNE} : x"), profil).rediger(_offre(), SCORE, "email")
+    assert "[1]" in texte
 
 
 def test_phrase_d_introduction_du_modele_est_retiree(profil):
@@ -293,3 +312,11 @@ def test_premiere_ligne_voici_sans_deux_points_est_du_corps(profil):
     corps = "Voici ma candidature pour ce poste. " + _mots(150)
     texte = _redacteur(Ollama(corps + f"\n{LIGNE} : x"), profil).rediger(_offre(), SCORE, "email")
     assert texte.startswith("Voici ma candidature")
+
+
+def test_l_identite_locale_n_entre_jamais_dans_le_prompt(profil):
+    (profil / "identite.md").write_text("nom: IDENTITE-SECRETE\nemail: moi@exemple.fr\n", encoding="utf-8")
+    ollama = Ollama(_texte(260))
+    _redacteur(ollama, profil).rediger(_offre(), SCORE, "lettre")
+    envoye = ollama.requetes[0].content.decode("utf-8")
+    assert "IDENTITE-SECRETE" not in envoye and "moi@exemple.fr" not in envoye
