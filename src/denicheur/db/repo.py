@@ -8,7 +8,7 @@ from sqlalchemy import case, func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from denicheur.db.tables import candidatures, executions, offres, parametres, scores
+from denicheur.db.tables import brouillons, candidatures, executions, offres, parametres, scores
 from denicheur.models import Offre, Piste, ScoreLLM, Statut
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -287,3 +287,84 @@ def suivi_en_cours(session: Session, limite: int) -> list[tuple[int, Offre, Stat
         .limit(limite)
     ).all()
     return [(oid, lire_offre(session, oid), Statut(statut)) for oid, statut in lignes]
+
+
+class RelanceDejaFaite(Exception):
+    pass
+
+
+@dataclass
+class BrouillonLu:
+    id: int
+    offre_id: int
+    type: str
+    contenu: str
+    depose: bool  # déjà dans les brouillons Gmail
+
+
+def _nb_relances(session: Session, offre_id: int) -> int:
+    return session.execute(
+        select(func.count())
+        .select_from(brouillons.join(candidatures, brouillons.c.candidature_id == candidatures.c.id))
+        .where(candidatures.c.offre_id == offre_id, brouillons.c.type == "relance")
+    ).scalar_one()
+
+
+def verifier_brouillon(session: Session, offre_id: int, type_: str) -> None:
+    """Lève si un brouillon de ce type n'est pas permis ; à appeler avant de payer un appel au modèle."""
+    if session.execute(select(offres.c.id).where(offres.c.id == offre_id)).first() is None:
+        raise OffreInconnue(offre_id)
+    courant = statut_de(session, offre_id)
+    if type_ == "relance":
+        if _nb_relances(session, offre_id):
+            raise RelanceDejaFaite(offre_id)
+        if courant is not Statut.CANDIDATURE_ENVOYEE:
+            raise TransitionInvalide(f"{courant or 'nouvelle'} -> relance")
+    elif courant is Statut.IGNOREE or courant in _ISSUES:
+        raise TransitionInvalide(f"{courant} -> brouillon")
+
+
+def enregistrer_brouillon(session: Session, offre_id: int, type_: str, contenu: str, now: datetime) -> int:
+    """Enregistre le brouillon ; crée le suivi `interessante` si besoin, `relancee` après une relance."""
+    verifier_brouillon(session, offre_id, type_)
+    cible: Statut | None = None
+    if type_ == "relance":
+        cible = Statut.RELANCEE
+    elif statut_de(session, offre_id) is None:
+        cible = Statut.INTERESSANTE
+    if cible:
+        marquer(session, offre_id, cible, now)
+    if type_ == "relance":
+        session.execute(
+            candidatures.update().where(candidatures.c.offre_id == offre_id).values(relance_le=_utc_naif(now))
+        )
+    candidature_id = session.execute(
+        select(candidatures.c.id).where(candidatures.c.offre_id == offre_id)
+    ).scalar_one()
+    res = session.execute(
+        brouillons.insert().values(
+            candidature_id=candidature_id,
+            type=type_,
+            contenu=contenu,
+            gmail_draft=False,
+            cree_le=_utc_naif(now),
+        )
+    )
+    return int(res.inserted_primary_key[0])  # type: ignore[attr-defined]
+
+
+def lire_brouillon(session: Session, brouillon_id: int) -> BrouillonLu | None:
+    ligne = session.execute(
+        select(brouillons, candidatures.c.offre_id)
+        .join(candidatures, brouillons.c.candidature_id == candidatures.c.id)
+        .where(brouillons.c.id == brouillon_id)
+    ).mappings().one_or_none()  # fmt: skip
+    if ligne is None:
+        return None
+    return BrouillonLu(
+        ligne["id"], ligne["offre_id"], ligne["type"], ligne["contenu"], bool(ligne["gmail_draft"])
+    )
+
+
+def marquer_depose(session: Session, brouillon_id: int) -> None:
+    session.execute(brouillons.update().where(brouillons.c.id == brouillon_id).values(gmail_draft=True))
