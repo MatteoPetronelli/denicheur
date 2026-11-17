@@ -1,0 +1,38 @@
+## Purpose
+
+Déposer un texte relu dans les brouillons Gmail de l'utilisateur par IMAP pour qu'il l'envoie lui-même, sans jamais envoyer de message.
+
+## ADDED Requirements
+
+### Requirement: Draft stored in Gmail drafts
+La création SHALL ajouter exactement un message au dossier des brouillons du compte, identifié par son attribut IMAP `\Drafts` (« [Gmail]/Brouillons » sur un compte en français, « [Gmail]/Drafts » en anglais), avec le drapeau `\Draft`, sujet et corps en UTF-8, destinataire vide ou fourni. Aucune lecture, aucun envoi et aucune modification d'un autre dossier ne SHALL avoir lieu.
+
+#### Scenario: One draft appended
+- **WHEN** un brouillon est créé avec un sujet et un corps accentués
+- **THEN** l'IMAP factice reçoit exactement un `APPEND` dans le dossier portant l'attribut `\Drafts` (même s'il s'appelle « [Gmail]/Brouillons ») avec le drapeau `\Draft`, et le sujet et le corps sont lisibles intacts
+
+#### Scenario: No recipient invented
+- **WHEN** aucun destinataire n'est fourni
+- **THEN** l'en-tête `To` est absent ou vide
+
+#### Scenario: Drafts folder not found
+- **WHEN** aucun dossier n'a l'attribut `\Drafts`
+- **THEN** une erreur dédiée est levée sans secret et aucun `APPEND` n'a lieu
+
+### Requirement: Never send
+Le code SHALL n'utiliser aucun protocole d'envoi : le paquet de rédaction n'importe pas `smtplib` et aucune connexion SMTP n'est ouverte.
+
+#### Scenario: No SMTP in the package
+- **WHEN** les sources du paquet de rédaction sont analysées
+- **THEN** aucune importation de `smtplib` n'y figure
+
+### Requirement: Safe failures
+Un échec de connexion, d'identification ou d'`APPEND` SHALL lever une erreur dédiée dont le message ne contient ni mot de passe ni adresse, et la connexion SHALL toujours être fermée.
+
+#### Scenario: Login refused
+- **WHEN** l'identification est refusée
+- **THEN** l'erreur ne contient ni l'identifiant ni le mot de passe et la connexion est fermée
+
+#### Scenario: Append refused
+- **WHEN** le serveur répond autre chose que `OK` à l'`APPEND`
+- **THEN** une erreur est levée et aucun brouillon n'est considéré comme créé
