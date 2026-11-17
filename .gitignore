@@ -1,6 +1,8 @@
 # Données personnelles / secrets (handoff §11)
 CV_base/
 profile/cv_*.md
+profile/identite.md
+profile/liens.md
 .env
 .env.*
 !.env.example

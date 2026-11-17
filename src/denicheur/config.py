@@ -78,6 +78,7 @@ class Secrets(BaseModel):
     database_url: str = "sqlite:///denicheur.db"
     gmail_user: str | None = None
     gmail_app_password: str | None = None
+    lettres_dir: str | None = None  # dossier de sortie des lettres ; sinon le dossier par défaut
     ft_client_id: str | None = None
     ft_client_secret: str | None = None
 
