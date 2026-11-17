@@ -61,8 +61,6 @@
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./identifiants_*.json)",
-      "Read(./CV_base/**)",
-      "Read(./profile/cv_*.md)",
       "Edit(./.env)",
       "Edit(./identifiants_*.json)"
     ]
