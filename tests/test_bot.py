@@ -9,6 +9,7 @@ from denicheur.db import repo
 from denicheur.db.base import make_engine, migrer
 from denicheur.db.tables import brouillons, candidatures
 from denicheur.models import Offre, Piste, ScoreLLM, Statut
+from denicheur.redaction.documents import ErreurDocuments
 from denicheur.redaction.gmail_drafts import ErreurGmail
 from denicheur.redaction.prompts import ProfilManquant
 from denicheur.redaction.service import RedactionInvalide
@@ -45,6 +46,10 @@ class FauxAPI:
         self.appels.append(("send_message", texte, reply_markup))
         if self.echec_envoi:
             raise self.echec_envoi
+        return {}
+
+    def send_document(self, nom, octets, type_mime):
+        self.appels.append(("send_document", nom, octets, type_mime))
         return {}
 
     def answer_callback(self, callback_id, texte=None):
@@ -298,11 +303,13 @@ class FauxDepot:
     def __init__(self, erreur=None):
         self.erreur = erreur
         self.depots: list[tuple[str, str]] = []
+        self.pieces: list = []
 
-    def __call__(self, sujet, corps):
+    def __call__(self, sujet, corps, pieces=()):
         if self.erreur:
             raise self.erreur
         self.depots.append((sujet, corps))
+        self.pieces.append(list(pieces))
 
 
 def _notee(session, n=1):
@@ -532,3 +539,224 @@ def test_la_duree_de_redaction_est_journalisee(session, caplog):
     (message,) = [r.getMessage() for r in caplog.records if r.name == "denicheur.telegram.bot"]
     assert message.startswith("rédaction email offre") and message.endswith(" s")
     assert "Madame" not in message and "localhost" not in message
+
+
+# --- lettre PDF : d, et dépôt avec pièce jointe ---
+@pytest.fixture
+def lettres(tmp_path):
+    """(options du bot, dossier des lettres) : identité locale factice, dossier temporaire."""
+    identite = tmp_path / "identite.md"
+    identite.write_text(
+        "nom: Jeanne Exemple\nadresse: 1 rue des Tests\nville: 75001 Paris\n"
+        "telephone: 01 02 03 04 05\nemail: jeanne@exemple.test\n",
+        encoding="utf-8",
+    )
+    dossier = tmp_path / "lettres"
+    dossier.mkdir()
+    return {"dossier_lettres": dossier, "chemin_identite": identite}, dossier
+
+
+def _noms(dossier):
+    return sorted(p.name for p in dossier.iterdir())
+
+
+def test_lettre_ecrit_les_deux_fichiers_les_envoie_puis_propose_le_depot(session, lettres):
+    options, dossier = lettres
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [("Dev 1", "lettre")]
+    assert _noms(dossier) == ["Lettre de motivation ACME.docx", "Lettre de motivation ACME.pdf"]
+    ordre = [a[0] for a in api.appels if a[0] in ("send_message", "send_document")]
+    assert ordre == ["send_message", "send_document", "send_document", "send_message"]
+    texte, doc1, doc2, accompagnement = (
+        [a for a in api.appels if a[0] == "send_message"][0],
+        *api.de_type("send_document"),
+        [a for a in api.appels if a[0] == "send_message"][1],
+    )
+    assert PROFIL_LIGNE in texte[1]  # le texte relu garde la ligne de vérification
+    assert (doc1[1], doc1[3]) == ("Lettre de motivation ACME.pdf", "application/pdf") and doc1[2][
+        :4
+    ] == b"%PDF"
+    assert doc2[1] == "Lettre de motivation ACME.docx" and doc2[2][:2] == b"PK"
+    (ligne,) = _brouillons(session)
+    assert ligne["type"] == "lettre" and accompagnement[2] == clavier_brouillon(ligne["id"])
+    assert (
+        "Dev 1" in accompagnement[1] and "ACME" in accompagnement[1] and "Jeanne Exemple" in accompagnement[1]
+    )
+    assert repo.statut_de(session, oid) is Statut.INTERESSANTE
+
+
+def test_lettre_sur_offre_ignoree_aucun_appel_ni_fichier(session, lettres):
+    options, dossier = lettres
+    oid = _notee(session)
+    repo.marquer(session, oid, Statut.IGNOREE, NOW)
+    session.commit()
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert (
+        redacteur.demandes == []
+        and _noms(dossier) == []
+        and "Impossible" in api.de_type("answer_callback")[0][2]
+    )
+
+
+def test_lettre_identite_absente_refus_avant_l_appel_au_modele(session, lettres):
+    options, dossier = lettres
+    options["chemin_identite"].unlink()
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [] and _noms(dossier) == [] and _brouillons(session) == []
+    assert "identité" in api.de_type("answer_callback")[0][2]
+
+
+def test_lettre_dossier_absent_refus_avant_l_appel_au_modele(session, lettres, tmp_path):
+    options, _ = lettres
+    options["dossier_lettres"] = tmp_path / "inexistant"
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [] and "Dossier des lettres" in api.de_type("answer_callback")[0][2]
+    assert str(tmp_path) not in api.de_type("answer_callback")[0][2]
+
+
+def test_lettre_dossier_non_configure(session):
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur)
+    assert redacteur.demandes == [] and "non configuré" in api.de_type("answer_callback")[0][2]
+
+
+def test_lettre_echec_d_ecriture_message_sans_chemin_et_aucun_brouillon(session, lettres, monkeypatch):
+    options, dossier = lettres
+
+    def echec(*a, **k):
+        raise ErreurDocuments("Écriture impossible dans le dossier des lettres")
+
+    monkeypatch.setattr("denicheur.telegram.bot.ecrire_lettre", echec)
+    oid = _notee(session)
+    autre = _notee(session, 2)
+    api = FauxAPI([_bouton(10, f"d:{oid}"), _bouton(11, f"x:{autre}")])
+    _lancer(session, api, redacteur=FauxRedacteur(api), **options)
+    ((_, texte, _clavier),) = api.de_type("send_message")
+    assert "lettre" in texte and str(dossier) not in texte
+    assert _brouillons(session) == [] and api.de_type("send_document") == []
+    assert _statut(session, autre) is Statut.IGNOREE and _statut(session, oid) is None
+
+
+def test_lettre_d_un_chat_etranger_ne_declenche_rien(session, lettres):
+    options, dossier = lettres
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"d:{oid}", chat="999", auteur="999")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [] and _noms(dossier) == []
+    assert api.de_type("send_message") == [] and api.de_type("send_document") == []
+
+
+def _avec_lettre(session):
+    oid = _notee(session)
+    bid = repo.enregistrer_brouillon(session, oid, "lettre", TEXTE, NOW)
+    session.commit()
+    return oid, bid
+
+
+def test_depot_gmail_d_une_lettre_joint_le_pdf_sans_rien_ecrire_dans_le_dossier(session, lettres):
+    options, dossier = lettres
+    _, bid = _avec_lettre(session)
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    ((sujet, corps),) = depot.depots
+    assert sujet == "Candidature : Dev 1"
+    assert (
+        corps.startswith("Madame, Monsieur,")
+        and "ci-joint" in corps
+        and corps.rstrip().endswith("Jeanne Exemple")
+    )
+    assert PROFIL_LIGNE not in corps
+    ((piece,),) = depot.pieces
+    assert piece.nom == "Lettre de motivation ACME.pdf" and piece.type_mime == "application/pdf"
+    assert piece.octets[:4] == b"%PDF"
+    assert _noms(dossier) == []
+    assert repo.lire_brouillon(session, bid).depose is True
+
+
+def test_depot_gmail_d_un_brouillon_email_sans_piece_jointe(session, lettres):
+    options, _ = lettres
+    _, bid = _avec_brouillon(session)
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    assert depot.pieces == [[]]
+
+
+def test_depot_gmail_d_une_lettre_identite_absente_aucun_depot(session, lettres):
+    options, _ = lettres
+    options["chemin_identite"].unlink()
+    _, bid = _avec_lettre(session)
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    assert depot.depots == [] and "identité" in api.de_type("answer_callback")[0][2]
+    assert repo.lire_brouillon(session, bid).depose is False
+
+
+def test_echec_de_redaction_est_journalise_sans_detail_interne(session, caplog):
+    oid = _notee(session)
+    api = FauxAPI([_bouton(10, f"b:{oid}")])
+    with caplog.at_level("WARNING", logger="denicheur.telegram.bot"):
+        _lancer(session, api, redacteur=FauxRedacteur(api, erreur=RedactionInvalide("ReadTimeout")))
+    (message,) = [r.getMessage() for r in caplog.records if r.name == "denicheur.telegram.bot"]
+    assert "ReadTimeout" in message and f"offre {oid}" in message and " s" in message
+    assert "localhost" not in message and "http" not in message
+
+
+def _liens(tmp_path):
+    chemin = tmp_path / "liens.md"
+    chemin.write_text(
+        "github: https://github.com/exemple/\nprojet RiftMind: https://github.com/exemple/riftmind\n",
+        encoding="utf-8",
+    )
+    return chemin
+
+
+def _texte_pdf(octets):
+    import io
+
+    from pypdf import PdfReader
+
+    return "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(octets)).pages)
+
+
+def test_lettre_ajoute_le_lien_du_projet_cite_dans_les_fichiers_envoyes(session, lettres, tmp_path):
+    options, dossier = lettres
+    options["chemin_liens"] = _liens(tmp_path)
+    oid = _notee(session)
+    texte = f"Madame, Monsieur,\n\nJ'ai créé RiftMind en Rust.\n\nCordialement.\n\n{PROFIL_LIGNE}"
+    api = FauxAPI([_bouton(10, f"d:{oid}")])
+    _lancer(session, api, redacteur=FauxRedacteur(api, texte=texte), **options)
+    pdf = api.de_type("send_document")[0][2]
+    assert "https://github.com/exemple/riftmind" in _texte_pdf(
+        pdf
+    ) and "GitHub : https://github.com/exemple/" in _texte_pdf(pdf)
+    assert pdf == (dossier / "Lettre de motivation ACME.pdf").read_bytes()
+
+
+def test_depot_gmail_d_une_lettre_joint_un_pdf_avec_les_liens(session, lettres, tmp_path):
+    options, _ = lettres
+    options["chemin_liens"] = _liens(tmp_path)
+    oid = _notee(session)
+    texte = f"Madame, Monsieur,\n\nJ'ai créé RiftMind en Rust.\n\n{PROFIL_LIGNE}"
+    bid = repo.enregistrer_brouillon(session, oid, "lettre", texte, NOW)
+    session.commit()
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    assert "https://github.com/exemple/riftmind" in _texte_pdf(depot.pieces[0][0].octets)

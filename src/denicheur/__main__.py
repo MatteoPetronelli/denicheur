@@ -1,6 +1,7 @@
 import argparse
 import logging
 import sys
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -12,7 +13,8 @@ from denicheur.config import Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
 from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
-from denicheur.redaction.gmail_drafts import creer_brouillon
+from denicheur.redaction.documents import DOSSIER_LETTRES
+from denicheur.redaction.gmail_drafts import Piece, creer_brouillon
 from denicheur.redaction.service import Redacteur
 from denicheur.scoring.llm import OllamaScorer
 from denicheur.sources import SOURCES, adzuna, email_alertes
@@ -104,14 +106,15 @@ def _bot(secrets: Secrets) -> int:
     if secrets.gmail_user and secrets.gmail_app_password:
         user, mdp = secrets.gmail_user, secrets.gmail_app_password
 
-        def deposer(sujet: str, corps: str) -> None:
-            creer_brouillon(user, mdp, sujet, corps)
+        def deposer(sujet: str, corps: str, pieces: Sequence[Piece]) -> None:
+            creer_brouillon(user, mdp, sujet, corps, pieces=pieces)
 
     with Session(make_engine(secrets.database_url)) as session:
         boucle(
             BotDeps(
                 api, session, config, secrets.telegram_chat_id, lambda: datetime.now(UTC),
                 redacteur=Redacteur(config.llm, httpx.Client()), deposer=deposer,
+                dossier_lettres=Path(secrets.lettres_dir) if secrets.lettres_dir else DOSSIER_LETTRES,
             )
         )  # fmt: skip
     return 0

@@ -153,7 +153,7 @@ def test_digest_top_10_par_score_decroissant(session):
     assert repo.offres_a_notifier(session, 65, 20)[0][1].titre in {"Dev 0", "Dev 1"}
 
 
-def test_digest_joint_les_quatre_boutons_a_chaque_offre_mais_pas_a_l_entete(session):
+def test_digest_joint_les_cinq_boutons_a_chaque_offre_mais_pas_a_l_entete(session):
     a, b = _stocker(session, 1, 90), _stocker(session, 2, 80)
     vues = []
     envoyer_digest(session, _api(vues), cfg, NOW)
@@ -161,7 +161,7 @@ def test_digest_joint_les_quatre_boutons_a_chaque_offre_mais_pas_a_l_entete(sess
     assert "reply_markup" not in entete
     for corps, oid in ((offre_a, a), (offre_b, b)):
         donnees = [x["callback_data"] for ligne in corps["reply_markup"]["inline_keyboard"] for x in ligne]
-        assert donnees == [f"p:{oid}", f"b:{oid}", f"r:{oid}", f"x:{oid}"]
+        assert donnees == [f"p:{oid}", f"b:{oid}", f"r:{oid}", f"x:{oid}", f"d:{oid}"]
 
 
 def test_digest_vide_sans_clavier(session):
@@ -197,3 +197,40 @@ def test_digest_test_envoie_une_offre_factice():
     vues = []
     envoyer_test(_api(vues))
     assert len(vues) == 1 and "TEST" in vues[0][1]["text"]
+
+
+# --- envoi de fichiers ---
+def _api_fichier(requetes, statut=200):
+    def handler(req):
+        requetes.append(req)
+        return httpx.Response(statut, json={"ok": statut == 200, "result": {}})
+
+    return TelegramAPI(TOKEN, httpx.Client(transport=httpx.MockTransport(handler)), chat_id="42")
+
+
+def test_send_document_poste_le_fichier_en_multipart_vers_le_seul_chat():
+    requetes = []
+    _api_fichier(requetes).send_document("Lettre ACME.pdf", b"%PDF-binaire\x00\xff", "application/pdf")
+    (req,) = requetes
+    assert str(req.url).endswith("/sendDocument")
+    corps = req.content
+    assert b'name="chat_id"' in corps and b"42" in corps
+    assert b'filename="Lettre ACME.pdf"' in corps and b"%PDF-binaire\x00\xff" in corps
+    assert b"application/pdf" in corps and req.headers["content-type"].startswith("multipart/form-data")
+
+
+def test_send_document_sans_chat_refuse():
+    api = TelegramAPI(TOKEN, httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(200))))
+    with pytest.raises(TelegramError, match="TELEGRAM_CHAT_ID"):
+        api.send_document("a.pdf", b"x", "application/pdf")
+
+
+@pytest.mark.parametrize("statut", [400, 500])
+def test_send_document_erreur_sans_url_ni_jeton(statut):
+    with pytest.raises(TelegramError) as e:
+        _api_fichier([], statut).send_document("a.pdf", b"x", "application/pdf")
+    assert (
+        TOKEN not in str(e.value)
+        and "api.telegram.org" not in str(e.value)
+        and "sendDocument" in str(e.value)
+    )

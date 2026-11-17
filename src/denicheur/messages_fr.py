@@ -92,6 +92,9 @@ CB_DEJA_DEPOSE = "Déjà déposé dans Gmail."
 CB_DEPOSE = "📥 Brouillon Gmail créé"
 CB_GMAIL_ABSENT = "Gmail non configuré : identifiants absents du .env."
 CB_GMAIL_ECHEC = "Échec du dépôt Gmail : réessaie plus tard."
+CB_LETTRES_ABSENT = "Dossier des lettres non configuré."
+CB_FICHIERS_ECHEC = "Lettre impossible à générer : réessaie plus tard."
+ECHEC_FICHIERS = "⚠️ La lettre n'a pas pu être écrite dans le dossier des lettres : rien n'a été enregistré."
 ECHEC_OLLAMA = "⚠️ Ollama ne répond pas : lance-le puis réessaie."
 ECHEC_REDACTION = "⚠️ La rédaction a échoué ou a dépassé le délai : réessaie."
 CB_INTROUVABLE = "Offre introuvable."
@@ -100,6 +103,22 @@ CB_INCONNU = "Action inconnue."
 
 def cb_impossible(statut: str | None) -> str:
     return f"Impossible : l'offre est déjà « {statut or 'nouvelle'} »."
+
+
+def message_accompagnement(poste: str, entreprise: str | None, nom: str) -> str:
+    """Court message d'envoi, gabarit fixe : aucun appel au modèle, aucune invention."""
+    chez = f" au sein de {entreprise}" if entreprise else ""
+    return (
+        "Madame, Monsieur,\n\n"
+        f"Veuillez trouver ci-joint ma lettre de motivation pour le poste de {poste}{chez}.\n\n"
+        "Je reste disponible pour un échange.\n\n"
+        f"Cordialement,\n{nom}"
+    )
+
+
+def accompagnement_telegram(poste: str, entreprise: str | None, nom: str) -> str:
+    entete = "✉️ <b>Message d'accompagnement</b>\n\n"
+    return entete + escape(message_accompagnement(poste, entreprise, nom))[: LIMITE_TELEGRAM - len(entete)]
 
 
 def echec_profil(message: str) -> str:

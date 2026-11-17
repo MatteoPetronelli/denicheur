@@ -291,7 +291,9 @@ def test_alerte_instantanee_porte_les_boutons_de_l_offre(env):
     alerte = env.corps[0]
     assert alerte["text"].startswith("🚨 Alternance")
     donnees = [b["callback_data"] for ligne in alerte["reply_markup"]["inline_keyboard"] for b in ligne]
-    assert [d[0] for d in donnees] == ["p", "b", "r", "x"] and len({d.split(":")[1] for d in donnees}) == 1
+    assert [d[0] for d in donnees] == ["p", "b", "r", "x", "d"] and len(
+        {d.split(":")[1] for d in donnees}
+    ) == 1
 
 
 def _candidature_envoyee_le(env, jour):

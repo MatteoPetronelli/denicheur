@@ -3,7 +3,7 @@
 import re
 from typing import Any
 
-_DONNEE = re.compile(r"[pbrxgl]:[0-9]{1,9}")
+_DONNEE = re.compile(r"[pbrxgld]:[0-9]{1,9}")
 
 
 def clavier_offre(offre_id: int) -> dict[str, Any]:
@@ -14,6 +14,7 @@ def clavier_offre(offre_id: int) -> dict[str, Any]:
         "inline_keyboard": [
             [bouton("✅ Je postule", "p"), bouton("✍️ Brouillon", "b")],
             [bouton("⏰ Rappel", "r"), bouton("🚫 Ignorer", "x")],
+            [bouton("📄 Lettre PDF", "d")],
         ]
     }
 

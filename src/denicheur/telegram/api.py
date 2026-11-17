@@ -31,6 +31,25 @@ class TelegramAPI:
             raise TelegramError(f"Telegram {methode} : {type(e).__name__}") from None
         return r.json()["result"]
 
+    def send_document(self, nom: str, octets: bytes, type_mime: str) -> Any:
+        chat = self._chat()
+        if self._deja_envoye:
+            self._sleep(1)  # limite de débit de Telegram
+        self._deja_envoye = True
+        try:
+            r = self._http.post(
+                f"{BASE}/bot{self._token}/sendDocument",
+                data={"chat_id": chat},
+                files={"document": (nom, octets, type_mime)},
+                timeout=60,
+            )
+            r.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise TelegramError(f"Telegram sendDocument : HTTP {e.response.status_code}") from None
+        except httpx.HTTPError as e:
+            raise TelegramError(f"Telegram sendDocument : {type(e).__name__}") from None
+        return r.json()["result"]
+
     def _chat(self) -> str:
         if self._chat_id is None:
             raise TelegramError("TELEGRAM_CHAT_ID absent : lance d'abord setup-telegram")

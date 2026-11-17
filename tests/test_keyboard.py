@@ -10,10 +10,12 @@ from denicheur.telegram.keyboard import (
 )
 
 
-def test_clavier_offre_quatre_boutons_pour_la_meme_offre():
+def test_clavier_offre_cinq_boutons_pour_la_meme_offre():
     boutons = [b for ligne in clavier_offre(42)["inline_keyboard"] for b in ligne]
-    assert [b["callback_data"] for b in boutons] == ["p:42", "b:42", "r:42", "x:42"]
-    assert [b["text"] for b in boutons] == ["✅ Je postule", "✍️ Brouillon", "⏰ Rappel", "🚫 Ignorer"]
+    assert [b["callback_data"] for b in boutons] == ["p:42", "b:42", "r:42", "x:42", "d:42"]
+    assert [b["text"] for b in boutons] == [
+        "✅ Je postule", "✍️ Brouillon", "⏰ Rappel", "🚫 Ignorer", "📄 Lettre PDF",
+    ]  # fmt: skip
 
 
 def test_donnee_de_bouton_tient_dans_64_octets_meme_pour_un_grand_id():
@@ -61,7 +63,9 @@ def test_donnees_g_et_l_longues_tiennent_dans_64_octets():
             assert len(b["callback_data"].encode()) <= 64
 
 
-@pytest.mark.parametrize(("donnee", "attendu"), [("g:12", ("g", 12)), ("l:3", ("l", 3)), ("p:1", ("p", 1))])
+@pytest.mark.parametrize(
+    ("donnee", "attendu"), [("g:12", ("g", 12)), ("l:3", ("l", 3)), ("d:9", ("d", 9)), ("p:1", ("p", 1))]
+)
 def test_lire_donnee_accepte_g_et_l(donnee, attendu):
     assert lire_donnee(donnee) == attendu
 

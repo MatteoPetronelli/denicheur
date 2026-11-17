@@ -36,6 +36,7 @@ def _env_sans_reseau(tmp_path, monkeypatch):
         "TELEGRAM_CHAT_ID",
         "GMAIL_USER",
         "GMAIL_APP_PASSWORD",
+        "LETTRES_DIR",
         "ADZUNA_APP_ID",
         "ADZUNA_APP_KEY",
     ):
@@ -180,7 +181,7 @@ def test_bot_branche_la_redaction_et_le_depot_gmail_quand_les_identifiants_exist
     assert main(["bot"]) == 0
     deps = recu[0]
     assert deps.redacteur is not None and deps.deposer is not None
-    deps.deposer("Sujet", "Corps")
+    deps.deposer("Sujet", "Corps", [])
     assert depots == [("moi@exemple.fr", "mdp", "Sujet", "Corps")]
 
 
@@ -194,3 +195,18 @@ def test_bot_sans_identifiants_gmail_pas_de_depot(tmp_path, monkeypatch):
     monkeypatch.setattr("denicheur.__main__.boucle", recu.append)
     assert main(["bot"]) == 0
     assert recu[0].deposer is None and recu[0].redacteur is not None
+
+
+def test_bot_dossier_des_lettres_par_defaut_ou_depuis_l_environnement(tmp_path, monkeypatch):
+    from denicheur.redaction.documents import DOSSIER_LETTRES
+
+    _env_sans_reseau(tmp_path, monkeypatch)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "77")
+    recu = []
+    monkeypatch.setattr("denicheur.__main__.boucle", recu.append)
+    assert main(["bot"]) == 0
+    assert recu[0].dossier_lettres == DOSSIER_LETTRES
+    monkeypatch.setenv("LETTRES_DIR", str(tmp_path / "ailleurs"))
+    assert main(["bot"]) == 0
+    assert recu[1].dossier_lettres == tmp_path / "ailleurs"
