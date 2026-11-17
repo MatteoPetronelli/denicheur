@@ -57,6 +57,7 @@ def message_utilisateur(offre: Offre, score: ScoreLLM, type_: str) -> str:
         f"Disponibilité à indiquer : {_DISPONIBILITE[offre.piste]}\n"
         f"Si l'offre ne donne aucun détail propre à l'entreprise, écris exactement "
         f"{MARQUEUR_DETAIL} à la place.\n"
+        "Réponds uniquement par le texte demandé, sans phrase d'introduction ni commentaire.\n"
         f"Termine par une ligne « {LIGNE_PROFIL} : … ».\n"
         f"Description de l'offre :\n{description}"
     )

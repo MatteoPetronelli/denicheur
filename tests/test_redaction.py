@@ -271,3 +271,25 @@ def test_marqueur_de_detail_conserve_tel_quel(profil):
     texte = _redacteur(Ollama(corps + f"\n{LIGNE} : Python"), profil).rediger(_offre(), SCORE, "email")
     assert MARQUEUR_DETAIL in texte
     assert MARQUEUR_DETAIL == "[à compléter : détail sur l'entreprise]"
+
+
+def test_phrase_d_introduction_du_modele_est_retiree(profil):
+    brut = "Voici le corps de l'e-mail de candidature :\n\n" + _texte(150)
+    texte = _redacteur(Ollama(brut), profil).rediger(_offre(), SCORE, "email")
+    assert not texte.startswith("Voici") and texte.startswith("mot0 ")
+
+
+def test_une_phrase_qui_commence_par_voici_dans_le_corps_est_conservee(profil):
+    corps = "Madame, Monsieur,\nVoici mon projet : " + _mots(150)
+    texte = _redacteur(Ollama(corps + f"\n{LIGNE} : x"), profil).rediger(_offre(), SCORE, "email")
+    assert "Voici mon projet" in texte
+
+
+def test_le_prompt_demande_le_texte_seul():
+    assert "sans phrase d'introduction" in message_utilisateur(_offre(), SCORE, "email")
+
+
+def test_premiere_ligne_voici_sans_deux_points_est_du_corps(profil):
+    corps = "Voici ma candidature pour ce poste. " + _mots(150)
+    texte = _redacteur(Ollama(corps + f"\n{LIGNE} : x"), profil).rediger(_offre(), SCORE, "email")
+    assert texte.startswith("Voici ma candidature")

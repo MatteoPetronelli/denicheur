@@ -1,5 +1,6 @@
 """Rédaction d'un brouillon avec le modèle d'écriture : longueur contrôlée en code, rien d'envoyé."""
 
+import re
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -23,6 +24,7 @@ __all__ = ["MARQUEUR_DETAIL", "Redacteur", "RedactionInvalide"]
 
 NOTE_LONGUEUR = "⚠️ longueur hors plage"
 SANS_LIGNE_PROFIL = f"{LIGNE_PROFIL} : non listés par le modèle, vérification impossible."
+_INTRO = re.compile(r"Voici .{0,120}:")
 SECOND_ESSAI_MAX_S = 45  # au-delà, un second essai ferait attendre l'utilisateur plus de 90 s
 
 
@@ -33,6 +35,8 @@ class RedactionInvalide(Exception):
 def _separer(brut: str) -> tuple[str, str | None]:
     """(corps, ligne de profil) ; ce qui suit la ligne de profil est écarté."""
     lignes = brut.strip().splitlines()
+    if lignes and _INTRO.fullmatch(lignes[0].strip()):  # « Voici le texte : » : bavardage du modèle
+        lignes = lignes[1:]
     for i in range(len(lignes) - 1, -1, -1):
         if lignes[i].strip().startswith(LIGNE_PROFIL):
             return "\n".join(lignes[:i]).strip(), lignes[i].strip()
