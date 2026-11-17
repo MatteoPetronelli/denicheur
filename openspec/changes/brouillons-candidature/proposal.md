@@ -10,6 +10,7 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 - Bot : « ✍️ Brouillon » (`b:`) répond « ⏳ Rédaction… », génère, enregistre dans `brouillons`, renvoie le texte avec un bouton « 📥 Créer le brouillon Gmail » (`g:<brouillon_id>`). Le plafond de durée du LLM protège la boucle de polling.
 - Création d'un brouillon Gmail par IMAP `APPEND "[Gmail]/Drafts"` avec le drapeau `\Draft`, sans destinataire inventé, jamais d'envoi, aucun `smtplib`.
 - Le message de rappel J+7 reçoit un bouton « ✉️ Relance » (`l:<offre_id>`) ; une seule relance par candidature, la seconde demande est refusée avec un message.
+- **Lot 4 : lettre en PDF et DOCX.** Un bouton « 📄 Lettre PDF » (`d:<offre_id>`) génère la lettre (250–300 mots), l'enregistre, écrit un PDF et un DOCX dans le dossier des lettres de l'utilisateur, les envoie dans Telegram et propose le dépôt Gmail avec le PDF en pièce jointe et un court message d'accompagnement. L'en-tête et la signature viennent d'un fichier local ajouté par le code, jamais envoyé au LLM ; le court message est un gabarit fixe, sans appel au modèle.
 - **Lot 1 sans code, supervisé** : écrire `profile/regles_ecriture.md` et `profile/lettre_modele.md` (génériques, versionnés) et les `profile/cv_*.md` (locaux, hors git) à partir des CV et des lettres d'exemple de l'utilisateur.
 
 ## Capabilities
@@ -17,9 +18,10 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 ### New Capabilities
 - `draft-writing`: génération des brouillons français (types, prompt stable, contrôle de longueur, ligne de profil, marqueur de détail inconnu, absence de données personnelles dans le prompt).
 - `gmail-drafts`: dépôt d'un texte dans les brouillons Gmail par IMAP, sans aucun envoi.
+- `application-documents`: lettre de motivation en PDF et DOCX (en-tête et signature locaux, fichiers nommés sans écrasement) et court message d'accompagnement.
 
 ### Modified Capabilities
-- `telegram-bot`: le bouton « Brouillon » génère et enregistre un brouillon ; nouveaux boutons « Créer le brouillon Gmail » et « Relance » ; actions `g` et `l` admises dans la donnée des boutons.
+- `telegram-bot`: le bouton « Brouillon » génère et enregistre un brouillon ; nouveaux boutons « Créer le brouillon Gmail », « Relance » et « Lettre PDF » ; actions `g`, `l` et `d` admises dans la donnée des boutons ; envoi de fichiers dans le chat.
 - `daily-run`: le message de rappel J+7 porte le bouton « ✉️ Relance ».
 - `application-tracking`: demander un brouillon sur une offre sans suivi crée le suivi `interessante` ; une relance marque `relancee` et n'est possible qu'une fois.
 
@@ -28,6 +30,7 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 - Code : nouveau paquet `src/denicheur/redaction/` (`prompts.py`, `service.py`, `gmail_drafts.py`) ; `telegram/keyboard.py` (regex et claviers), `telegram/bot.py`, `messages_fr.py`, `pipeline/run.py` (clavier du rappel), `db/repo.py` (brouillons).
 - Base : table `brouillons` déjà créée (C1) ; aucune migration prévue.
 - Fichiers locaux : `profile/regles_ecriture.md`, `profile/lettre_modele.md` (git), `profile/cv_alternance.md`, `profile/cv_stage.md` (hors git, vérifier `.gitignore`).
-- Dépendances : aucune nouvelle (`imaplib` et `email` de la bibliothèque standard).
+- Dépendances : `imaplib` et `email` de la bibliothèque standard pour Gmail ; Lot 4 : `fpdf2` (PDF) et `python-docx` (DOCX), Python pur, gratuits, sans service externe.
+- Fichiers locaux du Lot 4 : `profile/identite.md` (nom, adresse, téléphone, e-mail ; hors git, jamais lu par le LLM) et le dossier de sortie des lettres, par défaut `lettres motivation taf` sur le Bureau, réglable par une variable d'environnement.
 - Étape bloquante du Lot 1 : l'utilisateur autorise la lecture de `CV_base/` et du dossier des lettres.
 - Sécurité : aucun secret ni coordonnée dans le prompt, les journaux ou les erreurs ; le mot de passe d'application Gmail déjà en `.env` sert à l'APPEND.

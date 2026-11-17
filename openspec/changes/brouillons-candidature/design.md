@@ -43,21 +43,42 @@ Motivation : voir `proposal.md`. Exigences : voir `specs/`.
 
 **8. Relance : un brouillon `relance`, statut `relancee`.** La relance est possible depuis `candidature_envoyee` seulement ; elle enregistre un brouillon `relance` et marque `relancee`. « Une seule » = au plus une ligne `brouillons` de type `relance` par candidature. Point à confirmer par l'utilisateur : marquer `relancee` à la génération (et non au dépôt Gmail ou à un bouton « Envoyée ») est un choix de simplicité ; l'envoi réel reste humain.
 
-**9. Gmail : `APPEND` seul, même identifiants que la lecture.** `imaplib` (bibliothèque standard), `APPEND` dans le dossier des brouillons (`\Draft`) d'un `email.message.EmailMessage` (UTF-8, `To` absent). Même fabrique IMAP injectable que `lire_alertes`, pour tester avec un faux serveur. Aucun `smtplib` : un test lit les sources du paquet `redaction/` et échoue sur l'importation. Les erreurs ne portent ni identifiant ni mot de passe, comme `ErreurImap`. Le compte de l'utilisateur est en français : le dossier s'appelle « [Gmail]/Brouillons ». On ne le code donc pas en dur : un `LIST` repère le dossier portant l'attribut `\Drafts` (avec repli sur « [Gmail]/Brouillons »), et le faux IMAP des tests porte ce nom français.
+**9. Gmail : `APPEND` seul, même identifiants que la lecture.** `imaplib` (bibliothèque standard), `APPEND` dans le dossier des brouillons (`\Draft`) d'un `email.message.EmailMessage` (UTF-8, `To` absent). Même fabrique IMAP injectable que `lire_alertes`, pour tester avec un faux serveur. Aucun `smtplib` : un test lit les sources du paquet `redaction/` et échoue sur l'importation. Les erreurs ne portent ni identifiant ni mot de passe, comme `ErreurImap`. Le compte de l'utilisateur est en français : le dossier s'appelle « [Gmail]/Brouillons ». On ne le code donc pas en dur : un `LIST` repère le dossier portant l'attribut `\Drafts`, et le faux IMAP des tests porte ce nom français.
 
 **10. Boutons : `b:`, `g:<brouillon_id>`, `l:<offre_id>`.** La regex stricte de `lire_donnee` passe de `[pbrx]` à `[pbrxgl]` ; `g` porte l'id d'un brouillon, `l` celui d'une offre. Même double contrôle chat et auteur que les autres boutons. Le bouton « ✉️ Relance » est ajouté au clavier du rappel J+7 par `pipeline/run.py`.
 
 **11. Lot 1 sans code, supervisé.** Le profil d'écriture est extrait par Claude à partir des fichiers de l'utilisateur, qui relit chaque diff avant enregistrement. Style seulement : aucun nom, adresse ou recruteur recopié. `regles_ecriture.md` et `lettre_modele.md` (génériques, placeholders `{entreprise}`, `{poste}`, `{projet}`, `{detail}`) vont dans git ; `cv_*.md` restent locaux (`.gitignore`).
 
+**12. Lot 4 : fichiers régénérés, pas stockés.** Le bouton `d:<offre_id>` utilise le type `lettre` (250 à 300 mots) et enregistre le texte dans `brouillons.contenu`. Les fichiers ne sont pas référencés en base : le PDF joint au brouillon Gmail est régénéré depuis `contenu` au moment du dépôt. Pas de migration ; en contrepartie, le PDF déposé porte la date du jour du dépôt, pas celle de la génération (acceptable : la lettre est datée au moment où l'utilisateur l'envoie).
+
+**13. Bibliothèques : `fpdf2` et `python-docx`.** Python pur, gratuites, sans service externe ni Word installé. Alternative : convertir un DOCX en PDF avec LibreOffice ou Word, rejetée (dépendance système lourde). Police : une police intégrée à `fpdf2` (Helvetica) ne couvre pas tous les caractères Unicode ; les caractères hors Latin-1 (guillemets typographiques, « œ », tirets longs) sont remplacés avant rendu, et un test le couvre. Un fichier de police TTF peut être ajouté plus tard si besoin.
+
+**14. Identité locale : `profile/identite.md`.** Fichier hors git (règle `.gitignore`), lu seulement par le rendu des fichiers, jamais par `prompts.py`. Format : une ligne par champ (`nom`, `adresse`, `code postal et ville`, `téléphone`, `e-mail`). Absent : erreur explicite sans donnée personnelle. Alternative : lire les `cv_*.md`, rejetée (plus de données, format libre).
+
+**15. Dossier et noms de fichiers.** Dossier par défaut : `lettres motivation taf` sur le Bureau de l'utilisateur, réglable par la variable d'environnement `LETTRES_DIR` (valeur absente de git). Nom : « Lettre de motivation <entreprise> », assaini (séparateurs de chemin, caractères interdits sous Windows, noms réservés, longueur), suffixe « (2) » plutôt que d'écraser. Le bot n'écrit jamais ailleurs que dans ce dossier ; il ne lit pas son contenu.
+
+**16. Court message : gabarit fixe.** Un seul appel au modèle par lettre ; le message d'accompagnement est un texte fixe (poste, entreprise, lettre en pièce jointe, politesse, signature locale). Le CV n'est pas joint automatiquement : l'utilisateur le joint lui-même, ce qui évite de choisir à sa place entre `CV_base/` alternance et stage.
+
 ## Risks / Trade-offs
+
+- [PDF ou DOCX illisible ou mal mis en page] → l'utilisateur relit le texte dans Telegram et ouvre le DOCX ; mesure et relecture réelle au Lot 4.
+- [Écriture dans un dossier mal configuré] → dossier réglable et vérifié à l'écriture ; un échec produit un message sans chemin et aucun brouillon.
 
 - [Le LLM local invente un détail ou un projet] → ligne « Éléments du profil utilisés », marqueur littéral, relecture humaine avant tout dépôt ; aucune promesse automatique d'exactitude.
 - [Rédaction > 90 s ou bot muet pendant l'attente] → plafond de 90 s, second essai conditionné au temps écoulé, mesure au Lot 3 ; message d'échec français si dépassé.
 - [Un gros modèle d'écriture décharge le modèle de scoring de la RAM] → `llm.ecriture` reste `llama3.1:8b` par défaut ; tout changement de modèle se fait avec l'utilisateur après relecture de la qualité.
-- [Nom du dossier des brouillons dépendant de la langue du compte] → détection par l'attribut `\Drafts`, repli « [Gmail]/Brouillons », erreur sans secret si rien n'est trouvé ; vérifié sur le vrai compte au Lot 3.
+- [Nom du dossier des brouillons dépendant de la langue du compte] → détection par l'attribut `\Drafts` (pas de repli sur un nom codé en dur), erreur sans secret si rien n'est trouvé ; vérifié sur le vrai compte au Lot 3.
 - [Double création du brouillon Gmail] → `gmail_draft` vrai bloque une seconde création ; l'indicateur n'est posé qu'après un `APPEND` réussi, donc un échec laisse la reprise possible.
 - [Mot de passe d'application exposé] → jamais journalisé ni mis dans une erreur ; httpx déjà en WARNING dans `bot`.
 
 ## Open Questions
 
 - Faut-il, après usage réel, un bouton « Lettre » (type déjà prêt dans le service) ? À décider après les premiers brouillons.
+
+## Résultat de la mesure
+
+Mesure réelle du 2026-11-17 (Lot 3, tâche 3.7), `llama3.1:8b`, offre de stage Adzuna, bot lancé par le Planificateur :
+
+- Durée de « ✍️ Brouillon » jusqu'au texte reçu : environ 20 s, estimée par l'utilisateur (objectif < 90 s atteint). Le bot ne journalisait pas la durée à ce moment ; une ligne « rédaction <type> offre <id> : <n> s » existe depuis, pour les mesures suivantes.
+- Dépôt Gmail : les deux brouillons de test ont `gmail_draft` vrai en base, donc l'`APPEND` a abouti sur le vrai compte français (dossier repéré par l'attribut `\Drafts`).
+- Défauts relevés à la lecture du texte : phrase d'introduction du modèle (« Voici le corps de l'e-mail… ») et reprise de phrases du modèle de lettre qui affirmaient des choses sur l'offre. Corrigés : consigne « texte seul », retrait de la phrase d'introduction en code, modèle de lettre rendu neutre et conditionnel.

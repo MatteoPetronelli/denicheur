@@ -26,6 +26,17 @@ Le code SHALL n'utiliser aucun protocole d'envoi : le paquet de rédaction n'imp
 - **WHEN** les sources du paquet de rédaction sont analysées
 - **THEN** aucune importation de `smtplib` n'y figure
 
+### Requirement: Attachments
+Le dépôt SHALL pouvoir joindre un ou plusieurs fichiers (type et nom conservés, contenu intact) au brouillon, dans le même et unique message : l'ajout reste exactement un `APPEND`.
+
+#### Scenario: PDF attached
+- **WHEN** un brouillon est créé avec un PDF en pièce jointe
+- **THEN** l'IMAP factice reçoit un seul `APPEND` dont le message contient le corps et la pièce jointe, de type `application/pdf`, au nom et au contenu intacts
+
+#### Scenario: Without attachment
+- **WHEN** aucun fichier n'est fourni
+- **THEN** le message ne contient aucune pièce jointe
+
 ### Requirement: Safe failures
 Un échec de connexion, d'identification ou d'`APPEND` SHALL lever une erreur dédiée dont le message ne contient ni mot de passe ni adresse, et la connexion SHALL toujours être fermée.
 

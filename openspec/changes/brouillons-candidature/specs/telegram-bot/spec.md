@@ -59,6 +59,25 @@ Les boutons d'une offre SHALL agir ainsi : « Je postule » marque la candidatur
 - **WHEN** « ✉️ Relance » est pressé de nouveau pour la même candidature
 - **THEN** l'appui reçoit un refus, aucun appel au modèle n'a lieu et aucun brouillon n'est ajouté
 
+### Requirement: Letter button
+« 📄 Lettre PDF » SHALL générer une lettre de 250 à 300 mots pour l'offre, l'enregistrer comme brouillon de type `lettre`, écrire le PDF et le DOCX dans le dossier des lettres, envoyer les deux fichiers dans le chat puis le court message d'accompagnement avec le bouton « 📥 Créer le brouillon Gmail ». Le dépôt Gmail d'un brouillon de lettre SHALL joindre le PDF et utiliser le message d'accompagnement comme corps. Le refus sur une offre ignorée ou à issue finale suit celui du brouillon d'e-mail.
+
+#### Scenario: Letter generated
+- **WHEN** l'utilisateur appuie sur « 📄 Lettre PDF » d'une offre
+- **THEN** l'appui reçoit « ⏳ Rédaction… », un brouillon `lettre` est enregistré, le PDF et le DOCX sont écrits et envoyés, et le message d'accompagnement porte le bouton Gmail
+
+#### Scenario: Gmail draft with attachment
+- **WHEN** l'utilisateur appuie sur « 📥 Créer le brouillon Gmail » d'un brouillon de lettre
+- **THEN** un seul brouillon Gmail est créé, avec le PDF en pièce jointe et le message d'accompagnement en corps
+
+#### Scenario: Ignored offer
+- **WHEN** « 📄 Lettre PDF » est pressé sur une offre `ignoree`
+- **THEN** aucun appel au modèle n'a lieu et aucun fichier n'est écrit
+
+#### Scenario: Files cannot be written
+- **WHEN** l'écriture des fichiers échoue
+- **THEN** l'utilisateur reçoit un message d'échec sans chemin ni donnée personnelle, aucun brouillon n'est enregistré et le bot continue de répondre
+
 ### Requirement: Writing failures stay contained
 Une défaillance de la rédaction (Ollama arrêté, délai dépassé, fichier de profil absent) SHALL produire un message en français sans détail interne, ne SHALL enregistrer aucun brouillon et ne SHALL pas interrompre la boucle de polling.
 
