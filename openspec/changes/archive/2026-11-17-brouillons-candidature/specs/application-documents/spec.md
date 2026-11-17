@@ -15,9 +15,13 @@ Transformer une lettre relue en fichiers prêts à joindre à une candidature (P
 - **WHEN** le texte contient la ligne « Éléments du profil utilisés » et la note « ⚠️ longueur hors plage »
 - **THEN** ni l'un ni l'autre ne figure dans le PDF ni dans le DOCX
 
-#### Scenario: Placeholder kept visible
-- **WHEN** le texte contient `[à compléter : détail sur l'entreprise]`
-- **THEN** le marqueur figure tel quel dans les fichiers pour que l'utilisateur le complète
+#### Scenario: Project links under the signature
+- **WHEN** le texte cite un projet dont l'URL figure dans le fichier local de liens
+- **THEN** le lien du projet, puis les profils GitHub et LinkedIn, figurent sous la signature dans le PDF et le DOCX ; un projet non cité n'a pas de lien
+
+#### Scenario: No links file
+- **WHEN** le fichier local de liens est absent
+- **THEN** les fichiers sont écrits sans lien et sans erreur
 
 #### Scenario: Identity file missing
 - **WHEN** le fichier d'identité local est absent

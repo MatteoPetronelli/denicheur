@@ -1,8 +1,9 @@
-## Purpose
+# draft-writing Specification
 
+## Purpose
 Produire en local, avec le modèle d'écriture d'Ollama, un brouillon de candidature en français (e-mail, lettre, relance ou candidature spontanée) à partir du profil du candidat et d'une offre, sans rien inventer et sans exposer de donnée personnelle au modèle.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Draft types
 Le service SHALL produire, pour une offre et son score, un brouillon d'un des types `email`, `lettre`, `relance` ou `spontanee`, en français et au vouvoiement. Un type inconnu SHALL être refusé avant tout appel au modèle.
@@ -49,23 +50,23 @@ Tout brouillon SHALL se terminer par une ligne « Éléments du profil utilisés
 - **THEN** le brouillon est livré avec une dernière ligne signalant l'absence de liste d'éléments
 
 ### Requirement: Length control
-Un e-mail SHALL compter 120 à 180 mots et une lettre 250 à 300 mots, la ligne « Éléments du profil utilisés » exclue du décompte. Hors plage, le service SHALL refaire exactement un essai, puis livrer le meilleur des deux textes avec une note « ⚠️ longueur hors plage ». Les relances et candidatures spontanées SHALL suivre la plage de l'e-mail.
+Un e-mail SHALL compter 120 à 180 mots et une lettre 250 à 300 mots, la ligne « Éléments du profil utilisés » exclue du décompte. Hors plage, le service SHALL refaire exactement un essai, puis livrer le meilleur des deux textes tel quel : la longueur hors plage n'est signalée que dans le journal, jamais dans le texte livré. Les relances et candidatures spontanées SHALL suivre la plage de l'e-mail.
 
 #### Scenario: In range
 - **WHEN** le premier essai compte 150 mots pour un e-mail
-- **THEN** un seul appel est fait et aucune note n'est ajoutée
+- **THEN** un seul appel est fait et rien n'est journalisé
 
 #### Scenario: One retry
 - **WHEN** le premier essai compte 90 mots pour un e-mail et le second 140
-- **THEN** le texte du second essai est livré sans note
+- **THEN** le texte du second essai est livré
 
 #### Scenario: Still out of range
 - **WHEN** les deux essais sont hors plage
-- **THEN** le texte le plus proche de la plage est livré avec la note « ⚠️ longueur hors plage » et il n'y a pas de troisième appel
+- **THEN** le texte le plus proche de la plage est livré sans note ni alerte dans le texte, la longueur est journalisée et il n'y a pas de troisième appel
 
-### Requirement: No invented company detail
-Quand rien dans l'offre n'établit un détail propre à l'entreprise, le brouillon SHALL contenir le marqueur littéral `[à compléter : détail sur l'entreprise]` à la place du détail, et ce marqueur SHALL être conservé tel quel dans le texte livré et dans celui enregistré.
+### Requirement: Complete text without placeholders
+Le texte livré SHALL être complet et prêt à envoyer : aucun passage entre crochets à compléter. Quand l'offre n'établit aucun détail propre à l'entreprise, le brouillon SHALL parler du poste et de ses missions tels que l'offre les décrit, sans rien inventer ; un marqueur « à compléter » produit malgré tout par le modèle SHALL être retiré du texte.
 
-#### Scenario: Placeholder kept
-- **WHEN** l'offre ne contient aucun détail sur l'entreprise
-- **THEN** le texte livré contient `[à compléter : détail sur l'entreprise]`
+#### Scenario: Placeholder removed
+- **WHEN** le modèle répond avec `[à compléter : détail sur l'entreprise]` dans le texte
+- **THEN** le texte livré et le texte enregistré ne contiennent aucun marqueur ni double espace

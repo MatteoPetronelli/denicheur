@@ -22,22 +22,22 @@ Motivation : voir `proposal.md`. Exigences : voir `specs/`.
 **Non-Goals:**
 - Aucun envoi d'e-mail, aucun destinataire deviné, aucune lecture de la boîte.
 - Pas de bouton « Lettre » : le type `lettre` existe dans le service mais n'est relié à aucune interface en C5.
-- Pas de validation automatique de la qualité du texte au-delà de la longueur, du marqueur et de la ligne de profil : la relecture reste humaine.
+- Pas de validation automatique de la qualité du texte au-delà de la longueur, de l'absence de trou et de la ligne de profil : la relecture reste humaine.
 - Pas de file ni de thread pour la rédaction.
 
 ## Decisions
 
 **1. Rédaction synchrone dans la boucle du bot.** `b:` répond d'abord `answerCallbackQuery` (« ⏳ Rédaction… »), puis génère dans la boucle. Alternative : thread ou processus séparé, rejetée (état partagé, deuxième connexion SQLite, complexité sans gain pour un seul utilisateur). Conséquence : le bot ne répond plus pendant la rédaction, d'où le plafond de durée ci-dessous. Les updates arrivées entre-temps sont traitées ensuite.
 
-**2. Plafond de durée = `llm.ecriture.timeout_s`, abaissé à 90 s.** Le délai par appel est celui de la configuration, jamais surchargé en code (règle du projet : modèle et options ne changent pas entre requêtes du même type). On abaisse la valeur de 300 à 90 dans `config/recherches.yaml` (changement de délai, pas de modèle ni d'options de génération). Un second essai de longueur peut doubler l'attente : on ne le tente que si le premier a duré moins de 45 s, sinon on livre avec la note ⚠️. À mesurer au Lot 3 ; si 90 s est dépassé en usage normal, on le dit et on ajuste le modèle avec l'utilisateur.
+**2. Plafond de durée = `llm.ecriture.timeout_s`, fixé à 180 s (abaissé de 300 à 90 au Lot 2, relevé au Lot 4).** Le délai par appel est celui de la configuration, jamais surchargé en code (règle du projet : modèle et options ne changent pas entre requêtes du même type). On abaisse la valeur de 300 à 90 dans `config/recherches.yaml` (changement de délai, pas de modèle ni d'options de génération). Un second essai de longueur peut doubler l'attente : on ne le tente que si le premier a duré moins de 45 s, sinon on livre avec la note ⚠️. À mesurer au Lot 3 ; si 90 s est dépassé en usage normal, on le dit et on ajuste le modèle avec l'utilisateur.
 
-**3. Résultat du service : texte brut assemblé.** `rediger` renvoie `str` (corps, puis éventuelle note ⚠️, puis la ligne « Éléments du profil utilisés : … » en dernier). Le même texte est enregistré dans `brouillons.contenu`. Pour Gmail, une fonction pure retire la ligne de profil et la note avant dépôt. Alternative : renvoyer une structure et stocker les morceaux, rejetée (la table n'a qu'une colonne `contenu`, aucune migration voulue).
+**3. Résultat du service : texte brut assemblé.** `rediger` renvoie `str` (corps, puis la ligne « Éléments du profil utilisés : … » en dernier). Le même texte est enregistré dans `brouillons.contenu`. Pour Gmail, une fonction pure retire la ligne de profil et la note avant dépôt. Alternative : renvoyer une structure et stocker les morceaux, rejetée (la table n'a qu'une colonne `contenu`, aucune migration voulue).
 
 **4. Prompt : système stable, utilisateur par offre.** Système = `regles_ecriture.md` + `lettre_modele.md` + `profil.md` concaténés dans cet ordre, sans date ni variable. Utilisateur = type, piste, titre, entreprise, commune, description d'offre bornée, projet à citer (issu du score) et la phrase de disponibilité de la piste. Aucun `cv_*.md`. La signature n'est pas rédigée par le modèle (formule de politesse sans nom) : l'utilisateur ajoute la sienne dans Gmail, ce qui évite d'envoyer un nom ou un contact au LLM. Une garde de test échoue si le prompt contient une adresse e-mail, un numéro de téléphone ou un fragment de `cv_*.md`.
 
-**5. Détail d'entreprise.** Le modèle reçoit l'instruction d'écrire le marqueur littéral quand l'offre ne fournit rien ; le code vérifie seulement qu'un marqueur présent n'est pas altéré (pas de réécriture). Un petit modèle peut quand même inventer un détail : la ligne « Éléments du profil utilisés » et la relecture humaine sont le garde-fou, pas le code (limite assumée).
+**5. Texte complet, sans trou.** Le prompt interdit tout texte entre crochets : sans détail d'entreprise dans l'offre, le texte parle du poste et de ses missions. Si le modèle produit quand même un « [à compléter : … ] », le code le retire (et le double espace qui reste). Un petit modèle peut encore inventer un détail : la ligne « Éléments du profil utilisés » et la relecture restent le garde-fou. Décision du 2026-11-17 : la lettre doit partir sans retouche, la relecture n'est qu'un plus.
 
-**6. Longueur : comptage en code.** Mots = séquences séparées par des blancs, ligne de profil et note exclues. Un seul second essai ; on garde le texte le plus proche de la plage. Alternative : boucler jusqu'à réussite, rejetée (temps imprévisible).
+**6. Longueur : comptage en code.** Mots = séquences séparées par des blancs, ligne de profil exclue ; hors plage, le texte part tel quel et seul le journal le signale. Un seul second essai ; on garde le texte le plus proche de la plage. Alternative : boucler jusqu'à réussite, rejetée (temps imprévisible).
 
 **7. Brouillon sur offre sans suivi : suivi `interessante`.** `candidature_id` étant obligatoire, la première demande crée le suivi au statut `interessante` (transition déjà permise, n'affirme pas un envoi). Offre `ignoree` ou à issue finale : refus. Statut déjà plus avancé : inchangé.
 
@@ -64,7 +64,7 @@ Motivation : voir `proposal.md`. Exigences : voir `specs/`.
 - [PDF ou DOCX illisible ou mal mis en page] → l'utilisateur relit le texte dans Telegram et ouvre le DOCX ; mesure et relecture réelle au Lot 4.
 - [Écriture dans un dossier mal configuré] → dossier réglable et vérifié à l'écriture ; un échec produit un message sans chemin et aucun brouillon.
 
-- [Le LLM local invente un détail ou un projet] → ligne « Éléments du profil utilisés », marqueur littéral, relecture humaine avant tout dépôt ; aucune promesse automatique d'exactitude.
+- [Le LLM local invente un détail ou un projet] → ligne « Éléments du profil utilisés », relecture humaine avant tout dépôt ; aucune promesse automatique d'exactitude.
 - [Rédaction > 90 s ou bot muet pendant l'attente] → plafond de 90 s, second essai conditionné au temps écoulé, mesure au Lot 3 ; message d'échec français si dépassé.
 - [Un gros modèle d'écriture décharge le modèle de scoring de la RAM] → `llm.ecriture` reste `llama3.1:8b` par défaut ; tout changement de modèle se fait avec l'utilisateur après relecture de la qualité.
 - [Nom du dossier des brouillons dépendant de la langue du compte] → détection par l'attribut `\Drafts` (pas de repli sur un nom codé en dur), erreur sans secret si rien n'est trouvé ; vérifié sur le vrai compte au Lot 3.
@@ -82,3 +82,9 @@ Mesure réelle du 2026-11-17 (Lot 3, tâche 3.7), `llama3.1:8b`, offre de stage 
 - Durée de « ✍️ Brouillon » jusqu'au texte reçu : environ 20 s, estimée par l'utilisateur (objectif < 90 s atteint). Le bot ne journalisait pas la durée à ce moment ; une ligne « rédaction <type> offre <id> : <n> s » existe depuis, pour les mesures suivantes.
 - Dépôt Gmail : les deux brouillons de test ont `gmail_draft` vrai en base, donc l'`APPEND` a abouti sur le vrai compte français (dossier repéré par l'attribut `\Drafts`).
 - Défauts relevés à la lecture du texte : phrase d'introduction du modèle (« Voici le corps de l'e-mail… ») et reprise de phrases du modèle de lettre qui affirmaient des choses sur l'offre. Corrigés : consigne « texte seul », retrait de la phrase d'introduction en code, modèle de lettre rendu neutre et conditionnel.
+
+Mesure du Lot 4 (2026-11-17, même matériel, Ollama utilisé en parallèle par le scoring horaire) : e-mail 46 s, lettre 63 s pour 197 mots (donc hors plage 250–300, second essai impossible dans le délai ; la note ⚠️ visible a été supprimée depuis, la longueur n'est plus que journalisée). Un appui réel a dépassé les 90 s de l'ancien plafond : relevé à 180 s ; la durée et la cause des échecs sont désormais journalisées.
+
+**17. Liens sous la signature.** `profile/liens.md` (hors git) liste `github:`, `linkedin:` et `projet <mot-clé>: <url>`. Le rendu ajoute sous la signature le lien du ou des projets dont le mot-clé figure dans le texte de la lettre (comparaison sans casse, ligne de profil exclue), puis GitHub et LinkedIn, comme dans les lettres d'origine. Fichier absent : aucun lien, aucune erreur. Les liens sont ajoutés par le code, jamais par le modèle.
+
+Mesure réelle du Lot 4 (2026-11-17, tâche 4.9) : « 📄 Lettre PDF » sur une offre réelle, texte, PDF et DOCX reçus dans Telegram et écrits dans le dossier des lettres, liens GitHub et LinkedIn sous la signature, plus de trou à compléter ni de note de longueur ; dépôt Gmail avec le PDF en pièce jointe vérifié par l'utilisateur, qui a validé le résultat (« tout est parfait »). Mesure chronométrée avec le vrai Ollama hors Telegram : lettre de 289 mots en 77 s (délai d'écriture 180 s).

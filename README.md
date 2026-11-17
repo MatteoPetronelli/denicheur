@@ -38,6 +38,8 @@ Les secrets se placent uniquement dans un fichier `.env` local, ignoré par git 
 | `LBA_API_KEY` | Clé de l'API La bonne alternance |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Bot Telegram (seul ce `chat_id` est autorisé) |
 | `ADZUNA_APP_ID`, `ADZUNA_APP_KEY` | Source stages |
+| `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Lecture des alertes et dépôt des brouillons Gmail (mot de passe d'application) |
+| `LETTRES_DIR` | Dossier de sortie des lettres (défaut : `lettres motivation taf` sur le Bureau) |
 | `DATABASE_URL` | Base de données (défaut `sqlite:///denicheur.db`) |
 | `FT_CLIENT_ID`, `FT_CLIENT_SECRET` | France Travail, uniquement si l'accès est accordé |
 
@@ -56,7 +58,7 @@ powershell -ExecutionPolicy Bypass -File scripts\installer_taches.ps1   # tâche
 
 Modes de `run` : `auto` (selon l'heure et l'état en base), `alternance`, `stage`, `digest`. Le paramètre `pause` à `1` en base suspend les envois. Sortie planifiée dans `logs/run.log` (bot : `logs/bot.log`).
 
-Bot Telegram : chaque offre envoyée porte quatre boutons (Je postule, Brouillon, Rappel, Ignorer) ; commandes `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config`. Seul ton chat est servi. Sept jours après « Je postule », un rappel part une seule fois. Les brouillons arrivent à l'étape C5.
+Bot Telegram : chaque offre envoyée porte cinq boutons (Je postule, Brouillon, Rappel, Ignorer, Lettre PDF) ; commandes `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config`. Seul ton chat est servi. Sept jours après « Je postule », un rappel part une seule fois, avec un bouton « ✉️ Relance » (une seule relance par candidature). « ✍️ Brouillon » écrit un e-mail en français avec le modèle local ; « 📄 Lettre PDF » écrit la lettre, en PDF et en DOCX dans le dossier des lettres, et envoie les fichiers dans Telegram ; « 📥 Créer le brouillon Gmail » dépose le texte (ou le message d'accompagnement avec le PDF en pièce jointe) dans tes brouillons Gmail. Rien n'est jamais envoyé : l'envoi reste humain.
 
 Contrôles avant commit : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
 
@@ -69,7 +71,7 @@ py test_france_travail.py   # FT_TEST=offres|lbb|entreprises|alternance pour un 
 
 ## Sécurité et vie privée
 
-- Ne jamais committer : `.env`, `identifiants_*.json`, bases de données, `ft_test_results.json`, `CV_base/`, `profile/cv_*.md`.
+- Ne jamais committer : `.env`, `identifiants_*.json`, bases de données, `ft_test_results.json`, `CV_base/`, `profile/cv_*.md`, `profile/identite.md`, `profile/liens.md`.
 - Aucune donnée personnelle (téléphone, date de naissance, adresse) n'est envoyée au LLM ni écrite dans les logs.
 - Respect des limites des API (La bonne alternance : 60 requêtes/min, usage non lucratif).
 - Dépôt à garder **privé**.
@@ -88,7 +90,7 @@ py -m pip install -e ".[dev]"
 cp .env.example .env   # puis renseigner les clés ; .env n'est jamais versionné
 ```
 
-La configuration de recherche est dans `config/recherches.yaml`, le profil envoyé au LLM dans `profile/profil.md` (sans données personnelles).
+La configuration de recherche est dans `config/recherches.yaml`, le profil envoyé au LLM dans `profile/profil.md` (sans données personnelles), le style d'écriture dans `profile/regles_ecriture.md` et `profile/lettre_modele.md`. Hors git : `profile/identite.md` (en-tête et signature des lettres, jamais lu par le LLM) et `profile/liens.md` (liens GitHub et LinkedIn ajoutés sous la signature).
 
 ## Commandes
 

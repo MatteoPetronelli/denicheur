@@ -28,20 +28,21 @@
 
 ## 4. Lot 4 : lettre en PDF et DOCX (skills : tdd-workflow, mutation-verified-testing, threat-modeling)
 
-- [ ] 4.1 `profile/identite.md` (nom, adresse, code postal et ville, téléphone, e-mail) écrit à partir des lettres existantes, ajouté au `.gitignore`, `LETTRES_DIR` ajouté à la configuration d'environnement sans valeur dans git. Vérifié : `git status` ne le liste pas, `git check-ignore` le confirme.
-- [ ] 4.2 Dépendances `fpdf2` et `python-docx` dans `pyproject.toml`. Vérifié par `py -m pip install -e ".[dev]"` puis l'importation des deux.
-- [ ] 4.3 `redaction/documents.py` : lecture de l'identité, rendu du PDF et du DOCX (en-tête, lieu et date, objet, corps, signature), remplacement des caractères hors Latin-1 pour le PDF, absence de la ligne de profil et de la note, marqueur « à compléter » conservé. Vérifié par tests qui relisent le PDF (texte extrait) et le DOCX, identité absente = erreur sans donnée personnelle ; mutation : laisser la ligne de profil → rouge.
-- [ ] 4.4 Noms et dossier : « Lettre de motivation <entreprise> », assainissement (`..\`, caractères interdits, noms réservés Windows, longueur), suffixe « (2) » sans écrasement, entreprise inconnue. Vérifié par tests (nom hostile, fichier existant conservé octet pour octet) ; mutation : retirer l'assainissement ou l'anti-écrasement → rouge.
-- [ ] 4.5 Court message d'accompagnement en gabarit fixe dans `messages_fr.py`. Vérifié par test (poste, entreprise, pas d'appel au modèle).
-- [ ] 4.6 `gmail_drafts.creer_brouillon` : pièces jointes, un seul `APPEND`. Vérifié par test sur le faux IMAP (type `application/pdf`, nom et octets intacts, sans pièce jointe sinon) ; mutation : ne pas joindre → rouge.
-- [ ] 4.7 `TelegramAPI.send_document` et action `d` du clavier (regex étendue, bouton « 📄 Lettre PDF »). Vérifié par tests de forme, d'envoi (corps de requête multipart) et de rejet de données mal formées ; mutation : élargir la regex → rouge.
-- [ ] 4.8 Bot : `d:<offre_id>` génère la lettre, enregistre le brouillon `lettre`, écrit et envoie les deux fichiers puis le message avec le bouton Gmail ; `g:` joint le PDF régénéré. Vérifié par tests de la boucle (offre ignorée = aucun appel, échec d'écriture = message sans chemin et aucun brouillon, dépôt unique avec pièce jointe) ; le prompt ne contient jamais l'identité (test).
-- [ ] 4.9 Mesure réelle avec l'utilisateur : « 📄 Lettre PDF » sur une offre réelle, temps rapporté, PDF et DOCX ouverts et relus, dépôt Gmail avec pièce jointe vérifié. Consigné dans `design.md`, « Résultat de la mesure ».
-- [ ] 4.10 Gate complète verte, `openspec validate brouillons-candidature --strict`, `graphify update .`.
+- [x] 4.1 `profile/identite.md` (nom, adresse, code postal et ville, téléphone, e-mail) écrit à partir des lettres existantes, ajouté au `.gitignore`, `LETTRES_DIR` ajouté à la configuration d'environnement sans valeur dans git. Vérifié : `git status` ne le liste pas, `git check-ignore` le confirme.
+- [x] 4.2 Dépendances `fpdf2` et `python-docx` dans `pyproject.toml`. Vérifié par `py -m pip install -e ".[dev]"` puis l'importation des deux.
+- [x] 4.3 `redaction/documents.py` : lecture de l'identité, rendu du PDF et du DOCX (en-tête, lieu et date, objet, corps, signature), remplacement des caractères hors Latin-1 pour le PDF, absence de la ligne de profil et de la note, marqueur « à compléter » conservé. Vérifié par tests qui relisent le PDF (texte extrait) et le DOCX, identité absente = erreur sans donnée personnelle ; mutation : laisser la ligne de profil → rouge.
+- [x] 4.4 Noms et dossier : « Lettre de motivation <entreprise> », assainissement (`..\`, caractères interdits, noms réservés Windows, longueur), suffixe « (2) » sans écrasement, entreprise inconnue. Vérifié par tests (nom hostile, fichier existant conservé octet pour octet) ; mutation : retirer l'assainissement ou l'anti-écrasement → rouge.
+- [x] 4.5 Court message d'accompagnement en gabarit fixe dans `messages_fr.py`. Vérifié par test (poste, entreprise, pas d'appel au modèle).
+- [x] 4.6 `gmail_drafts.creer_brouillon` : pièces jointes, un seul `APPEND`. Vérifié par test sur le faux IMAP (type `application/pdf`, nom et octets intacts, sans pièce jointe sinon) ; mutation : ne pas joindre → rouge.
+- [x] 4.7 `TelegramAPI.send_document` et action `d` du clavier (regex étendue, bouton « 📄 Lettre PDF »). Vérifié par tests de forme, d'envoi (corps de requête multipart) et de rejet de données mal formées ; mutation : élargir la regex → rouge.
+- [x] 4.8 Bot : `d:<offre_id>` génère la lettre, enregistre le brouillon `lettre`, écrit et envoie les deux fichiers puis le message avec le bouton Gmail ; `g:` joint le PDF régénéré. Vérifié par tests de la boucle (offre ignorée = aucun appel, échec d'écriture = message sans chemin et aucun brouillon, dépôt unique avec pièce jointe) ; le prompt ne contient jamais l'identité (test).
+- [x] 4.9 Mesure réelle avec l'utilisateur : « 📄 Lettre PDF » sur une offre réelle, temps rapporté, PDF et DOCX ouverts et relus, dépôt Gmail avec pièce jointe vérifié. Consigné dans `design.md`, « Résultat de la mesure ».
+- [x] 4.10 Gate complète verte, `openspec validate brouillons-candidature --strict`, `graphify update .`.
+- [x] 4.11 Retours du premier essai réel : lettre sans trou ni note visible, liens GitHub et LinkedIn sous la signature (`profile/liens.md`), délai d'écriture à 180 s, journal des échecs et des longueurs. Vérifié par tests et mutations ; mesure : lettre de 289 mots en 77 s.
 
 ## 5. Clôture
 
-- [ ] 5.1 Mettre à jour `README.md` (boutons Brouillon, Relance et Lettre PDF, dépôt Gmail, profil d'écriture, identité locale) et `CLAUDE.md` (statut C5). Vérifié par relecture.
+- [x] 5.1 Mettre à jour `README.md` (boutons Brouillon, Relance et Lettre PDF, dépôt Gmail, profil d'écriture, identité locale) et `CLAUDE.md` (statut C5). Vérifié par relecture.
 - [ ] 5.2 Archiver avec `openspec archive brouillons-candidature --yes` ; écrire les Purpose des nouvelles specs si le placeholder « TBD » apparaît ; `openspec validate --specs --strict` vert.
 
 ## Workflow follow-up

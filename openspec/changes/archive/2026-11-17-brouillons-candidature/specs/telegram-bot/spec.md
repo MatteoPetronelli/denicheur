@@ -60,11 +60,12 @@ Les boutons d'une offre SHALL agir ainsi : « Je postule » marque la candidatur
 - **THEN** l'appui reçoit un refus, aucun appel au modèle n'a lieu et aucun brouillon n'est ajouté
 
 ### Requirement: Letter button
-« 📄 Lettre PDF » SHALL générer une lettre de 250 à 300 mots pour l'offre, l'enregistrer comme brouillon de type `lettre`, écrire le PDF et le DOCX dans le dossier des lettres, envoyer les deux fichiers dans le chat puis le court message d'accompagnement avec le bouton « 📥 Créer le brouillon Gmail ». Le dépôt Gmail d'un brouillon de lettre SHALL joindre le PDF et utiliser le message d'accompagnement comme corps. Le refus sur une offre ignorée ou à issue finale suit celui du brouillon d'e-mail.
+« 📄 Lettre PDF » SHALL générer une lettre de 250 à 300 mots, l'enregistrer comme brouillon `lettre` et écrire un PDF et un DOCX dans le dossier des lettres, puis envoyer le texte relu, les deux fichiers et le message d'accompagnement avec le bouton Gmail. Le dépôt Gmail d'une lettre SHALL joindre le PDF.
 
 #### Scenario: Letter generated
 - **WHEN** l'utilisateur appuie sur « 📄 Lettre PDF » d'une offre
-- **THEN** l'appui reçoit « ⏳ Rédaction… », un brouillon `lettre` est enregistré, le PDF et le DOCX sont écrits et envoyés, et le message d'accompagnement porte le bouton Gmail
+- **THEN** l'appui reçoit « ⏳ Rédaction… », un brouillon `lettre` est enregistré et le PDF et le DOCX sont écrits
+- **AND** le chat reçoit d'abord le texte relu avec sa ligne « Éléments du profil utilisés » (absente des fichiers), puis les deux fichiers, puis le message d'accompagnement avec le bouton Gmail
 
 #### Scenario: Gmail draft with attachment
 - **WHEN** l'utilisateur appuie sur « 📥 Créer le brouillon Gmail » d'un brouillon de lettre

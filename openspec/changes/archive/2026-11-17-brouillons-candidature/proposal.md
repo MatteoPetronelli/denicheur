@@ -6,7 +6,7 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 
 - Nouveau service de rédaction : `rediger(offre, score, type)` pour les types `email`, `lettre`, `relance`, `spontanee`, avec le modèle et les options de `llm.ecriture` (déjà présents dans `config/recherches.yaml`, jamais surchargés).
 - Le prompt système est stable : `profile/regles_ecriture.md` + `profile/lettre_modele.md` + `profile/profil.md`. Les `profile/cv_*.md` (coordonnées) et tout identifiant ne sont jamais envoyés au LLM.
-- Chaque brouillon se termine par une ligne « Éléments du profil utilisés : … ». Longueurs : e-mail 120–180 mots, lettre 250–300 ; un second essai si hors plage, puis envoi avec une note ⚠️. Détail d'entreprise inconnu : `[à compléter : détail sur l'entreprise]`, jamais inventé.
+- Chaque brouillon se termine par une ligne « Éléments du profil utilisés : … ». Longueurs : e-mail 120–180 mots, lettre 250–300 ; un second essai si hors plage, puis envoi tel quel (la longueur n'est que journalisée). Texte toujours complet et prêt à envoyer : aucun trou à compléter, rien d'inventé sur l'entreprise.
 - Bot : « ✍️ Brouillon » (`b:`) répond « ⏳ Rédaction… », génère, enregistre dans `brouillons`, renvoie le texte avec un bouton « 📥 Créer le brouillon Gmail » (`g:<brouillon_id>`). Le plafond de durée du LLM protège la boucle de polling.
 - Création d'un brouillon Gmail par IMAP `APPEND "[Gmail]/Drafts"` avec le drapeau `\Draft`, sans destinataire inventé, jamais d'envoi, aucun `smtplib`.
 - Le message de rappel J+7 reçoit un bouton « ✉️ Relance » (`l:<offre_id>`) ; une seule relance par candidature, la seconde demande est refusée avec un message.
@@ -16,7 +16,7 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 ## Capabilities
 
 ### New Capabilities
-- `draft-writing`: génération des brouillons français (types, prompt stable, contrôle de longueur, ligne de profil, marqueur de détail inconnu, absence de données personnelles dans le prompt).
+- `draft-writing`: génération des brouillons français (types, prompt stable, contrôle de longueur, ligne de profil, texte sans trou à compléter, absence de données personnelles dans le prompt).
 - `gmail-drafts`: dépôt d'un texte dans les brouillons Gmail par IMAP, sans aucun envoi.
 - `application-documents`: lettre de motivation en PDF et DOCX (en-tête et signature locaux, fichiers nommés sans écrasement) et court message d'accompagnement.
 
@@ -31,6 +31,6 @@ Le bouton « ✍️ Brouillon » des offres répond encore « Brouillon disponib
 - Base : table `brouillons` déjà créée (C1) ; aucune migration prévue.
 - Fichiers locaux : `profile/regles_ecriture.md`, `profile/lettre_modele.md` (git), `profile/cv_alternance.md`, `profile/cv_stage.md` (hors git, vérifier `.gitignore`).
 - Dépendances : `imaplib` et `email` de la bibliothèque standard pour Gmail ; Lot 4 : `fpdf2` (PDF) et `python-docx` (DOCX), Python pur, gratuits, sans service externe.
-- Fichiers locaux du Lot 4 : `profile/identite.md` (nom, adresse, téléphone, e-mail ; hors git, jamais lu par le LLM) et le dossier de sortie des lettres, par défaut `lettres motivation taf` sur le Bureau, réglable par une variable d'environnement.
+- Fichiers locaux du Lot 4 : `profile/liens.md` (liens GitHub et LinkedIn ajoutés sous la signature, comme dans les lettres d'origine ; hors git) et `profile/identite.md` (nom, adresse, téléphone, e-mail ; hors git, jamais lu par le LLM) et le dossier de sortie des lettres, par défaut `lettres motivation taf` sur le Bureau, réglable par une variable d'environnement.
 - Étape bloquante du Lot 1 : l'utilisateur autorise la lecture de `CV_base/` et du dossier des lettres.
 - Sécurité : aucun secret ni coordonnée dans le prompt, les journaux ou les erreurs ; le mot de passe d'application Gmail déjà en `.env` sert à l'APPEND.
