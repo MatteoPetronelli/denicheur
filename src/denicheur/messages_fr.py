@@ -130,25 +130,28 @@ CB_INTROUVABLE = "Offre introuvable."
 CB_INCONNU = "Action inconnue."
 CB_ENTREPRISE_IGNOREE = "❌ Entreprise ignorée."
 CB_ENTREPRISE_INTROUVABLE = "Entreprise introuvable."
-CB_ENTREPRISE_BIENTOT = "Brouillon d'entreprise : bientôt disponible."
 
 
 def cb_impossible(statut: str | None) -> str:
     return f"Impossible : l'offre est déjà « {statut or 'nouvelle'} »."
 
 
-def message_accompagnement(poste: str, entreprise: str | None, nom: str) -> str:
-    """Court message d'envoi, gabarit fixe : aucun appel au modèle, aucune invention."""
+def message_accompagnement(poste: str | None, entreprise: str | None, nom: str) -> str:
+    """Court message d'envoi, gabarit fixe : aucun appel au modèle, aucune invention.
+
+    Sans poste, c'est une candidature spontanée.
+    """
     chez = f" au sein de {entreprise}" if entreprise else ""
+    objet = f"le poste de {poste}" if poste else "une candidature spontanée"
     return (
         "Madame, Monsieur,\n\n"
-        f"Veuillez trouver ci-joint ma lettre de motivation pour le poste de {poste}{chez}.\n\n"
+        f"Veuillez trouver ci-joint ma lettre de motivation pour {objet}{chez}.\n\n"
         "Je reste disponible pour un échange.\n\n"
         f"Cordialement,\n{nom}"
     )
 
 
-def accompagnement_telegram(poste: str, entreprise: str | None, nom: str) -> str:
+def accompagnement_telegram(poste: str | None, entreprise: str | None, nom: str) -> str:
     entete = "✉️ <b>Message d'accompagnement</b>\n\n"
     return entete + escape(message_accompagnement(poste, entreprise, nom))[: LIMITE_TELEGRAM - len(entete)]
 
@@ -223,3 +226,7 @@ def rappel_j7(o: Offre) -> str:
 
 def cb_impossible_entreprise(statut: str | None) -> str:
     return f"Impossible : l'entreprise est déjà « {statut or 'nouvelle'} »."
+
+
+def cb_plafond(maximum: int) -> str:
+    return f"Plafond du jour atteint : {maximum} brouillons d'entreprise par jour."

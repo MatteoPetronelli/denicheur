@@ -10,6 +10,7 @@ import docx
 from fpdf import FPDF
 
 from denicheur.models import Offre
+from denicheur.redaction.cible import Cible, en_cible
 from denicheur.redaction.gmail_drafts import corps_pour_gmail
 from denicheur.redaction.prompts import PROFILE
 
@@ -117,14 +118,19 @@ def _latin1(texte: str) -> str:
 
 
 def _contenu(
-    contenu: str, offre: Offre, identite: Identite, jour: date
+    contenu: str, offre: Offre | Cible, identite: Identite, jour: date
 ) -> tuple[list[str], str, str, list[str]]:
+    cible = en_cible(offre)
     lieu = re.sub(r"^\d+\s*", "", identite.ville)
     entete = [identite.nom, identite.adresse, identite.ville, identite.telephone, identite.email]
     destinataire = (
-        [f"À l'attention du service recrutement, {_une_ligne(offre.entreprise)}"] if offre.entreprise else []
+        [f"À l'attention du service recrutement, {_une_ligne(cible.entreprise)}"] if cible.entreprise else []
     )
-    objet = f"Objet : Candidature pour le poste de {_une_ligne(offre.titre)}"
+    objet = (
+        f"Objet : Candidature pour le poste de {_une_ligne(cible.poste)}"
+        if cible.poste
+        else "Objet : Candidature spontanée"
+    )
     paragraphes = [p.strip() for p in corps_pour_gmail(contenu).split("\n\n") if p.strip()]
     return entete + [""] + destinataire, f"{lieu}, le {jour:%d/%m/%Y}", objet, paragraphes
 
@@ -170,7 +176,7 @@ def _docx(entete: list[str], lieu_date: str, objet: str, paragraphes: list[str],
 
 
 def rendre_lettre(
-    contenu: str, offre: Offre, identite: Identite, jour: date, liens: Liens = SANS_LIENS
+    contenu: str, offre: Offre | Cible, identite: Identite, jour: date, liens: Liens = SANS_LIENS
 ) -> tuple[bytes, bytes]:
     """(PDF, DOCX) en mémoire : rien n'est écrit sur le disque."""
     entete, lieu_date, objet, paragraphes = _contenu(contenu, offre, identite, jour)
@@ -182,13 +188,18 @@ def rendre_lettre(
 
 
 def ecrire_lettre(
-    contenu: str, offre: Offre, identite: Identite, dossier: Path, jour: date, liens: Liens = SANS_LIENS
+    contenu: str,
+    offre: Offre | Cible,
+    identite: Identite,
+    dossier: Path,
+    jour: date,
+    liens: Liens = SANS_LIENS,
 ) -> tuple[Path, Path]:
     """Écrit `<nom>.pdf` et `<nom>.docx` dans `dossier` sans jamais écraser un fichier existant."""
     if not dossier.is_dir():
         raise ErreurDocuments("Dossier des lettres introuvable")
     octets = rendre_lettre(contenu, offre, identite, jour, liens)
-    base = nom_fichier(offre.entreprise)
+    base = nom_fichier(en_cible(offre).entreprise)
     try:
         for n in range(1, 1000):
             suffixe = "" if n == 1 else f" ({n})"

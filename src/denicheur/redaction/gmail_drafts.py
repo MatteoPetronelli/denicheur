@@ -8,6 +8,7 @@ from email.message import EmailMessage
 from typing import Any, NamedTuple
 
 from denicheur.models import Offre
+from denicheur.redaction.cible import Cible, en_cible
 from denicheur.redaction.prompts import LIGNE_PROFIL
 
 _DOSSIER = re.compile(r'\(([^)]*)\)\s+(?:"[^"]*"|NIL)\s+(.+)')
@@ -31,8 +32,15 @@ def _ligne(texte: str) -> str:
     return " ".join(texte.split())  # un en-tête tient sur une seule ligne
 
 
-def sujet_brouillon(type_: str, offre: Offre) -> str:
-    titre = _ligne(offre.titre)
+def sujet_brouillon(type_: str, offre: Offre | Cible) -> str:
+    cible = en_cible(offre)
+    if cible.poste is None:
+        return (
+            f"Candidature spontanée : {_ligne(cible.entreprise)}"
+            if cible.entreprise
+            else "Candidature spontanée"
+        )
+    titre = _ligne(cible.poste)
     return f"Relance : candidature {titre}" if type_ == "relance" else f"Candidature : {titre}"
 
 
