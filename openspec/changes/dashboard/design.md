@@ -46,3 +46,10 @@ Le bot, le run planifié et le dashboard partagent un seul fichier SQLite (WAL, 
 - `npm audit --omit=dev` : 0 vulnérabilité. Les alertes restantes concernent l'outillage de développement (Vite, Vitest), jamais lancé en usage courant ; pas de `npm audit fix --force`.
 - Le serveur lancé par `npm start` refuse la connexion depuis l'adresse du réseau local et répond 403 à un `Host` étranger (vérifié par curl et par Playwright).
 - Tests de navigateur : `npm run e2e` (Playwright, Chromium) sur une base synthétique créée par Python (`web/.e2e/`, ignorée par git).
+
+## Résultats du lot 2
+
+- Origine du serveur : l'adaptateur Node suppose `https` sans en-tête de protocole ; SvelteKit refusait alors tous les formulaires envoyés en `http` (« Cross-site POST form submissions are forbidden »). `scripts/start.js` fixe `ORIGIN=http://127.0.0.1:<port>` et le garde de `hooks.server.ts` redirige `localhost` vers cette origine (308). Détecté par le test de navigateur, pas par les tests unitaires.
+- Les gardes redondantes ont été retirées après mutation (un mutant survivant = code inutile) : l'action de statut laisse `changerStatut` valider le statut, la fiche laisse la requête décider qu'un identifiant illisible n'existe pas.
+- Brouillons affichés dans `<pre>` : le texte `<script>` reste du texte (test de navigateur, `window.__xss` jamais posé).
+- Tests : 128 Vitest, 27 Playwright (contraste mesuré sur quatre pages en thème clair et sombre, formulaires répétés sans identifiant en double, noms de boutons uniques).
