@@ -23,4 +23,4 @@ llm:
   ecriture: { modele: "llama3.1:8b", temperature: 0.7, num_ctx: 8192, timeout_s: 180 }
   llm_max_appels_jour: 150
   llm_max_duree_run_s: 900
-entreprises: { naf: ["62.01Z", "62.02A", "58.29C", "63.11Z"], effectif_max: 249, liste_par_jour: 10, brouillons_max_jour: 15, pages_max: 3 }
+entreprises: { naf: ["62.01Z", "62.02A", "58.29C", "63.11Z"], departements: ["78", "92", "95", "75"], effectif_min: 10, effectif_max: 249, liste_par_jour: 10, brouillons_max_jour: 15, pages_max: 3 }

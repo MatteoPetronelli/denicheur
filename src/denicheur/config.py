@@ -1,10 +1,10 @@
 import os
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
 
 class Centre(BaseModel):
@@ -55,10 +55,18 @@ class EntreprisesConfig(BaseModel):
     """Candidatures spontanées : activités visées, taille et rythme de la liste du jour."""
 
     naf: list[str] = ["62.01Z", "62.02A", "58.29C", "63.11Z"]
+    departements: list[Annotated[str, StringConstraints(pattern=r"^[0-9]{2}$")]] = ["78", "92", "95", "75"]
+    effectif_min: int = Field(default=10, ge=0)  # recherche d'entreprises : au moins 10 salariés
     effectif_max: int = Field(default=249, gt=0)  # PME : au plus 249 salariés
     liste_par_jour: int = Field(default=10, gt=0)
     brouillons_max_jour: int = Field(default=15, gt=0)
-    pages_max: int = Field(default=3, gt=0)  # pages de 25 résultats par code NAF
+    pages_max: int = Field(default=3, gt=0)  # pages de 25 résultats lues par couple département-NAF
+
+    @model_validator(mode="after")
+    def _bornes(self) -> "EntreprisesConfig":
+        if self.effectif_min > self.effectif_max:
+            raise ValueError("effectif_min dépasse effectif_max")
+        return self
 
 
 class Config(BaseModel):

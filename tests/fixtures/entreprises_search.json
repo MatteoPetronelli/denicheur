@@ -1,0 +1,1013 @@
+{
+ "total_results": 197,
+ "page": 1,
+ "per_page": 25,
+ "total_pages": 8,
+ "results": [
+  {
+   "siren": "337958698",
+   "nom_complet": "CYLLENE ITS (CYLLENE)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "31",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "33795869800108",
+    "adresse": "93-99 93 RUE VEUVE LACROIX 92000 NANTERRE",
+    "code_postal": "92000",
+    "libelle_commune": "NANTERRE",
+    "departement": "92",
+    "latitude": "48.902717537",
+    "longitude": "2.2297455878",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "22"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "33795869800140",
+     "adresse": "8 AV DES TROIS PEUPLES 78180 MONTIGNY LE BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY LE BRETONNEUX",
+     "departement": null,
+     "latitude": "48.774864952",
+     "longitude": "2.0187917256",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "02"
+    }
+   ]
+  },
+  {
+   "siren": "330096504",
+   "nom_complet": "GROUPE SAPH",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "21",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "33009650400247",
+    "adresse": "105 ROUTE DES CHAPPES 06410 BIOT",
+    "code_postal": "06410",
+    "libelle_commune": "BIOT",
+    "departement": "06",
+    "latitude": "43.6142939977777",
+    "longitude": "7.08250279010535",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "12"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "33009650400379",
+     "adresse": "27 RUE MICHAEL FARADAY 78180 MONTIGNY-LE-BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+     "departement": null,
+     "latitude": "48.797306234",
+     "longitude": "2.0481871479",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "11"
+    }
+   ]
+  },
+  {
+   "siren": "535257067",
+   "nom_complet": "4 CAD ERP",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "53525706700061",
+    "adresse": "1 RUE DU MOULIN CASSE 44340 BOUGUENAIS",
+    "code_postal": "44340",
+    "libelle_commune": "BOUGUENAIS",
+    "departement": "44",
+    "latitude": "47.1704431149059",
+    "longitude": "-1.57690688265216",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "12"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "53525706700137",
+     "adresse": "8 RUE DE TEMARA 78100 SAINT-GERMAIN-EN-LAYE",
+     "code_postal": "78100",
+     "libelle_commune": "SAINT-GERMAIN-EN-LAYE",
+     "departement": null,
+     "latitude": "48.8941045864319",
+     "longitude": "2.0743307315394",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "381080225",
+   "nom_complet": "KEYSIGHT TECHNOLOGIES FRANCE (ESI GROUP)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "38108022500257",
+    "adresse": "10 AVENUE ARISTIDE BRIAND 92220 BAGNEUX",
+    "code_postal": "92220",
+    "libelle_commune": "BAGNEUX",
+    "departement": "92",
+    "latitude": "48.8069042291077",
+    "longitude": "2.32560383867553",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "22"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "38108022500307",
+     "adresse": "9 PARS ARIANE - GAIA BOULEVARD DES CHENES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.7873069484071",
+     "longitude": "2.05607176383183",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "327086435",
+   "nom_complet": "NEVERHACK FRANCE",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "31",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "32708643500275",
+    "adresse": "2 AVENUE DES PRES 78280 GUYANCOURT",
+    "code_postal": "78280",
+    "libelle_commune": "GUYANCOURT",
+    "departement": "78",
+    "latitude": "48.7893479631729",
+    "longitude": "2.05030577507534",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "NN"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "32708643500275",
+     "adresse": "2 AVENUE DES PRES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.7893479631729",
+     "longitude": "2.05030577507534",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "32708643500036",
+     "adresse": "4 AVENUE MORANE SAULNIER 78140 VELIZY-VILLACOUBLAY",
+     "code_postal": "78140",
+     "libelle_commune": "VELIZY-VILLACOUBLAY",
+     "departement": null,
+     "latitude": "48.78113025",
+     "longitude": "2.2100177462",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "32708643500044",
+     "adresse": "2 AVENUE DES PRES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.78934913",
+     "longitude": "2.0503054135",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "32708643500069",
+     "adresse": "IMMEUBLE JANUS RDC 15 BOULEVARD DES CHENES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.788763071",
+     "longitude": "2.059016533",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "32708643500242",
+     "adresse": "1 ER ETAGE 15 BOULEVARD DES CHENES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.788763071",
+     "longitude": "2.059016533",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "800697385",
+   "nom_complet": "FACTORIA 2.0",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "80069738500121",
+    "adresse": "93 RUE PEREIRE 78100 SAINT-GERMAIN-EN-LAYE",
+    "code_postal": "78100",
+    "libelle_commune": "SAINT-GERMAIN-EN-LAYE",
+    "departement": "78",
+    "latitude": "48.900829594",
+    "longitude": "2.0664675498",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "12"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "80069738500121",
+     "adresse": "93 RUE PEREIRE 78100 SAINT-GERMAIN-EN-LAYE",
+     "code_postal": "78100",
+     "libelle_commune": "SAINT-GERMAIN-EN-LAYE",
+     "departement": null,
+     "latitude": "48.900829594",
+     "longitude": "2.0664675498",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "12"
+    },
+    {
+     "siret": "80069738500022",
+     "adresse": "2 RUE BERNARD PALISSY 78100 SAINT-GERMAIN-EN-LAYE",
+     "code_postal": "78100",
+     "libelle_commune": "SAINT-GERMAIN-EN-LAYE",
+     "departement": null,
+     "latitude": "48.899984403",
+     "longitude": "2.0718618249",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "791143795",
+   "nom_complet": "1 LIFE",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "21",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "79114379500015",
+    "adresse": "26 RUE BENOIT BENNIER 69260 CHARBONNIERES-LES-BAINS",
+    "code_postal": "69260",
+    "libelle_commune": "CHARBONNIERES-LES-BAINS",
+    "departement": "69",
+    "latitude": "45.776120571",
+    "longitude": "4.7489782507",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "00"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "79114379500072",
+     "adresse": "ZA DE L OBSERVATOIRE 41 AVENUE DES 3 PEUPLES 78180 MONTIGNY-LE-BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+     "departement": null,
+     "latitude": "48.779102323",
+     "longitude": "2.0254564514",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "79114379500080",
+     "adresse": "41 MAIL DES PEUPLIERS 78180 MONTIGNY-LE-BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+     "departement": null,
+     "latitude": null,
+     "longitude": null,
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "79114379500114",
+     "adresse": "1 PLACE CHARLES DE GAULLE 78180 MONTIGNY-LE-BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+     "departement": null,
+     "latitude": "48.7866004702895",
+     "longitude": "2.04526421120738",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "00"
+    }
+   ]
+  },
+  {
+   "siren": "403198682",
+   "nom_complet": "CALLIOPE BUSINESS SOLUTIONS",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "40319868200185",
+    "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+    "code_postal": "78600",
+    "libelle_commune": "MAISONS-LAFFITTE",
+    "departement": "78",
+    "latitude": "48.9453818707959",
+    "longitude": "2.14607161634084",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "NN"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "40319868200185",
+     "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+     "code_postal": "78600",
+     "libelle_commune": "MAISONS-LAFFITTE",
+     "departement": null,
+     "latitude": "48.9453818707959",
+     "longitude": "2.14607161634084",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "812203479",
+   "nom_complet": "SERMA SAFETY AND SECURITY",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "31",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "81220347900017",
+    "adresse": "14 RUE GALILEE 33600 PESSAC",
+    "code_postal": "33600",
+    "libelle_commune": "PESSAC",
+    "departement": "33",
+    "latitude": "44.7898495713391",
+    "longitude": "-0.663748570824009",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "81220347900025",
+     "adresse": "5 JARD ARIANE BATIMENT NEPTUNE BOULEVARD DES CHENES 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.788227732",
+     "longitude": "2.0587774977",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "11"
+    },
+    {
+     "siret": "81220347900033",
+     "adresse": "BAT NEPTUNE BOULEVARD DES CHENES 5 PARC ARIANE 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.788104506",
+     "longitude": "2.0588228705",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "428149967",
+   "nom_complet": "INFOBAM",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "42814996700013",
+    "adresse": "ACAJOU 97232 LE LAMENTIN",
+    "code_postal": "97232",
+    "libelle_commune": "LE LAMENTIN",
+    "departement": "972",
+    "latitude": "14.629547203",
+    "longitude": "-61.01511668",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "NN"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "42814996700096",
+     "adresse": "27 B RTE DE SAINT GERMAINE 78560 LE PORT-MARLY",
+     "code_postal": "78560",
+     "libelle_commune": "LE PORT-MARLY",
+     "departement": null,
+     "latitude": "48.883053121",
+     "longitude": "2.1061815332",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "853120061",
+   "nom_complet": "NEXTIIM",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "85312006100025",
+    "adresse": "IMMEUBLE CENTRE GARE 1 PLACE CHARLES DE GAULLE 78180 MONTIGNY-LE-BRETONNEUX",
+    "code_postal": "78180",
+    "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+    "departement": "78",
+    "latitude": "48.7866004702895",
+    "longitude": "2.04526421120738",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "01"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "85312006100017",
+     "adresse": "PARC ARIANE BATIMENT SATURNE 2 RUE HELENE BOUCHER 78280 GUYANCOURT",
+     "code_postal": "78280",
+     "libelle_commune": "GUYANCOURT",
+     "departement": null,
+     "latitude": "48.7867474067447",
+     "longitude": "2.05697174377393",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "12"
+    },
+    {
+     "siret": "85312006100025",
+     "adresse": "IMMEUBLE CENTRE GARE 1 PLACE CHARLES DE GAULLE 78180 MONTIGNY-LE-BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY-LE-BRETONNEUX",
+     "departement": null,
+     "latitude": "48.7866004702895",
+     "longitude": "2.04526421120738",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "01"
+    }
+   ]
+  },
+  {
+   "siren": "443256730",
+   "nom_complet": "FIDENS (FIDENS)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "44325673000112",
+    "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+    "code_postal": "78600",
+    "libelle_commune": "MAISONS-LAFFITTE",
+    "departement": "78",
+    "latitude": "48.9453818707959",
+    "longitude": "2.14607161634084",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "NN"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "44325673000112",
+     "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+     "code_postal": "78600",
+     "libelle_commune": "MAISONS-LAFFITTE",
+     "departement": null,
+     "latitude": "48.9453818707959",
+     "longitude": "2.14607161634084",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "752221903",
+   "nom_complet": "CADWORK FRANCE",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "11",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "75222190300053",
+    "adresse": "RUE JOSEPH CLIMENT 25660 SAONE",
+    "code_postal": "25660",
+    "libelle_commune": "SAONE",
+    "departement": "25",
+    "latitude": "47.221247514",
+    "longitude": "6.1134481447",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "11"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "75222190300038",
+     "adresse": "1401 AVENUE DE LA GRANDE HALLE 78200 BUCHELAY",
+     "code_postal": "78200",
+     "libelle_commune": "BUCHELAY",
+     "departement": null,
+     "latitude": "48.9878738927196",
+     "longitude": "1.68790955294877",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "433909132",
+   "nom_complet": "INTERACT SYSTEMES IDF (AXIANS)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "31",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "43390913200063",
+    "adresse": "35 AVENUE DE L'ILE SAINT MARTIN 92000 NANTERRE",
+    "code_postal": "92000",
+    "libelle_commune": "NANTERRE",
+    "departement": "92",
+    "latitude": "48.917875685",
+    "longitude": "2.2193008382",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "43390913200022",
+     "adresse": "PARC DES ERABLES IV 66 ROUTE DE SARTROUVILLE 78230 LE PECQ",
+     "code_postal": "78230",
+     "libelle_commune": "LE PECQ",
+     "departement": null,
+     "latitude": "48.9033222042706",
+     "longitude": "2.11712029595593",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "449397561",
+   "nom_complet": "ALTRAN LAB (AIRCADS - FROG DESIGN)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "44939756100100",
+    "adresse": "145-151 145 QUAI DU PRESIDENT ROOSEVELT 92130 ISSY-LES-MOULINEAUX",
+    "code_postal": "92130",
+    "libelle_commune": "ISSY-LES-MOULINEAUX",
+    "departement": "92",
+    "latitude": "48.8281656413907",
+    "longitude": "2.26091392849637",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "12"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "44939756100050",
+     "adresse": "TOPAZ 2 R PAUL DAUTIER ET AVENUE MORANE SAULNIER 78140 VELIZY-VILLACOUBLAY",
+     "code_postal": "78140",
+     "libelle_commune": "VELIZY-VILLACOUBLAY",
+     "departement": null,
+     "latitude": "48.780375745",
+     "longitude": "2.2088659536",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "44939756100084",
+     "adresse": "ENERGY II N° 2-4 2 RUE PAUL DAUTIER 78140 VELIZY-VILLACOUBLAY",
+     "code_postal": "78140",
+     "libelle_commune": "VELIZY-VILLACOUBLAY",
+     "departement": null,
+     "latitude": "48.780356819",
+     "longitude": "2.2087787306",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "524935855",
+   "nom_complet": "FORMIND",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "31",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "52493585500089",
+    "adresse": "7 CHEMIN DE BRETAGNE 92130 ISSY-LES-MOULINEAUX",
+    "code_postal": "92130",
+    "libelle_commune": "ISSY-LES-MOULINEAUX",
+    "departement": "92",
+    "latitude": "48.8239817829169",
+    "longitude": "2.25773230890664",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "NN"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "52493585500014",
+     "adresse": "2 RUE FAIDHERBE 78220 VIROFLAY",
+     "code_postal": "78220",
+     "libelle_commune": "VIROFLAY",
+     "departement": null,
+     "latitude": "48.798537915",
+     "longitude": "2.1794653661",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "448995787",
+   "nom_complet": "TVH CONSULTING",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "44899578700018",
+    "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+    "code_postal": "78600",
+    "libelle_commune": "MAISONS-LAFFITTE",
+    "departement": "78",
+    "latitude": "48.945381691",
+    "longitude": "2.1460715852",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "44899578700018",
+     "adresse": "22 RUE GUYNEMER 78600 MAISONS-LAFFITTE",
+     "code_postal": "78600",
+     "libelle_commune": "MAISONS-LAFFITTE",
+     "departement": null,
+     "latitude": "48.945381691",
+     "longitude": "2.1460715852",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "21"
+    }
+   ]
+  },
+  {
+   "siren": "316676741",
+   "nom_complet": "VECSYS",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "31667674100085",
+    "adresse": "4 RUE DU PORT AUX VINS 92150 SURESNES",
+    "code_postal": "92150",
+    "libelle_commune": "SURESNES",
+    "departement": "92",
+    "latitude": "48.8704428626219",
+    "longitude": "2.23015155310976",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "02"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "31667674100077",
+     "adresse": "PARC D ACTIVITE DU PAS DU LAC 10 B AV AMPERE 78180 MONTIGNY LE BRETONNEUX",
+     "code_postal": "78180",
+     "libelle_commune": "MONTIGNY LE BRETONNEUX",
+     "departement": null,
+     "latitude": "48.79710903",
+     "longitude": "2.0466012765",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "380280081",
+   "nom_complet": "PARAMETRIC TECHNOLOGY SA (PTC)",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "38028008100387",
+    "adresse": "PARK  BAT C1 1 ROND-POINT DU GENERAL EISENHOWER 31100 TOULOUSE",
+    "code_postal": "31100",
+    "libelle_commune": "TOULOUSE",
+    "departement": "31",
+    "latitude": "43.5778499213608",
+    "longitude": "1.36392211242279",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "12"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "38028008100023",
+     "adresse": "ESPACE TECHNOLOGY 21 RUE ALBERT CALMETTE 78350 JOUY-EN-JOSAS",
+     "code_postal": "78350",
+     "libelle_commune": "JOUY-EN-JOSAS",
+     "departement": null,
+     "latitude": "48.772393115",
+     "longitude": "2.1663699088",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "38028008100205",
+     "adresse": "1 B RUE DU PETIT-CLAMART 78140 VELIZY-VILLACOUBLAY",
+     "code_postal": "78140",
+     "libelle_commune": "VELIZY-VILLACOUBLAY",
+     "departement": null,
+     "latitude": "48.781294094",
+     "longitude": "2.2247189433",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "38028008100270",
+     "adresse": "IMMEUBLE EMERAUDE 1 RUE DU PETIT-CLAMART 78140 VELIZY-VILLACOUBLAY",
+     "code_postal": "78140",
+     "libelle_commune": "VELIZY-VILLACOUBLAY",
+     "departement": null,
+     "latitude": "48.782414122",
+     "longitude": "2.2254085321",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "880103965",
+   "nom_complet": "NOWPROD",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "21",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "88010396500013",
+    "adresse": "97 BOULEVARD CHARLES DE GAULLE 92700 COLOMBES",
+    "code_postal": "92700",
+    "libelle_commune": "COLOMBES",
+    "departement": "92",
+    "latitude": "48.9127955442672",
+    "longitude": "2.23039332419924",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "88010396500047",
+     "adresse": "8 RUE BLAISE PASCAL 78990 ELANCOURT",
+     "code_postal": "78990",
+     "libelle_commune": "ELANCOURT",
+     "departement": null,
+     "latitude": "48.7946357592507",
+     "longitude": "1.97821515462695",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "799378054",
+   "nom_complet": "RESOSAFE",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "12",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "79937805400073",
+    "adresse": "ESPACE LUMIERE BATIMENT 8 57 BOULEVARD DE LA REPUBLIQUE 78400 CHATOU",
+    "code_postal": "78400",
+    "libelle_commune": "CHATOU",
+    "departement": "78",
+    "latitude": "48.8959708804573",
+    "longitude": "2.15144209740765",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "11"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "79937805400073",
+     "adresse": "ESPACE LUMIERE BATIMENT 8 57 BOULEVARD DE LA REPUBLIQUE 78400 CHATOU",
+     "code_postal": "78400",
+     "libelle_commune": "CHATOU",
+     "departement": null,
+     "latitude": "48.8959708804573",
+     "longitude": "2.15144209740765",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "11"
+    }
+   ]
+  },
+  {
+   "siren": "342504297",
+   "nom_complet": "SOFTWAY MEDICAL IMAGING",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "21",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "34250429700173",
+    "adresse": "ARTEPARC FUVEAU   BATIMENT D 29 ALLEE SAINT JEAN 13710 FUVEAU",
+    "code_postal": "13710",
+    "libelle_commune": "FUVEAU",
+    "departement": "13",
+    "latitude": "43.4780259042141",
+    "longitude": "5.54389654626777",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "34250429700033",
+     "adresse": "17 RUE DES FRERES LUMIERE 78370 PLAISIR",
+     "code_postal": "78370",
+     "libelle_commune": "PLAISIR",
+     "departement": null,
+     "latitude": "48.8298222196074",
+     "longitude": "1.95334362962494",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    },
+    {
+     "siret": "34250429700041",
+     "adresse": "ZI SAINTE APOLLINE 23 RUE DES POIRIERS 78370 PLAISIR",
+     "code_postal": "78370",
+     "libelle_commune": "PLAISIR",
+     "departement": null,
+     "latitude": "48.798523967",
+     "longitude": "1.9541944228",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "509762449",
+   "nom_complet": "GROUPE VITAL",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "50976244900015",
+    "adresse": "164 AVENUE CHARLES DE GAULLE 92200 NEUILLY-SUR-SEINE",
+    "code_postal": "92200",
+    "libelle_commune": "NEUILLY-SUR-SEINE",
+    "departement": "92",
+    "latitude": "48.884800591",
+    "longitude": "2.2614207924",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "50976244900049",
+     "adresse": "8 RUE DES ARTISANS 78760 JOUARS-PONTCHARTRAIN",
+     "code_postal": "78760",
+     "libelle_commune": "JOUARS-PONTCHARTRAIN",
+     "departement": null,
+     "latitude": "48.8042537903461",
+     "longitude": "1.8927163573723",
+     "etat_administratif": "A",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "422689208",
+   "nom_complet": "EVIDIAN",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "42268920800029",
+    "adresse": "AVENUE JEAN JAURES 78340 LES CLAYES-SOUS-BOIS",
+    "code_postal": "78340",
+    "libelle_commune": "LES CLAYES-SOUS-BOIS",
+    "departement": "78",
+    "latitude": "48.826956393",
+    "longitude": "1.9797273291",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "42268920800029",
+     "adresse": "AVENUE JEAN JAURES 78340 LES CLAYES-SOUS-BOIS",
+     "code_postal": "78340",
+     "libelle_commune": "LES CLAYES-SOUS-BOIS",
+     "departement": null,
+     "latitude": "48.826956393",
+     "longitude": "1.9797273291",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "21"
+    },
+    {
+     "siret": "42268920800045",
+     "adresse": "68 ROUTE DE VERSAILLES 78430 LOUVECIENNES",
+     "code_postal": "78430",
+     "libelle_commune": "LOUVECIENNES",
+     "departement": null,
+     "latitude": "48.852747663",
+     "longitude": "2.1106662571",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  },
+  {
+   "siren": "448071878",
+   "nom_complet": "EXPERTIME",
+   "activite_principale": "62.02A",
+   "tranche_effectif_salarie": "22",
+   "etat_administratif": "A",
+   "siege": {
+    "siret": "44807187800038",
+    "adresse": "80 B AVENUE DU GENERAL LECLERC 78220 VIROFLAY",
+    "code_postal": "78220",
+    "libelle_commune": "VIROFLAY",
+    "departement": "78",
+    "latitude": "48.8044437740961",
+    "longitude": "2.17437689444742",
+    "etat_administratif": "A",
+    "est_siege": true,
+    "tranche_effectif_salarie": "21"
+   },
+   "matching_etablissements": [
+    {
+     "siret": "44807187800038",
+     "adresse": "80 B AVENUE DU GENERAL LECLERC 78220 VIROFLAY",
+     "code_postal": "78220",
+     "libelle_commune": "VIROFLAY",
+     "departement": null,
+     "latitude": "48.8044437740961",
+     "longitude": "2.17437689444742",
+     "etat_administratif": "A",
+     "est_siege": true,
+     "tranche_effectif_salarie": "21"
+    },
+    {
+     "siret": "44807187800020",
+     "adresse": "359 RUE FOURNY 78530 BUC",
+     "code_postal": "78530",
+     "libelle_commune": "BUC",
+     "departement": null,
+     "latitude": "48.7650068242411",
+     "longitude": "2.12173972023757",
+     "etat_administratif": "F",
+     "est_siege": false,
+     "tranche_effectif_salarie": "NN"
+    }
+   ]
+  }
+ ]
+}
