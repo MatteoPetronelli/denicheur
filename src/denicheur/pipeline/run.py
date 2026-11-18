@@ -32,6 +32,8 @@ class Deps:
     scorer: Scorer
     api: TelegramAPI | None = None  # None : aucun envoi (--dry-run)
     sources_stage: dict[str, Source] = field(default_factory=dict)  # une collecte par jour
+    # (session, config, maintenant) -> erreurs ; actualise les entreprises à démarcher, une fois par jour
+    actualiser_entreprises: Callable[[Session, Config, datetime], list[str]] | None = None
     chrono: Callable[[], float] = time.monotonic
     maintenant: Callable[[], datetime] = lambda: datetime.now(UTC)  # heure réelle de fin d'exécution
 
@@ -94,6 +96,29 @@ def _collecter(deps: Deps, mode: str, now: datetime, bilan: Bilan) -> None:
         _collecter_sources(deps, deps.sources_stage, "derniere_collecte:stage", jour, now, bilan)
 
 
+def _entreprises_due(deps: Deps, mode: str, now: datetime) -> bool:
+    if (
+        deps.actualiser_entreprises is None
+        or mode != "auto"
+        or not is_daytime(now, *deps.config.plage_alertes)
+    ):
+        return False
+    aujourdhui = paris_now(now).date().isoformat()
+    return repo.get_param(deps.session, "derniere_actualisation:entreprises") != aujourdhui
+
+
+def _actualiser_entreprises(deps: Deps, mode: str, now: datetime, bilan: Bilan) -> None:
+    if deps.actualiser_entreprises is None or not _entreprises_due(deps, mode, now):
+        return
+    try:
+        bilan.erreurs += deps.actualiser_entreprises(deps.session, deps.config, now)
+    except Exception as e:  # une panne des entreprises ne bloque ni la collecte ni le digest
+        deps.session.rollback()
+        bilan.erreurs.append(f"entreprises : {type(e).__name__}")
+    repo.set_param(deps.session, "derniere_actualisation:entreprises", paris_now(now).date().isoformat())
+    deps.session.commit()
+
+
 def _notifier(deps: Deps, mode: str, now: datetime) -> int:
     api, s, cfg = deps.api, deps.session, deps.config
     if api is None or repo.get_param(s, "pause") == "1":
@@ -128,6 +153,7 @@ def executer(mode: str, deps: Deps, now: datetime) -> Bilan:
     llm_s = 0.0
     try:
         _collecter(deps, mode, now, bilan)
+        _actualiser_entreprises(deps, mode, now, bilan)
         debut_llm = deps.chrono()
         bilan.scorees = scorer_offres(
             s, repo.offres_sans_score(s), deps.config, deps.scorer, now, erreurs=bilan.erreurs,

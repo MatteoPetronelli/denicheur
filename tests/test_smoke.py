@@ -41,6 +41,7 @@ def _env_sans_reseau(tmp_path, monkeypatch):
         "ADZUNA_APP_KEY",
     ):
         monkeypatch.setenv(cle, "")  # vide = absent ; load_dotenv n'écrase pas
+    monkeypatch.setattr("denicheur.__main__.actualiser_entreprises", lambda *a, **k: [])  # jamais le réseau
 
 
 def test_run_mode_invalide_refuse():
@@ -251,3 +252,31 @@ def test_import_entreprises_fichier_illisible_code_1(tmp_path, monkeypatch, caps
     mauvais.write_bytes("rang;entreprise\n1;Société\n".encode("latin-1"))
     assert main(["import-entreprises", str(mauvais)]) == 1
     assert "illisible" in capsys.readouterr().out
+
+
+def test_actualisation_des_entreprises_sans_la_cle_lba_vers_l_api_publique(monkeypatch):
+    from datetime import UTC, datetime
+
+    import httpx
+
+    from denicheur.__main__ import CONFIG, _entreprises
+    from denicheur.config import load_config
+
+    recu = {}
+
+    def faux(session, config, now, recruteurs, http_publique, **kw):
+        recu.update(recruteurs=recruteurs, publique=http_publique)
+        return ["x"]
+
+    monkeypatch.setattr("denicheur.__main__.actualiser_entreprises", faux)
+    appels = []
+    monkeypatch.setattr(
+        "denicheur.__main__.collecter_recruteurs", lambda config, http: appels.append(http) or []
+    )
+    lba = httpx.Client(headers={"Authorization": "Bearer cle-lba-secrete"})
+    config = load_config(CONFIG)
+    assert _entreprises(lba)(None, config, datetime.now(UTC)) == ["x"]
+    assert "authorization" not in recu["publique"].headers
+    assert recu["publique"] is not lba
+    recu["recruteurs"]()
+    assert appels == [lba]

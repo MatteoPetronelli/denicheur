@@ -2,7 +2,7 @@ import argparse
 import csv
 import logging
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -10,9 +10,10 @@ import httpx
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from denicheur.config import Secrets, load_config, load_secrets
+from denicheur.config import Config, Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
 from denicheur.entreprises.csv_import import importer_csv
+from denicheur.entreprises.service import actualiser_entreprises
 from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
 from denicheur.redaction.documents import DOSSIER_LETTRES
@@ -20,6 +21,7 @@ from denicheur.redaction.gmail_drafts import Piece, creer_brouillon
 from denicheur.redaction.service import Redacteur
 from denicheur.scoring.llm import OllamaScorer
 from denicheur.sources import SOURCES, adzuna, email_alertes
+from denicheur.sources.la_bonne_alternance import collecter_recruteurs
 from denicheur.telegram.api import TelegramAPI, TelegramError
 from denicheur.telegram.bot import BotDeps, boucle
 from denicheur.telegram.digest import envoyer_digest, envoyer_test
@@ -57,6 +59,18 @@ def _source_adzuna(app_id: str, app_key: str) -> Source:
     return lambda config, now: adzuna.collecter(config, http, now, app_id, app_key)
 
 
+def _entreprises(http_lba: httpx.Client) -> Callable[[Session, Config, datetime], list[str]]:
+    # Client distinct, sans en-tête : la clé LBA ne doit pas partir vers l'API publique des entreprises.
+    publique = httpx.Client(timeout=30)
+
+    def actualiser(session: Session, config: Config, now: datetime) -> list[str]:
+        return actualiser_entreprises(
+            session, config, now, lambda: collecter_recruteurs(config, http_lba), publique
+        )
+
+    return actualiser
+
+
 def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     migrer(secrets.database_url)  # idempotent : un premier run ne plante pas sur une base vide
     config = load_config(CONFIG)
@@ -80,6 +94,7 @@ def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
             OllamaScorer(config.llm, httpx.Client()),
             api,
             sources_stage=sources_stage,
+            actualiser_entreprises=_entreprises(http),
         )
         bilan = executer(mode, deps, datetime.now(UTC))
     print(

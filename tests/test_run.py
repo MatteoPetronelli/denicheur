@@ -70,7 +70,9 @@ class Env:
         self.api = TelegramAPI("t", httpx.Client(transport=httpx.MockTransport(envoi)), chat_id="1",
                                sleep=lambda s: None)  # fmt: skip
 
-    def run(self, now, mode="auto", scorer=None, sources=None, api="defaut", sources_stage=None):
+    def run(
+        self, now, mode="auto", scorer=None, sources=None, api="defaut", sources_stage=None, entreprises=None
+    ):
         deps = Deps(
             self.session,
             cfg,
@@ -78,6 +80,7 @@ class Env:
             scorer or Scorer(),
             self.api if api == "defaut" else api,
             sources_stage=sources_stage or {},
+            actualiser_entreprises=entreprises,
         )
         return executer(mode, deps, now)
 
@@ -364,3 +367,64 @@ def test_echec_d_envoi_laisse_la_candidature_due(env):
                       chat_id="1", sleep=lambda s: None)  # fmt: skip
     assert not env.run(T0 + timedelta(days=7), api=api).ok
     assert len(repo.candidatures_a_relancer(env.session, (T0 + timedelta(days=7)).date())) == 1
+
+
+# --- actualisation quotidienne des entreprises ---
+class Entreprises:
+    def __init__(self, erreurs=None, exception=None):
+        self.appels = []
+        self.erreurs = erreurs or []
+        self.exception = exception
+
+    def __call__(self, session, config, now):
+        self.appels.append(now)
+        if self.exception:
+            raise self.exception
+        return list(self.erreurs)
+
+
+def test_entreprises_actualisees_une_fois_par_jour(env):
+    ent = Entreprises()
+    env.run(T0, entreprises=ent)
+    assert len(ent.appels) == 1
+    assert repo.get_param(env.session, "derniere_actualisation:entreprises") == "2026-11-16"
+    env.run(T0 + timedelta(hours=3), entreprises=ent)
+    assert len(ent.appels) == 1
+    env.run(T0 + timedelta(days=1), entreprises=ent)
+    assert len(ent.appels) == 2
+
+
+def test_entreprises_hors_plage_horaire_pas_actualisees(env):
+    ent = Entreprises()
+    env.run(datetime(2026, 11, 16, 6, tzinfo=UTC), entreprises=ent)  # 07:00 Paris
+    env.run(datetime(2026, 11, 16, 19, tzinfo=UTC), entreprises=ent)  # 20:00 Paris
+    assert ent.appels == []
+    assert repo.get_param(env.session, "derniere_actualisation:entreprises") is None
+
+
+@pytest.mark.parametrize("mode", ["alternance", "stage", "digest"])
+def test_entreprises_seulement_en_mode_auto(env, mode):
+    ent = Entreprises()
+    env.run(T0, mode=mode, entreprises=ent)
+    assert ent.appels == []
+
+
+def test_sans_actualisation_configuree_aucune_trace(env):
+    env.run(T0)
+    assert repo.get_param(env.session, "derniere_actualisation:entreprises") is None
+
+
+def test_erreurs_des_entreprises_consignees_sans_bloquer_le_run(env):
+    ent = Entreprises(erreurs=["recherche entreprises 78 62.01Z : ErreurRecherche"])
+    b = env.run(T0, entreprises=ent)
+    assert b.ok and "recherche entreprises 78 62.01Z : ErreurRecherche" in b.erreurs
+    assert "ErreurRecherche" in str(env.ligne()["erreurs"])
+    assert b.collectees > 0 and b.scorees > 0
+    assert repo.get_param(env.session, "derniere_actualisation:entreprises") == "2026-11-16"
+
+
+def test_exception_des_entreprises_isolee(env):
+    ent = Entreprises(exception=RuntimeError("secret"))
+    b = env.run(T0, entreprises=ent)
+    assert b.ok and "entreprises : RuntimeError" in b.erreurs and "secret" not in str(b.erreurs)
+    assert b.collectees > 0
