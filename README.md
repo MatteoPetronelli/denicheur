@@ -14,7 +14,7 @@ collecte → dédoublonnage → filtres (distance, mots-clés) → scoring LLM �
 |---|---|
 | Langage | Python 3.13 (httpx, pydantic, SQLAlchemy, pytest, ruff) |
 | Données | SQLite locale (`denicheur.db`, migrations Alembic) |
-| LLM | Ollama en local, modèle `qwen2.5:14b` (réglages dans `config/recherches.yaml`) |
+| LLM | Ollama en local, modèle `llama3.1:8b` (réglages dans `config/recherches.yaml`) |
 | Exécution | `py -m denicheur run`, planifié par le Planificateur de tâches Windows |
 | Zone | 25 km autour de Mareil-Marly (78) |
 
@@ -60,7 +60,7 @@ Modes de `run` : `auto` (selon l'heure et l'état en base), `alternance`, `stage
 
 Bot Telegram : chaque offre envoyée porte cinq boutons (Je postule, Brouillon, Rappel, Ignorer, Lettre PDF) ; commandes `/aujourdhui /stage /alternance /candidatures /relances /stats /pause /reprendre /config`. Seul ton chat est servi. Sept jours après « Je postule », un rappel part une seule fois, avec un bouton « ✉️ Relance » (une seule relance par candidature). « ✍️ Brouillon » écrit un e-mail en français avec le modèle local ; « 📄 Lettre PDF » écrit la lettre, en PDF et en DOCX dans le dossier des lettres, et envoie les fichiers dans Telegram ; « 📥 Créer le brouillon Gmail » dépose le texte (ou le message d'accompagnement avec le PDF en pièce jointe) dans tes brouillons Gmail. Rien n'est jamais envoyé : l'envoi reste humain.
 
-Candidatures spontanées : `py -m denicheur import-entreprises entreprises_spontanees_mareil-marly.csv` charge ta liste de départ (150 entreprises classées, avec coordonnées) ; le run quotidien ajoute les recruteurs de La bonne alternance et les PME informatiques (10 à 249 salariés, codes NAF 62.01Z, 62.02A, 58.29C, 63.11Z) trouvées par l'API publique « recherche d'entreprises », sans doublon par SIREN. Chaque jour après le digest, une liste de `entreprises.liste_par_jour` entreprises jamais vues part dans Telegram (`0` désactive la liste), une par message, avec quatre boutons : « ✉️ Brouillon spontané », « 📄 Lettre PDF », « ✅ Envoyée » et « ❌ Ignorer ». Au plus 15 brouillons d'entreprise par jour. Une entreprise ayant aussi une offre ouverte (même SIRET) l'indique dans son message. Les brouillons Gmail d'entreprise n'ont pas de destinataire.
+Candidatures spontanées : `py -m denicheur import-entreprises data/entreprises_spontanees_mareil-marly.csv` charge ta liste de départ (150 entreprises classées, avec coordonnées) ; le run quotidien ajoute les recruteurs de La bonne alternance et les PME informatiques (10 à 249 salariés, codes NAF 62.01Z, 62.02A, 58.29C, 63.11Z) trouvées par l'API publique « recherche d'entreprises », sans doublon par SIREN. Chaque jour après le digest, une liste de `entreprises.liste_par_jour` entreprises jamais vues part dans Telegram (`0` désactive la liste), une par message, avec quatre boutons : « ✉️ Brouillon spontané », « 📄 Lettre PDF », « ✅ Envoyée » et « ❌ Ignorer ». Au plus 15 brouillons d'entreprise par jour. Une entreprise ayant aussi une offre ouverte (même SIRET) l'indique dans son message. Les brouillons Gmail d'entreprise n'ont pas de destinataire.
 
 Contrôles avant commit : `py -m ruff format --check .` · `py -m ruff check .` · `py -m mypy src` · `py -m pytest -q`.
 
@@ -68,7 +68,7 @@ Contrôles avant commit : `py -m ruff format --check .` · `py -m ruff check .` 
 
 ```bash
 export LBA_API_KEY="..."   # voir tableau ci-dessus
-py test_france_travail.py   # FT_TEST=offres|lbb|entreprises|alternance pour un seul test
+py scripts/test_france_travail.py   # FT_TEST=offres|lbb|entreprises|alternance pour un seul test
 ```
 
 ## Tableau de bord
@@ -113,11 +113,26 @@ Les captures du bot Telegram ne sont pas dans le dépôt : les messages réels c
 - Respect des limites des API (La bonne alternance : 60 requêtes/min, usage non lucratif).
 - Dépôt à garder **privé**.
 
+## Organisation du dépôt
+
+| Dossier | Contenu |
+|---|---|
+| `src/denicheur/`, `tests/`, `migrations/` | code Python, tests, migrations de la base |
+| `web/` | tableau de bord SvelteKit |
+| `config/`, `profile/` | réglages de recherche, profil et style d'écriture (les fichiers personnels de `profile/` ne sont pas versionnés) |
+| `data/` | liste de départ des entreprises (CSV) et résultats bruts de l'API (non versionnés) |
+| `docs/` | spécifications, notes de passation, plans, captures |
+| `scripts/` | tâches planifiées, comparaison de modèles, fixture, test des API |
+| `openspec/` | spécifications et historique des changements |
+| `backups/` | sauvegardes de la base (non versionnées) |
+
+À la racine restent les fichiers que les outils attendent là : `pyproject.toml`, `alembic.ini`, `.env`, `.gitignore`, `README.md`, `CLAUDE.md`, ainsi que la base `denicheur.db` et `logs/` (les tâches planifiées y écrivent avec des chemins relatifs).
+
 ## Documentation
 
-- [`Denicheur-specifications.md`](Denicheur-specifications.md) : spécifications complètes.
-- [`handoff.md`](handoff.md) : état d'avancement, décisions et prompts de développement.
-- [`entreprises_spontanees_mareil-marly.csv`](entreprises_spontanees_mareil-marly.csv) : entreprises IT proches pour candidatures spontanées.
+- [`docs/Denicheur-specifications.md`](docs/Denicheur-specifications.md) : spécifications complètes.
+- [`docs/handoff.md`](docs/handoff.md) : état d'avancement, décisions et prompts de développement.
+- [`data/entreprises_spontanees_mareil-marly.csv`](data/entreprises_spontanees_mareil-marly.csv) : entreprises IT proches pour candidatures spontanées.
 - Workflow de changements : OpenSpec (`openspec/`).
 
 ## Installation
@@ -132,8 +147,8 @@ La configuration de recherche est dans `config/recherches.yaml`, le profil envoy
 ## Commandes
 
 ```bash
-py -m denicheur run          # sous-commandes déclarées (run, init-db, stats), pas encore implémentées
-py scripts/make_fixture.py   # régénère tests/fixtures/lba_search.json depuis ft_test_results.json
+py -m denicheur run          # collecte, note et envoie ; autres sous-commandes : init-db, import-entreprises, setup-telegram, digest, bot
+py scripts/make_fixture.py   # régénère tests/fixtures/lba_search.json depuis data/ft_test_results.json
 py -m ruff format --check . && py -m ruff check . && py -m mypy src && py -m pytest -q
 ```
 

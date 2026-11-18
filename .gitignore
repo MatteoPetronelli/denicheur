@@ -9,6 +9,7 @@ profile/liens.md
 identifiants_*.json
 ft_test_results.json
 *.db
+backups/
 *.db-wal
 *.db-shm
 *.db-journal

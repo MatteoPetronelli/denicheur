@@ -11,7 +11,7 @@ Deux tests indépendants, avec un jeton OAuth par API (chaque API a son propre s
 Utilisation :
     export FT_CLIENT_ID="..."        # identifiant client de ton application sur francetravail.io
     export FT_CLIENT_SECRET="..."
-    python3 test_france_travail.py
+    py scripts/test_france_travail.py
 
 Variables facultatives (si un scope est refusé) :
     FT_SCOPE_OFFRES   ex. "api_offresdemploiv2 o2dsoffre"
@@ -19,7 +19,7 @@ Variables facultatives (si un scope est refusé) :
     FT_TEST=offres|lbb|entreprises|alternance   pour ne lancer qu'un test
     LBA_API_KEY       clé d'API de api.apprentissage.beta.gouv.fr (test 4, alternance)
 
-Aucune dépendance externe. Résultats bruts dans ft_test_results.json.
+Aucune dépendance externe. Résultats bruts dans data/ft_test_results.json.
 """
 import json
 import math
@@ -378,9 +378,10 @@ def main():
         test_entreprises(lat, lon, resultats)
     if cible in ("", "alternance"):
         test_alternance(lat, lon, resultats)
-    with open("ft_test_results.json", "w", encoding="utf-8") as f:
+    sortie = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "ft_test_results.json")
+    with open(sortie, "w", encoding="utf-8") as f:
         json.dump(resultats, f, ensure_ascii=False, indent=2)
-    print("\nRésultats bruts enregistrés dans ft_test_results.json")
+    print("\nRésultats bruts enregistrés dans data/ft_test_results.json")
 
 
 if __name__ == "__main__":

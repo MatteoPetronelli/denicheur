@@ -15,7 +15,7 @@ ENTETE = (
     "rang;entreprise;effectif;activite;naf;adresse;distance_km;candidature_spontanee_url;siret;"
     "statut;date_contact;notes"
 )
-REEL = Path(__file__).resolve().parents[1] / "entreprises_spontanees_mareil-marly.csv"
+REEL = Path(__file__).resolve().parents[1] / "data" / "entreprises_spontanees_mareil-marly.csv"
 
 
 @pytest.fixture
