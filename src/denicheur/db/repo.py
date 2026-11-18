@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import case, func, select
+from sqlalchemy import Column, case, func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
@@ -175,20 +175,16 @@ _TRANSITIONS: dict[Statut | None, frozenset[Statut]] = {
 _TRANSITIONS[Statut.IGNOREE] = frozenset()
 
 
-def statut_de(session: Session, offre_id: int) -> Statut | None:
-    brut = session.execute(
-        select(candidatures.c.statut).where(candidatures.c.offre_id == offre_id)
-    ).scalar_one_or_none()
+def _statut(session: Session, cible: Column[int], ident: int) -> Statut | None:
+    brut = session.execute(select(candidatures.c.statut).where(cible == ident)).scalar_one_or_none()
     return Statut(brut) if brut else None
 
 
-def marquer(session: Session, offre_id: int, statut: Statut, now: datetime) -> None:
-    """Fait avancer le suivi d'une offre ; une seule ligne par offre, créée au premier marquage."""
-    if session.execute(select(offres.c.id).where(offres.c.id == offre_id)).first() is None:
-        raise OffreInconnue(offre_id)
-    courant = statut_de(session, offre_id)
+def _marquer(session: Session, cible: Column[int], ident: int, statut: Statut, now: datetime) -> bool:
+    """Fait avancer le suivi de la cible (`offre_id` ou `entreprise_id`) ; faux si rien n'a changé."""
+    courant = _statut(session, cible, ident)
     if courant == statut:
-        return
+        return False
     if statut not in _TRANSITIONS[courant]:
         raise TransitionInvalide(f"{courant or 'nouvelle'} -> {statut}")
     maintenant = _utc_naif(now)
@@ -198,14 +194,53 @@ def marquer(session: Session, offre_id: int, statut: Statut, now: datetime) -> N
     ):  # shortcut: pas d'index unique sur offre_id (il faudrait Alembic) ; un seul écrivain à la fois
         session.execute(
             candidatures.insert().values(
-                offre_id=offre_id, statut=statut.value, cree_le=maintenant, maj_le=maintenant, **envoi
+                {
+                    cible.key: ident,
+                    "statut": statut.value,
+                    "cree_le": maintenant,
+                    "maj_le": maintenant,
+                    **envoi,
+                }
             )
         )
     else:
         session.execute(
             candidatures.update()
-            .where(candidatures.c.offre_id == offre_id)
+            .where(cible == ident)
             .values(statut=statut.value, maj_le=maintenant, **envoi)
+        )
+    return True
+
+
+def statut_de(session: Session, offre_id: int) -> Statut | None:
+    return _statut(session, candidatures.c.offre_id, offre_id)
+
+
+def marquer(session: Session, offre_id: int, statut: Statut, now: datetime) -> None:
+    """Fait avancer le suivi d'une offre ; une seule ligne par offre, créée au premier marquage."""
+    if session.execute(select(offres.c.id).where(offres.c.id == offre_id)).first() is None:
+        raise OffreInconnue(offre_id)
+    _marquer(session, candidatures.c.offre_id, offre_id, statut, now)
+
+
+class EntrepriseInconnue(Exception):
+    pass
+
+
+def statut_de_entreprise(session: Session, entreprise_id: int) -> Statut | None:
+    return _statut(session, candidatures.c.entreprise_id, entreprise_id)
+
+
+def marquer_entreprise(session: Session, entreprise_id: int, statut: Statut, now: datetime) -> None:
+    """Suivi d'une entreprise (statuts des offres) ; pose aussi sa date de contact ou d'écart."""
+    if session.execute(select(entreprises.c.id).where(entreprises.c.id == entreprise_id)).first() is None:
+        raise EntrepriseInconnue(entreprise_id)
+    if not _marquer(session, candidatures.c.entreprise_id, entreprise_id, statut, now):
+        return
+    colonne = {Statut.CANDIDATURE_ENVOYEE: "contactee_le", Statut.IGNOREE: "ignoree_le"}.get(statut)
+    if colonne:
+        session.execute(
+            entreprises.update().where(entreprises.c.id == entreprise_id).values({colonne: _utc_naif(now)})
         )
 
 
@@ -219,7 +254,11 @@ def candidatures_a_relancer(session: Session, today: date) -> list[tuple[int, Of
     """Candidatures envoyées depuis au moins 7 jours (date Paris) et jamais rappelées."""
     lignes = session.execute(
         select(candidatures.c.offre_id, candidatures.c.envoyee_le)
-        .where(candidatures.c.statut == Statut.CANDIDATURE_ENVOYEE.value, candidatures.c.rappel_le.is_(None))
+        .where(
+            candidatures.c.offre_id.is_not(None),
+            candidatures.c.statut == Statut.CANDIDATURE_ENVOYEE.value,
+            candidatures.c.rappel_le.is_(None),
+        )
         .order_by(candidatures.c.envoyee_le)
     ).all()
     limite = today - timedelta(days=7)
@@ -241,7 +280,7 @@ def stats(session: Session) -> Stats:
     par_statut: dict[str, int] = dict(
         session.execute(select(candidatures.c.statut, func.count()).group_by(candidatures.c.statut)).all()
     )
-    suivies = select(candidatures.c.offre_id)
+    suivies = select(candidatures.c.offre_id).where(candidatures.c.offre_id.is_not(None))
     nouvelles = session.execute(
         select(func.count())
         .select_from(offres)
@@ -266,7 +305,7 @@ def offres_du_jour(session: Session, jour: date) -> list[tuple[int, Offre, Score
         .where(
             offres.c.notifiee_le >= _utc_naif(debut),
             offres.c.notifiee_le < _utc_naif(debut + timedelta(days=1)),
-            offres.c.id.not_in(select(candidatures.c.offre_id)),
+            offres.c.id.not_in(select(candidatures.c.offre_id).where(candidatures.c.offre_id.is_not(None))),
         )
         .order_by(scores.c.score.desc(), offres.c.id)
     ).scalars()  # fmt: skip
@@ -275,7 +314,9 @@ def offres_du_jour(session: Session, jour: date) -> list[tuple[int, Offre, Score
 
 def meilleures_offres(session: Session, piste: Piste, limite: int) -> list[tuple[int, Offre, ScoreLLM]]:
     """Meilleures offres notées d'une piste, retenues par le préfiltre et non écartées."""
-    ecartees = select(candidatures.c.offre_id).where(candidatures.c.statut == Statut.IGNOREE.value)
+    ecartees = select(candidatures.c.offre_id).where(
+        candidatures.c.offre_id.is_not(None), candidatures.c.statut == Statut.IGNOREE.value
+    )
     ids = session.execute(
         select(offres.c.id)
         .join(scores, scores.c.offre_id == offres.c.id)
@@ -290,7 +331,7 @@ def suivi_en_cours(session: Session, limite: int) -> list[tuple[int, Offre, Stat
     """Candidatures suivies et non écartées, la plus récemment modifiée d'abord."""
     lignes = session.execute(
         select(candidatures.c.offre_id, candidatures.c.statut)
-        .where(candidatures.c.statut != Statut.IGNOREE.value)
+        .where(candidatures.c.offre_id.is_not(None), candidatures.c.statut != Statut.IGNOREE.value)
         .order_by(candidatures.c.maj_le.desc(), candidatures.c.id.desc())
         .limit(limite)
     ).all()
@@ -418,3 +459,52 @@ def enregistrer_entreprise(session: Session, entreprise: Entreprise, now: dateti
 def lire_entreprise(session: Session, entreprise_id: int) -> Entreprise:
     ligne = session.execute(select(entreprises).where(entreprises.c.id == entreprise_id)).mappings().one()
     return Entreprise(**{k: ligne[k] for k in Entreprise.model_fields})
+
+
+def entreprises_du_jour(session: Session, limite: int) -> list[tuple[int, Entreprise]]:
+    """Entreprises jamais listées, contactées ni écartées : priorité (vides à la fin), distance, id."""
+    if limite <= 0:
+        return []
+    ids = session.execute(
+        select(entreprises.c.id)
+        .where(
+            entreprises.c.listee_le.is_(None),
+            entreprises.c.contactee_le.is_(None),
+            entreprises.c.ignoree_le.is_(None),
+        )
+        .order_by(
+            entreprises.c.priorite.is_(None), entreprises.c.priorite,
+            entreprises.c.distance_km.is_(None), entreprises.c.distance_km, entreprises.c.id,
+        )
+        .limit(limite)
+    ).scalars()  # fmt: skip
+    return [(i, lire_entreprise(session, i)) for i in list(ids)]
+
+
+def marquer_listee(session: Session, entreprise_id: int, now: datetime) -> None:
+    session.execute(
+        entreprises.update().where(entreprises.c.id == entreprise_id).values(listee_le=_utc_naif(now))
+    )
+
+
+def nb_listees_le(session: Session, jour: date) -> int:
+    """Entreprises listées pendant le jour Paris `jour`."""
+    debut = datetime.combine(jour, time.min, tzinfo=PARIS)
+    return session.execute(
+        select(func.count()).select_from(entreprises).where(
+            entreprises.c.listee_le >= _utc_naif(debut),
+            entreprises.c.listee_le < _utc_naif(debut + timedelta(days=1)),
+        )
+    ).scalar_one()  # fmt: skip
+
+
+def titres_offres_du_siret(session: Session, siret: str, limite: int = 3) -> list[str]:
+    """Titres des offres retenues du même SIRET (jamais rapprochées par le nom), les plus récentes d'abord."""
+    return list(
+        session.execute(
+            select(offres.c.titre)
+            .where(offres.c.siret == siret, offres.c.motif_rejet.is_(None))
+            .order_by(offres.c.id.desc())
+            .limit(limite)
+        ).scalars()
+    )
