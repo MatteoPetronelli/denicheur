@@ -103,3 +103,41 @@ def test_siret_invalide_refuse_par_le_modele():
     for mauvais in ("123", "1234567890001A", "123456789000111", ""):
         with pytest.raises(ValueError):
             _e(siret=mauvais)
+
+
+AUTRE_ETABLISSEMENT = "12345678900029"  # même SIREN que 12345678900011
+
+
+@pytest.mark.parametrize("origine", ["lba", "sirene"])
+def test_autre_etablissement_d_une_unite_connue_ne_cree_rien(session, origine):
+    repo.enregistrer_entreprise(session, _e(origine="csv", nom="ACME CSV"), T1)
+    eid, cree = repo.enregistrer_entreprise(
+        session, _e(origine=origine, siret=AUTRE_ETABLISSEMENT, nom="ACME AUTRE"), T2
+    )
+    assert (eid, cree) == (1, False)
+    assert session.execute(select(entreprises.c.id)).all() == [(1,)]
+    ligne = _ligne(session)
+    assert (ligne["nom"], ligne["siret"], ligne["maj_le"]) == (
+        "ACME CSV",
+        "12345678900011",
+        T1.replace(tzinfo=None),
+    )
+
+
+def test_siren_inconnu_est_cree_par_toutes_les_origines(session):
+    for i, origine in enumerate(("csv", "lba", "sirene")):
+        siret = f"{i}{i}{i}{i}{i}{i}{i}{i}{i}0001{i}"
+        assert repo.enregistrer_entreprise(session, _e(origine=origine, siret=siret), T1)[1] is True
+
+
+def test_le_csv_garde_chaque_siret_meme_pour_un_siren_connu(session):
+    repo.enregistrer_entreprise(session, _e(origine="sirene"), T1)
+    _, cree = repo.enregistrer_entreprise(session, _e(origine="csv", siret=AUTRE_ETABLISSEMENT), T2)
+    assert cree is True
+    assert session.execute(select(entreprises.c.id)).all() == [(1,), (2,)]
+
+
+def test_meme_siret_continue_de_se_mettre_a_jour(session):
+    repo.enregistrer_entreprise(session, _e(origine="sirene"), T1)
+    _, cree = repo.enregistrer_entreprise(session, _e(origine="sirene", nom="ACME 2"), T2)
+    assert cree is False and repo.lire_entreprise(session, 1).nom == "ACME 2"

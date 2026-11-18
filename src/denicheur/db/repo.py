@@ -394,6 +394,13 @@ def enregistrer_entreprise(session: Session, entreprise: Entreprise, now: dateti
     existante = session.execute(
         select(entreprises.c.id).where(entreprises.c.siret == entreprise.siret)
     ).scalar_one_or_none()
+    if existante is None and entreprise.origine != "csv":
+        # Un autre établissement d'une unité déjà connue (même SIREN) n'est pas une nouvelle entreprise.
+        connue = session.execute(
+            select(entreprises.c.id).where(entreprises.c.siret.like(f"{entreprise.siret[:9]}%"))
+        ).scalars().first()  # fmt: skip
+        if connue is not None:
+            return connue, False
     if existante is None:
         res = session.execute(
             entreprises.insert().values(
