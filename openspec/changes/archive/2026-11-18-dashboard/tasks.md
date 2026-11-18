@@ -29,7 +29,7 @@
 - [x] 3.3 README en français avec captures de l'application, prises sur une base synthétique (les captures du bot sont laissées de côté : les messages réels contiennent de vraies offres) (aucune donnée de la vraie base). Vérifié : les images existent, aucun nom d'entreprise réel dans les captures, README relu avec `avoid-ai-writing`.
 - [x] 3.4 `browser-proof` complet sur la base synthétique : parcours des cinq pages, déplacement d'une carte, filtre entreprises, statistiques, 0 erreur dans la console, `fixing-accessibility` (clavier, contrastes, libellés). Vérifié : rapport sans anomalie ouverte.
 - [x] 3.5 CLAUDE.md et README mis à jour (statut C7, commandes web). Vérifié : relecture, mention de `liste_par_jour: 0` et de la façon de réactiver la liste du jour.
-- [ ] 3.6 Gate complète verte (Python et web), `openspec validate dashboard --strict`, `openspec validate --specs --strict` après archivage, `graphify update .`.
+- [x] 3.6 Gate complète verte (Python et web), `openspec validate dashboard --strict`, `openspec validate --specs --strict` après archivage, `graphify update .`.
 
 ## Workflow follow-up
 
