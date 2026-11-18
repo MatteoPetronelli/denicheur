@@ -6,7 +6,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-from denicheur.config import load_config, load_secrets
+from denicheur.config import EntreprisesConfig, load_config, load_secrets
 
 RACINE = Path(__file__).parent.parent
 YAML = RACINE / "config" / "recherches.yaml"
@@ -108,7 +108,9 @@ def test_bloc_entreprises_du_yaml():
     assert e.naf == ["62.01Z", "62.02A", "58.29C", "63.11Z"]
     assert e.departements == ["78", "92", "95", "75"]
     assert (e.effectif_min, e.effectif_max) == (10, 249)
-    assert (e.liste_par_jour, e.brouillons_max_jour, e.pages_max) == (10, 15, 3)
+    assert (e.brouillons_max_jour, e.pages_max) == (15, 3)
+    assert e.liste_par_jour >= 0  # réglage de l'utilisateur : 0 désactive la liste
+    assert EntreprisesConfig().liste_par_jour == 10
 
 
 def test_bloc_entreprises_absent_donne_les_valeurs_par_defaut(tmp_path):

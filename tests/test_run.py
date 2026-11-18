@@ -20,7 +20,9 @@ from denicheur.telegram.api import TelegramAPI
 
 RACINE = Path(__file__).parent.parent
 FIXTURE = json.loads((RACINE / "tests" / "fixtures" / "lba_search.json").read_text(encoding="utf-8"))
-cfg = load_config(RACINE / "config" / "recherches.yaml")
+_yaml = load_config(RACINE / "config" / "recherches.yaml")
+# La liste du jour est un réglage de l'utilisateur (0 = désactivée) : les tests fixent leur propre valeur.
+cfg = _yaml.model_copy(update={"entreprises": _yaml.entreprises.model_copy(update={"liste_par_jour": 10})})
 # 10:00 Paris (UTC+1 en novembre)
 T0 = datetime(2026, 11, 16, 9, tzinfo=UTC)
 
