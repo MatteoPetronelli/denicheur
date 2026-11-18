@@ -58,7 +58,7 @@ class EntreprisesConfig(BaseModel):
     departements: list[Annotated[str, StringConstraints(pattern=r"^[0-9]{2}$")]] = ["78", "92", "95", "75"]
     effectif_min: int = Field(default=10, ge=0)  # recherche d'entreprises : au moins 10 salariés
     effectif_max: int = Field(default=249, gt=0)  # PME : au plus 249 salariés
-    liste_par_jour: int = Field(default=10, gt=0)
+    liste_par_jour: int = Field(default=10, ge=0)  # 0 : pas de liste du jour
     brouillons_max_jour: int = Field(default=15, gt=0)
     pages_max: int = Field(default=3, gt=0)  # pages de 25 résultats lues par couple département-NAF
 

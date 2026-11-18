@@ -32,6 +32,10 @@ Une fois par jour, à la suite du digest, le run SHALL envoyer l'en-tête « Ent
 - **WHEN** le paramètre `pause` vaut `1`
 - **THEN** aucune entreprise n'est envoyée ni marquée listée
 
+#### Scenario: List switched off
+- **WHEN** `liste_par_jour` vaut 0 dans la configuration
+- **THEN** aucune liste n'est envoyée, aucune entreprise n'est marquée listée, et la liste repart dès que la valeur redevient positive
+
 #### Scenario: Nothing eligible
 - **WHEN** toutes les entreprises sont déjà listées, contactées ou écartées
 - **THEN** aucun message n'est envoyé

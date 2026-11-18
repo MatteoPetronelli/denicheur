@@ -71,11 +71,19 @@ class Env:
                                sleep=lambda s: None)  # fmt: skip
 
     def run(
-        self, now, mode="auto", scorer=None, sources=None, api="defaut", sources_stage=None, entreprises=None
+        self,
+        now,
+        mode="auto",
+        scorer=None,
+        sources=None,
+        api="defaut",
+        sources_stage=None,
+        entreprises=None,
+        config=None,
     ):
         deps = Deps(
             self.session,
-            cfg,
+            config or cfg,
             {"lba": self.source} if sources is None else sources,
             scorer or Scorer(),
             self.api if api == "defaut" else api,
@@ -561,3 +569,16 @@ def test_message_d_entreprise_mentionne_l_offre_ouverte_de_meme_siret(env):
     env.session.commit()
     env.run(DIGEST, sources={})
     assert "📌 Offre ouverte aussi : Alternance dev web" in _messages_entreprises(env)[1][0]
+
+
+def test_liste_par_jour_a_zero_aucune_liste_et_rien_de_marque(env):
+    _entreprises(env, 5)
+    sans_liste = cfg.model_copy(
+        update={"entreprises": cfg.entreprises.model_copy(update={"liste_par_jour": 0})}
+    )
+    env.run(DIGEST, sources={}, config=sans_liste)
+    assert _messages_entreprises(env) == []
+    assert repo.get_param(env.session, "derniere_liste_entreprises") is None
+    assert len(repo.entreprises_du_jour(env.session, 100)) == 5
+    env.run(DIGEST + timedelta(hours=1), sources={})  # réactivée : la liste part
+    assert len(_messages_entreprises(env)) == 6

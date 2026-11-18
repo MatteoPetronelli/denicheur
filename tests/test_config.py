@@ -121,7 +121,7 @@ def test_bloc_entreprises_absent_donne_les_valeurs_par_defaut(tmp_path):
     assert e.departements == ["78", "92", "95", "75"] and e.effectif_min == 10
 
 
-@pytest.mark.parametrize("champ", ["effectif_max", "liste_par_jour", "brouillons_max_jour", "pages_max"])
+@pytest.mark.parametrize("champ", ["effectif_max", "brouillons_max_jour", "pages_max"])
 def test_bloc_entreprises_valeurs_positives(tmp_path, champ):
     data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
     data["entreprises"][champ] = 0
@@ -145,6 +145,18 @@ def test_departement_mal_forme_rejete(tmp_path, departement):
     data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
     data["entreprises"]["departements"] = ["78", departement]
     f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_config(f)
+
+
+def test_liste_par_jour_zero_desactive_la_liste_et_le_negatif_est_rejete(tmp_path):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    data["entreprises"]["liste_par_jour"] = 0
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    assert load_config(f).entreprises.liste_par_jour == 0
+    data["entreprises"]["liste_par_jour"] = -1
     f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
     with pytest.raises(ValidationError):
         load_config(f)
