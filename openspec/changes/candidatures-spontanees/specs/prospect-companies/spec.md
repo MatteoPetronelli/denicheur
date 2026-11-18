@@ -52,19 +52,49 @@ Les recruteurs renvoyés par La bonne alternance SHALL être enregistrés par SI
 - **THEN** sa priorité reste 4
 
 ### Requirement: Company search
-La recherche d'entreprises SHALL interroger l'API publique sans clé, pour chaque code NAF configuré, dans le rayon configuré autour du centre, pour les établissements en activité de moins de 250 salariés, et enregistrer le résultat par SIRET. Une panne ou une réponse invalide SHALL être consignée sans bloquer le run ni effacer des entreprises déjà enregistrées.
+La recherche d'entreprises SHALL interroger l'API publique sans clé, pour chaque département et chaque code NAF configurés, les unités en activité dont l'effectif est compris entre les bornes configurées, et enregistrer par SIRET l'établissement en activité le plus proche du centre, à condition qu'il soit dans le rayon configuré. Une panne ou une réponse invalide SHALL être consignée sans bloquer le run ni effacer des entreprises déjà enregistrées.
 
-#### Scenario: Results stored
-- **WHEN** l'API renvoie des entreprises actives de NAF 62.01Z
-- **THEN** elles sont enregistrées avec leur distance au centre et l'origine « recherche d'entreprises »
+#### Scenario: Nearest active establishment stored
+- **WHEN** une unité a un siège éloigné et deux établissements dont un fermé et un actif dans le rayon
+- **THEN** l'entreprise est enregistrée avec le SIRET, l'adresse et les coordonnées de l'établissement actif, et sa distance au centre
 
-#### Scenario: Large company excluded
-- **WHEN** une entreprise a 500 salariés ou plus
-- **THEN** elle n'est pas enregistrée
+#### Scenario: Out of range
+- **WHEN** aucun établissement actif de l'unité n'est dans le rayon configuré
+- **THEN** l'entreprise n'est pas enregistrée
+
+#### Scenario: Size bounds in the request
+- **WHEN** la recherche s'exécute avec un effectif minimal de 10 et maximal de 249
+- **THEN** la requête ne demande que les tranches d'effectif de 10-19 à 200-249
 
 #### Scenario: API down
 - **WHEN** l'API répond par une erreur
 - **THEN** l'erreur est consignée, les entreprises déjà en base restent intactes et le run continue
+
+### Requirement: Search progress cursor
+Chaque couple département-NAF SHALL avoir un curseur de page mémorisé : une actualisation lit au plus `pages_max` pages à partir du curseur, l'avance de ce nombre de pages et revient à la première page après la dernière. Un échec de requête SHALL laisser le curseur du couple inchangé.
+
+#### Scenario: Cursor advances
+- **WHEN** une actualisation lit 3 pages d'un couple dont le curseur vaut 1
+- **THEN** le curseur vaut 4 ensuite
+
+#### Scenario: Wraps after the last page
+- **WHEN** le curseur atteint une page au-delà de la dernière du couple
+- **THEN** la prochaine actualisation recommence à la page 1
+
+#### Scenario: Failure keeps the cursor
+- **WHEN** la requête d'un couple échoue
+- **THEN** son curseur reste inchangé
+
+### Requirement: One entry per legal unit
+Une entreprise dont le SIREN (9 premiers chiffres du SIRET) existe déjà en base SHALL ne pas être créée une seconde fois par la recherche d'entreprises ni par La bonne alternance. Les lignes de l'import CSV font exception : chacune est enregistrée par son SIRET.
+
+#### Scenario: Other establishment of a known company
+- **WHEN** l'API renvoie un autre établissement d'une unité déjà importée du CSV
+- **THEN** aucune ligne n'est créée et la ligne existante est inchangée
+
+#### Scenario: Unknown company
+- **WHEN** le SIREN n'existe pas en base
+- **THEN** l'entreprise est créée
 
 ### Requirement: Daily list selection
 La liste du jour SHALL contenir au plus 10 entreprises jamais listées, jamais contactées et non écartées, triées par priorité croissante (celles sans priorité à la fin), puis par distance croissante, puis par identifiant. Une entreprise SHALL être marquée comme listée dès l'envoi de son message et ne SHALL jamais être listée une seconde fois.
