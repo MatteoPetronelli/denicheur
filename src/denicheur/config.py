@@ -51,6 +51,16 @@ class LLMConfig(BaseModel):
     llm_max_duree_run_s: int = Field(gt=0)
 
 
+class EntreprisesConfig(BaseModel):
+    """Candidatures spontanées : activités visées, taille et rythme de la liste du jour."""
+
+    naf: list[str] = ["62.01Z", "62.02A", "58.29C", "63.11Z"]
+    effectif_max: int = Field(default=249, gt=0)  # PME : au plus 249 salariés
+    liste_par_jour: int = Field(default=10, gt=0)
+    brouillons_max_jour: int = Field(default=15, gt=0)
+    pages_max: int = Field(default=3, gt=0)  # pages de 25 résultats par code NAF
+
+
 class Config(BaseModel):
     centre: Centre
     rayon_km: float = Field(gt=0)
@@ -67,6 +77,7 @@ class Config(BaseModel):
     plage_alertes: list[str]
     heure_digest: str
     llm: LLMConfig
+    entreprises: EntreprisesConfig = Field(default_factory=EntreprisesConfig)
 
 
 class Secrets(BaseModel):

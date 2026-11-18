@@ -7,10 +7,11 @@ import httpx
 
 from denicheur.config import Config
 from denicheur.http import get_json
-from denicheur.models import Offre, Piste
+from denicheur.models import SIRET_RE, Offre, Piste
 
 URL = "https://api.apprentissage.beta.gouv.fr/api/job/v1/search"
 log = logging.getLogger(__name__)
+_SIRET = re.compile(SIRET_RE)
 _COMMUNE = re.compile(r"\b\d{5}\s+(.+)$")
 
 
@@ -26,6 +27,11 @@ def _rechercher(config: Config, http: httpx.Client) -> dict[str, Any] | None:
         "romes": ",".join(config.pistes.alternance.romes),
     }
     return get_json(http, URL, params=params)
+
+
+def _siret(valeur: object) -> str | None:
+    """Le SIRET de l'employeur s'il a exactement 14 chiffres, sinon rien."""
+    return valeur if isinstance(valeur, str) and _SIRET.fullmatch(valeur) else None
 
 
 def _dt(s: str | None) -> datetime | None:
@@ -51,6 +57,7 @@ def _offre(j: dict[str, Any]) -> Offre:
         url=j["apply"]["url"],
         titre=o["title"],
         entreprise=w.get("name") or w.get("legal_name") or w.get("brand"),
+        siret=_siret(w.get("siret")),
         commune=m.group(1) if m else None,
         lat=lat,
         lon=lon,

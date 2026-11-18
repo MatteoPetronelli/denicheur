@@ -210,3 +210,44 @@ def test_bot_dossier_des_lettres_par_defaut_ou_depuis_l_environnement(tmp_path, 
     monkeypatch.setenv("LETTRES_DIR", str(tmp_path / "ailleurs"))
     assert main(["bot"]) == 0
     assert recu[1].dossier_lettres == tmp_path / "ailleurs"
+
+
+def _csv_entreprises(tmp_path):
+    chemin = tmp_path / "e.csv"
+    chemin.write_text(
+        "rang;entreprise;effectif;activite;naf;adresse;distance_km;candidature_spontanee_url;siret\n"
+        "1;ACME;10-19;Conseil;62.02A;1 rue X 78000 VERSAILLES;4.7;https://lba/x;12345678900011\n"
+        "2;SANS SIRET;10-19;Conseil;62.02A;1 rue X 78000 VERSAILLES;4.7;;\n",
+        encoding="utf-8-sig",
+    )
+    return chemin
+
+
+def test_import_entreprises_bilan_en_francais(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'i.db'}")
+    assert main(["import-entreprises", str(_csv_entreprises(tmp_path))]) == 0
+    sortie = capsys.readouterr().out
+    assert "créées 1 · mises à jour 0 · ignorées 1" in sortie
+    assert main(["import-entreprises", str(_csv_entreprises(tmp_path))]) == 0
+    assert "créées 0 · mises à jour 1 · ignorées 1" in capsys.readouterr().out
+
+
+def test_import_entreprises_fichier_absent_code_1_sans_trace(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'i.db'}")
+    assert main(["import-entreprises", str(tmp_path / "absent.csv")]) == 1
+    sortie = capsys.readouterr()
+    assert "introuvable" in sortie.out and "Traceback" not in sortie.out + sortie.err
+    assert str(tmp_path) not in sortie.out
+
+
+def test_import_entreprises_sans_fichier_refuse():
+    with pytest.raises(SystemExit):
+        main(["import-entreprises"])
+
+
+def test_import_entreprises_fichier_illisible_code_1(tmp_path, monkeypatch, capsys):
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{tmp_path / 'i.db'}")
+    mauvais = tmp_path / "latin.csv"
+    mauvais.write_bytes("rang;entreprise\n1;Société\n".encode("latin-1"))
+    assert main(["import-entreprises", str(mauvais)]) == 1
+    assert "illisible" in capsys.readouterr().out

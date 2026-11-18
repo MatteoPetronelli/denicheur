@@ -101,3 +101,28 @@ def test_dix_mots_cles_acceptes(tmp_path):
     f = tmp_path / "r.yaml"
     f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
     assert len(load_config(f).pistes.stage.mots_cles_recherche) == 10
+
+
+def test_bloc_entreprises_du_yaml():
+    e = load_config(YAML).entreprises
+    assert e.naf == ["62.01Z", "62.02A", "58.29C", "63.11Z"]
+    assert (e.effectif_max, e.liste_par_jour, e.brouillons_max_jour, e.pages_max) == (249, 10, 15, 3)
+
+
+def test_bloc_entreprises_absent_donne_les_valeurs_par_defaut(tmp_path):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    del data["entreprises"]
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    e = load_config(f).entreprises
+    assert (e.liste_par_jour, e.brouillons_max_jour) == (10, 15)
+
+
+@pytest.mark.parametrize("champ", ["effectif_max", "liste_par_jour", "brouillons_max_jour", "pages_max"])
+def test_bloc_entreprises_valeurs_positives(tmp_path, champ):
+    data = yaml.safe_load(YAML.read_text(encoding="utf-8"))
+    data["entreprises"][champ] = 0
+    f = tmp_path / "r.yaml"
+    f.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(ValidationError):
+        load_config(f)

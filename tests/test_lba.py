@@ -105,3 +105,31 @@ def test_conditions_acces_ajoutees_a_la_description():
     assert "Conditions d'accès : Cet emploi est accessible avec un niveau Bac+2 à Bac+5" in itic.description
     woodoo = next(o for o in offres if o.entreprise == "SAS WOODOO")
     assert "Conditions d'accès" not in woodoo.description
+
+
+def _siret_fixture(j):
+    return (j["workplace"] or {}).get("siret")
+
+
+def test_siret_de_l_employeur_conserve_quand_il_est_valide():
+    offres = collecter(cfg, _client(), NOW)
+    attendus = {j["identifier"]["id"]: _siret_fixture(j) for j in FIXTURE["jobs"]}
+    avec = {o.source_id: o.siret for o in offres if o.siret}
+    assert len(avec) == 4
+    assert avec == {k: v for k, v in attendus.items() if v}
+    assert all(o.siret is None for o in offres if not attendus[o.source_id])
+
+
+@pytest.mark.parametrize(
+    "mauvais", ["123456789", "1234567890001A", "123456789000111", "", None, 12345678900011]
+)
+def test_siret_mal_forme_donne_une_offre_sans_siret(mauvais):
+    data = json.loads(json.dumps(FIXTURE))
+    data["jobs"][0]["workplace"]["siret"] = mauvais
+    client = httpx.Client(
+        transport=httpx.MockTransport(lambda r: httpx.Response(200, json=data)),
+        headers={"Authorization": "Bearer k"},
+    )
+    offres = collecter(cfg, client, NOW)
+    assert len(offres) == 16
+    assert offres[0].siret is None

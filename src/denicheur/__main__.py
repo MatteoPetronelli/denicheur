@@ -1,4 +1,5 @@
 import argparse
+import csv
 import logging
 import sys
 from collections.abc import Sequence
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from denicheur.config import Secrets, load_config, load_secrets
 from denicheur.db.base import make_engine, migrer
+from denicheur.entreprises.csv_import import importer_csv
 from denicheur.mail.imap import lire_alertes
 from denicheur.pipeline.run import MODES, Deps, Source, executer
 from denicheur.redaction.documents import DOSSIER_LETTRES
@@ -89,6 +91,26 @@ def _run(mode: str, dry_run: bool, secrets: Secrets) -> int:
     return 0 if bilan.ok else 1
 
 
+def _importer_entreprises(fichier: str, secrets: Secrets) -> int:
+    chemin = Path(fichier)
+    if not chemin.is_file():
+        print("Fichier introuvable : vérifie le chemin du CSV.")
+        return 1
+    migrer(secrets.database_url)
+    with Session(make_engine(secrets.database_url)) as session:
+        try:
+            bilan = importer_csv(session, chemin, datetime.now(UTC))
+        except (OSError, UnicodeDecodeError, csv.Error):
+            session.rollback()
+            print("Fichier illisible : un CSV en UTF-8, séparé par des points-virgules, est attendu.")
+            return 1
+        session.commit()
+    print(
+        f"Entreprises : créées {bilan.creees} · mises à jour {bilan.mises_a_jour} · ignorées {bilan.ignorees}"
+    )
+    return 0
+
+
 def _bot(secrets: Secrets) -> int:
     if not secrets.telegram_bot_token:
         print("TELEGRAM_BOT_TOKEN absent du .env : crée le bot avec @BotFather.")
@@ -129,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--mode", choices=MODES, default="auto")
     run.add_argument("--dry-run", action="store_true", help="aucun message Telegram")
     sub.add_parser("bot")
+    sub.add_parser("import-entreprises").add_argument("fichier", help="CSV des entreprises")
     sub.add_parser("digest").add_argument("--test", action="store_true", help="envoie une offre factice")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
@@ -145,6 +168,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.commande == "bot":
         return _bot(secrets)
+    if args.commande == "import-entreprises":
+        return _importer_entreprises(args.fichier, secrets)
     if args.commande in ("setup-telegram", "digest"):
         if not secrets.telegram_bot_token:
             print("TELEGRAM_BOT_TOKEN absent du .env : crée le bot avec @BotFather.")
