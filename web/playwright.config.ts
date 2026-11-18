@@ -6,6 +6,8 @@ if (!process.env.TEST_WORKER_INDEX) creerBaseDemo(); // seulement dans le proces
 
 export default defineConfig({
 	testDir: './e2e',
+	// Les captures du README ne tournent qu'à la demande (npm run captures) : elles réécrivent des images.
+	testIgnore: process.env.CAPTURES ? undefined : /captures\.spec\.ts/,
 	timeout: 60_000,
 	expect: { timeout: 10_000 },
 	workers: 1, // les scénarios modifient la même base

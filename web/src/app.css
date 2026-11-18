@@ -346,3 +346,29 @@ input[type='search'] {
 	font-size: 0.8rem;
 	white-space: nowrap;
 }
+
+table.etroit {
+	min-width: 0;
+	width: auto;
+}
+
+h2 {
+	font-size: 1.15rem;
+	margin: 1.5rem 0 0.5rem;
+}
+
+.intro {
+	max-width: 46rem;
+	font-size: 1.1rem;
+}
+
+main ol.etapes,
+main ul:not(.cartes):not(.puces) {
+	max-width: 46rem;
+	padding-left: 1.25rem;
+}
+
+main .etapes li,
+main ul:not(.cartes):not(.puces) li {
+	margin-bottom: 0.5rem;
+}

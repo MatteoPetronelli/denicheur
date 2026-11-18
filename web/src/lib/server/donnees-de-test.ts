@@ -98,3 +98,33 @@ export function ajouterBrouillon(
 		.run(ligne.id, type, contenu, options.gmail ? 1 : 0, options.cree_le ?? MAINTENANT);
 	return Number(r.lastInsertRowid);
 }
+
+export type ExecutionTest = {
+	debut?: string;
+	mode?: string;
+	collectees?: number;
+	retenues?: number;
+	scorees?: number;
+	notifiees?: number;
+	erreurs?: unknown;
+	duree_llm_s?: number;
+};
+
+export function ajouterExecution(db: Database.Database, e: ExecutionTest = {}): number {
+	const r = db
+		.prepare(
+			`insert into executions (debut, mode, offres_collectees, offres_retenues, offres_scorees, offres_notifiees,
+			 erreurs, duree_llm_s) values (?, ?, ?, ?, ?, ?, ?, ?)`
+		)
+		.run(
+			e.debut ?? MAINTENANT,
+			e.mode ?? 'auto',
+			e.collectees ?? 0,
+			e.retenues ?? 0,
+			e.scorees ?? 0,
+			e.notifiees ?? 0,
+			JSON.stringify(e.erreurs ?? []),
+			e.duree_llm_s ?? 0
+		);
+	return Number(r.lastInsertRowid);
+}

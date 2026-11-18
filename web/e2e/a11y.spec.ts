@@ -53,6 +53,8 @@ const STYLES: Record<string, Record<string, string>> = {
 		'pagination': '.pagination a'
 	},
 	'/offres': { 'en-tête de tableau': 'thead th', 'étiquette seuil': '.etiquette', cellule: 'tbody td' },
+	'/stats': { titre: 'h1', 'sous-titre': 'h2', 'chiffre en carte': '.cartes .nombre', 'texte en carte': '.cartes li', 'en-tête': 'thead th', 'ligne': 'tbody th', cellule: 'tbody td' },
+	'/projet': { titre: 'h1', introduction: '.intro', 'sous-titre': 'h2', 'étape': '.etapes li', 'liste': 'main ul li', 'lien de navigation': 'header nav a' },
 	'/fiche/entreprise/2': { 'terme': '.details dt', 'description': '.details dd', brouillon: '.brouillon pre', 'date': '.brouillon p' }
 };
 
@@ -77,7 +79,7 @@ test('étiquettes : chaque champ de chaque page a un nom accessible, même dans 
 				.filter((c) => !(c.labels?.length || c.getAttribute('aria-label') || c.getAttribute('aria-labelledby')))
 				.map((c) => c.name || c.id || c.outerHTML.slice(0, 60))
 		);
-	for (const url of ['/', '/entreprises', '/offres', '/fiche/offre/1']) {
+	for (const url of ['/', '/entreprises', '/offres', '/stats', '/projet', '/fiche/offre/1']) {
 		await page.goto(url);
 		expect(await sansNom(), `champs sans nom sur ${url}`).toEqual([]);
 	}

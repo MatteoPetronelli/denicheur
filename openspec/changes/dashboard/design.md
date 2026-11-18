@@ -53,3 +53,10 @@ Le bot, le run planifié et le dashboard partagent un seul fichier SQLite (WAL, 
 - Les gardes redondantes ont été retirées après mutation (un mutant survivant = code inutile) : l'action de statut laisse `changerStatut` valider le statut, la fiche laisse la requête décider qu'un identifiant illisible n'existe pas.
 - Brouillons affichés dans `<pre>` : le texte `<script>` reste du texte (test de navigateur, `window.__xss` jamais posé).
 - Tests : 128 Vitest, 27 Playwright (contraste mesuré sur quatre pages en thème clair et sombre, formulaires répétés sans identifiant en double, noms de boutons uniques).
+
+## Résultats du lot 3
+
+- `/stats` : « notifiées » compte les offres envoyées sur Telegram ; les réponses sont les statuts `entretien`, `offre` et `refus` (offres et entreprises comptées séparément puis ensemble) ; la durée du modèle est la moyenne et la somme de `executions.duree_llm_s`. Le texte des erreurs d'une exécution n'est jamais lu ni affiché : seul leur nombre l'est.
+- `/projet` ne charge rien (pas de `load`, aucun import de code serveur) ; un test lit le fichier de la page et refuse e-mail, téléphone, chemin de disque, noms de fichiers privés, et un test de navigateur vérifie qu'aucune valeur de la base n'y figure.
+- Captures du README : `npm run captures`, base fictive, fichiers dans `docs/captures/`. Pas de capture du bot (messages réels).
+- Tests de navigateur : 35 (dont contraste en thème clair et sombre sur sept pages, niveaux de titres, noms de champs, console sans erreur sur toutes les pages).

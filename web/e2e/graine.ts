@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import Database from 'better-sqlite3';
-import { ajouterEntreprise, ajouterOffre, ajouterScore } from '../src/lib/server/donnees-de-test';
+import { ajouterEntreprise, ajouterExecution, ajouterOffre, ajouterScore } from '../src/lib/server/donnees-de-test';
 
 const WEB = resolve(import.meta.dirname, '..');
 export const DOSSIER = join(WEB, '.e2e');
@@ -38,6 +38,9 @@ export function creerBaseDemo(): void {
 		for (let i = 1; i <= 58; i++) {
 			ajouterEntreprise(db, { nom: `Société ${String(i).padStart(2, '0')}`, priorite: i + 2, distance_km: 10 + i });
 		}
+		ajouterExecution(db, { debut: '2026-11-16 08:30:00.000000', collectees: 40, retenues: 12, scorees: 12, notifiees: 8, duree_llm_s: 420 });
+		ajouterExecution(db, { debut: '2026-11-17 08:30:00.000000', mode: 'stage', collectees: 25, retenues: 6, scorees: 6, notifiees: 4, duree_llm_s: 300, erreurs: ['source adzuna : HTTPError'] });
+		ajouterExecution(db, { debut: '2026-11-18 08:30:00.000000', collectees: 18, retenues: 5, scorees: 5, notifiees: 3, duree_llm_s: 510 });
 		db.prepare("insert into candidatures (entreprise_id, statut, cree_le, maj_le) values (?, 'interessante', ?, ?)").run(beta, MAINTENANT, MAINTENANT);
 		db.prepare("insert into brouillons (candidature_id, type, contenu, gmail_draft, cree_le) values (1, 'spontanee', ?, 0, ?)").run(
 			'Bonjour,\nJe vous écris pour une alternance. <script>window.__xss = 1</script>',

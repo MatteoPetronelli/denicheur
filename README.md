@@ -88,7 +88,23 @@ npm start          # http://127.0.0.1:3000
 
 La base est lue dans `../denicheur.db` ; `DB_PATH` indique un autre fichier (`DB_PATH=C:/chemin/denicheur.db npm start`) et `PORT` un autre port. Le tableau ne crée ni ne migre la base : `py -m denicheur init-db` reste la seule façon de créer le schéma. Contrôles du dossier : `npm run check`, `npm test`, et `npm run e2e` (navigateur Chromium, sur une base de démonstration synthétique recréée à chaque fois ; `npx playwright install chromium` la première fois).
 
-Pages : `/` (tableau des candidatures par statut, offres et entreprises ; changement de statut avec les mêmes règles que le bot), `/entreprises` (liste filtrable, « Contactée » et « Écartée »), `/offres` (offres notées, dont celles sous le seuil `score_min` lu dans `config/recherches.yaml` ; `CONFIG_PATH` indique un autre fichier), `/fiche/offre/<id>` et `/fiche/entreprise/<id>` (détails et brouillons en lecture seule). Une candidature marquée ici est marquée partout : les dates `envoyee_le`, `contactee_le` et `ignoree_le` sont posées comme le fait le bot.
+Pages : `/` (tableau des candidatures par statut, offres et entreprises ; changement de statut avec les mêmes règles que le bot), `/entreprises` (liste filtrable, « Contactée » et « Écartée »), `/offres` (offres notées, dont celles sous le seuil `score_min` lu dans `config/recherches.yaml` ; `CONFIG_PATH` indique un autre fichier), `/stats` (offres vues, retenues, notées, candidatures par statut, réponses, durée du modèle et dernières exécutions), `/projet` (présentation du projet), `/fiche/offre/<id>` et `/fiche/entreprise/<id>` (détails et brouillons en lecture seule). Une candidature marquée ici est marquée partout : les dates `envoyee_le`, `contactee_le` et `ignoree_le` sont posées comme le fait le bot.
+
+### Captures
+
+Prises sur une base de démonstration fictive (`npm run captures` les régénère dans `docs/captures/`).
+
+![Tableau des candidatures par statut](docs/captures/tableau.png)
+
+![Liste des entreprises, avec priorité, statut et boutons Contactée et Écartée](docs/captures/entreprises.png)
+
+![Offres notées, avec la mention « sous le seuil »](docs/captures/offres.png)
+
+![Statistiques et dernières exécutions](docs/captures/statistiques.png)
+
+![Fiche d'une entreprise avec son brouillon](docs/captures/fiche.png)
+
+Les captures du bot Telegram ne sont pas dans le dépôt : les messages réels contiennent de vraies offres et de vrais noms d'entreprises.
 
 ## Sécurité et vie privée
 

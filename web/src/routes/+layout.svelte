@@ -10,7 +10,9 @@
 	const pages = [
 		{ chemin: '/', libelle: 'Candidatures' },
 		{ chemin: '/entreprises', libelle: 'Entreprises' },
-		{ chemin: '/offres', libelle: 'Offres' }
+		{ chemin: '/offres', libelle: 'Offres' },
+		{ chemin: '/stats', libelle: 'Statistiques' },
+		{ chemin: '/projet', libelle: 'Projet' }
 	];
 </script>
 
