@@ -102,7 +102,10 @@ def test_colonnes_lat_et_lon_lues_avec_point_ou_virgule(session, tmp_path):
         ENTETE + ";lat;lon\n" + L1 + ";48.912557;2.118516\n" + L2 + ";48,9;2,1\n", encoding="utf-8-sig"
     )
     importer_csv(session, chemin, NOW)
-    assert (repo.lire_entreprise(session, 1).lat, repo.lire_entreprise(session, 1).lon) == (48.912557, 2.118516)
+    assert (repo.lire_entreprise(session, 1).lat, repo.lire_entreprise(session, 1).lon) == (
+        48.912557,
+        2.118516,
+    )
     assert (repo.lire_entreprise(session, 2).lat, repo.lire_entreprise(session, 2).lon) == (48.9, 2.1)
 
 
