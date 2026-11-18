@@ -44,6 +44,8 @@ def _entreprise(ligne: dict[str, str]) -> Entreprise:
         effectif=champ("effectif"),
         adresse=adresse or None,
         commune=commune.group(1) if commune else None,
+        lat=_nombre(ligne.get("lat") or "", float),  # type: ignore[arg-type]
+        lon=_nombre(ligne.get("lon") or "", float),  # type: ignore[arg-type]
         distance_km=_nombre(ligne.get("distance_km") or "", float),  # type: ignore[arg-type]
         priorite=_nombre(ligne.get("rang") or "", int),  # type: ignore[arg-type]
         url_candidature=champ("candidature_spontanee_url"),

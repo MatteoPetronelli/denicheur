@@ -94,3 +94,28 @@ def test_le_csv_du_projet_donne_150_entreprises_classees(session):
     assert (bilan.creees, bilan.ignorees) == (150, 0)
     priorites = session.execute(select(entreprises.c.priorite).order_by(entreprises.c.id)).scalars().all()
     assert priorites == list(range(1, 151))
+
+
+def test_colonnes_lat_et_lon_lues_avec_point_ou_virgule(session, tmp_path):
+    chemin = tmp_path / "geo.csv"
+    chemin.write_text(
+        ENTETE + ";lat;lon\n" + L1 + ";48.912557;2.118516\n" + L2 + ";48,9;2,1\n", encoding="utf-8-sig"
+    )
+    importer_csv(session, chemin, NOW)
+    assert (repo.lire_entreprise(session, 1).lat, repo.lire_entreprise(session, 1).lon) == (48.912557, 2.118516)
+    assert (repo.lire_entreprise(session, 2).lat, repo.lire_entreprise(session, 2).lon) == (48.9, 2.1)
+
+
+def test_lat_lon_illisibles_ou_vides_donnent_none(session, tmp_path):
+    chemin = tmp_path / "geo.csv"
+    chemin.write_text(ENTETE + ";lat;lon\n" + L1 + ";abc;\n", encoding="utf-8-sig")
+    importer_csv(session, chemin, NOW)
+    e = repo.lire_entreprise(session, 1)
+    assert e.lat is None and e.lon is None
+
+
+def test_le_csv_du_projet_porte_les_coordonnees_de_toutes_les_entreprises(session):
+    importer_csv(session, REEL, NOW)
+    lignes = session.execute(select(entreprises.c.lat, entreprises.c.lon)).all()
+    assert len(lignes) == 150
+    assert all(lat is not None and 48.5 < lat < 49.3 and 1.5 < lon < 2.8 for lat, lon in lignes)

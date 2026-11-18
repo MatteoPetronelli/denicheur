@@ -28,6 +28,10 @@ L'import du CSV de l'utilisateur SHALL lire l'encodage `utf-8-sig` et le sépara
 - **WHEN** une entreprise écartée est présente dans un second import du même fichier
 - **THEN** elle reste écartée et aucune ligne n'est dupliquée
 
+#### Scenario: Coordinates columns
+- **WHEN** le CSV porte des colonnes `lat` et `lon`
+- **THEN** les coordonnées de chaque entreprise sont enregistrées, et une valeur absente ou illisible reste vide
+
 #### Scenario: Invalid line
 - **WHEN** une ligne n'a pas de SIRET
 - **THEN** elle est ignorée, comptée dans le bilan, et les autres lignes sont importées
