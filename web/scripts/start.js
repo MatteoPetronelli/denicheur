@@ -1,0 +1,4 @@
+// Démarre le serveur construit, toujours lié à 127.0.0.1 : un HOST venu de l'extérieur est ignoré.
+process.env.HOST = '127.0.0.1';
+process.env.PORT ??= '3000';
+await import('../build/index.js');

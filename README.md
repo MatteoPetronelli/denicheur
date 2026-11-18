@@ -71,6 +71,23 @@ export LBA_API_KEY="..."   # voir tableau ci-dessus
 py test_france_travail.py   # FT_TEST=offres|lbb|entreprises|alternance pour un seul test
 ```
 
+## Tableau de bord
+
+Application web locale (SvelteKit, dossier `web/`) qui lit et modifie la même base SQLite que le bot et le run : suivi des offres et des entreprises, statistiques.
+
+> **Ne jamais exposer le port.** Le tableau n'a ni compte ni mot de passe : il écoute uniquement sur `127.0.0.1` et refuse tout autre nom d'hôte. Ne le publie pas, ne redirige pas son port et ne le lance pas sur une autre interface.
+
+Prérequis : Node.js 22 ou plus récent. Premier lancement, puis lancements suivants :
+
+```bash
+cd web
+npm install        # une seule fois
+npm run build      # après chaque mise à jour du code
+npm start          # http://127.0.0.1:3000
+```
+
+La base est lue dans `../denicheur.db` ; `DB_PATH` indique un autre fichier (`DB_PATH=C:/chemin/denicheur.db npm start`) et `PORT` un autre port. Le tableau ne crée ni ne migre la base : `py -m denicheur init-db` reste la seule façon de créer le schéma. Contrôles du dossier : `npm run check`, `npm test`.
+
 ## Sécurité et vie privée
 
 - Ne jamais committer : `.env`, `identifiants_*.json`, bases de données, `ft_test_results.json`, `CV_base/`, `profile/cv_*.md`, `profile/identite.md`, `profile/liens.md`.
