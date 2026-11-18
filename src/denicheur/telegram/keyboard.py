@@ -3,7 +3,8 @@
 import re
 from typing import Any
 
-_DONNEE = re.compile(r"[pbrxgld]:[0-9]{1,9}")
+# p b r x d l : offre ; s t e i : entreprise ; g : brouillon
+_DONNEE = re.compile(r"[pbrxgldstie]:[0-9]{1,9}")
 
 
 def clavier_offre(offre_id: int) -> dict[str, Any]:
@@ -15,6 +16,18 @@ def clavier_offre(offre_id: int) -> dict[str, Any]:
             [bouton("✅ Je postule", "p"), bouton("✍️ Brouillon", "b")],
             [bouton("⏰ Rappel", "r"), bouton("🚫 Ignorer", "x")],
             [bouton("📄 Lettre PDF", "d")],
+        ]
+    }
+
+
+def clavier_entreprise(entreprise_id: int) -> dict[str, Any]:
+    def bouton(texte: str, action: str) -> dict[str, str]:
+        return {"text": texte, "callback_data": f"{action}:{entreprise_id}"}
+
+    return {
+        "inline_keyboard": [
+            [bouton("✉️ Brouillon spontané", "s"), bouton("📄 Lettre PDF", "t")],
+            [bouton("✅ Envoyée", "e"), bouton("❌ Ignorer", "i")],
         ]
     }
 

@@ -4,7 +4,7 @@ from html import escape
 
 from denicheur.config import Config
 from denicheur.db.repo import Stats
-from denicheur.models import Offre, ScoreLLM, Statut
+from denicheur.models import Entreprise, Offre, ScoreLLM, Statut
 
 RIEN_DE_NEUF = "Rien de nouveau aujourd'hui"
 MAX_ELEMENTS = 3
@@ -55,6 +55,35 @@ def format_offre(o: Offre, s: ScoreLLM, *, alerte: bool = False) -> str:
     return "\n".join(ligne for ligne in lignes if ligne)
 
 
+def entete_entreprises(n: int) -> str:
+    return f"🏢 {n} entreprise{'s' if n > 1 else ''} à démarcher aujourd'hui"
+
+
+def format_entreprise(e: Entreprise, offres: list[str]) -> str:
+    """Message HTML d'une entreprise à démarcher ; `offres` : titres des offres ouvertes de même SIRET."""
+    taille = f"{_e(e.effectif, 20)} salariés" if e.effectif else None
+    activite = " · ".join(x for x in (_e(e.activite, 150) if e.activite else None, taille) if x)
+    commune = _e(e.commune, 80) if e.commune else None
+    if e.distance_km is None:
+        lieu = commune
+    else:
+        km = f"{e.distance_km:.0f} km"
+        lieu = f"{commune} ({km})" if commune else km
+    lien = (
+        e.url_candidature
+        if e.url_candidature and e.url_candidature.startswith(("https://", "http://"))
+        else None
+    )
+    lignes = [
+        f"🏢 <b>{_e(e.nom, 150)}</b>",
+        f"💼 {activite}" if activite else None,
+        f"📍 {lieu}" if lieu else None,
+        f'🔗 <a href="{escape(lien[:300])}">Candidature spontanée</a>' if lien else None,
+        *(f"📌 Offre ouverte aussi : {_e(titre, 150)}" for titre in offres[:MAX_ELEMENTS]),
+    ]
+    return "\n".join(ligne for ligne in lignes if ligne)
+
+
 def echec_collecte(type_erreur: str) -> str:
     return f"⚠️ La collecte du jour a échoué : {type_erreur}"
 
@@ -99,6 +128,9 @@ ECHEC_OLLAMA = "⚠️ Ollama ne répond pas : lance-le puis réessaie."
 ECHEC_REDACTION = "⚠️ La rédaction a échoué ou a dépassé le délai : réessaie."
 CB_INTROUVABLE = "Offre introuvable."
 CB_INCONNU = "Action inconnue."
+CB_ENTREPRISE_IGNOREE = "❌ Entreprise ignorée."
+CB_ENTREPRISE_INTROUVABLE = "Entreprise introuvable."
+CB_ENTREPRISE_BIENTOT = "Brouillon d'entreprise : bientôt disponible."
 
 
 def cb_impossible(statut: str | None) -> str:
@@ -187,3 +219,7 @@ def rappel_j7(o: Offre) -> str:
             f'🔗 <a href="{escape(o.url)}">Voir l\'offre</a>',
         ]
     )
+
+
+def cb_impossible_entreprise(statut: str | None) -> str:
+    return f"Impossible : l'entreprise est déjà « {statut or 'nouvelle'} »."

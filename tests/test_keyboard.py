@@ -3,6 +3,7 @@ import pytest
 from denicheur.telegram.keyboard import (
     clavier_brouillon,
     clavier_depose,
+    clavier_entreprise,
     clavier_envoyee,
     clavier_offre,
     clavier_rappel,
@@ -74,4 +75,27 @@ def test_lire_donnee_accepte_g_et_l(donnee, attendu):
     "donnee", ["g:abc", "l:", "z:1", "gl:1", "g:1:2", "g:-1", "g:1234567890", "G:1", " g:1"]
 )
 def test_lire_donnee_refuse_le_reste(donnee):
+    assert lire_donnee(donnee) is None
+
+
+def test_clavier_entreprise_quatre_boutons_pour_la_meme_entreprise():
+    boutons = [b for ligne in clavier_entreprise(42)["inline_keyboard"] for b in ligne]
+    assert [b["callback_data"] for b in boutons] == ["s:42", "t:42", "e:42", "i:42"]
+    assert [b["text"] for b in boutons] == [
+        "✉️ Brouillon spontané", "📄 Lettre PDF", "✅ Envoyée", "❌ Ignorer",
+    ]  # fmt: skip
+
+
+def test_donnees_d_entreprise_tiennent_dans_64_octets():
+    for b in (b for ligne in clavier_entreprise(999_999_999)["inline_keyboard"] for b in ligne):
+        assert len(b["callback_data"].encode()) <= 64
+
+
+@pytest.mark.parametrize("action", ["s", "t", "e", "i"])
+def test_lire_donnee_d_entreprise(action):
+    assert lire_donnee(f"{action}:12") == (action, 12)
+
+
+@pytest.mark.parametrize("donnee", ["s:abc", "e:1;2", "t:", "i:-1", "s:1234567890", "S:1", "e:1 "])
+def test_lire_donnee_d_entreprise_invalide(donnee):
     assert lire_donnee(donnee) is None
