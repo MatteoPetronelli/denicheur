@@ -345,10 +345,11 @@ class RelanceDejaFaite(Exception):
 @dataclass
 class BrouillonLu:
     id: int
-    offre_id: int
+    offre_id: int | None  # vide pour le brouillon d'une entreprise
     type: str
     contenu: str
     depose: bool  # déjà dans les brouillons Gmail
+    entreprise_id: int | None = None
 
 
 def _nb_relances(session: Session, offre_id: int) -> int:
@@ -404,15 +405,71 @@ def enregistrer_brouillon(session: Session, offre_id: int, type_: str, contenu: 
 
 def lire_brouillon(session: Session, brouillon_id: int) -> BrouillonLu | None:
     ligne = session.execute(
-        select(brouillons, candidatures.c.offre_id)
+        select(brouillons, candidatures.c.offre_id, candidatures.c.entreprise_id)
         .join(candidatures, brouillons.c.candidature_id == candidatures.c.id)
         .where(brouillons.c.id == brouillon_id)
     ).mappings().one_or_none()  # fmt: skip
     if ligne is None:
         return None
     return BrouillonLu(
-        ligne["id"], ligne["offre_id"], ligne["type"], ligne["contenu"], bool(ligne["gmail_draft"])
-    )
+        ligne["id"], ligne["offre_id"], ligne["type"], ligne["contenu"], bool(ligne["gmail_draft"]),
+        ligne["entreprise_id"],
+    )  # fmt: skip
+
+
+TYPES_BROUILLON_ENTREPRISE = ("spontanee", "lettre")
+
+
+class PlafondAtteint(Exception):
+    pass
+
+
+def nb_brouillons_entreprise_le(session: Session, jour: date) -> int:
+    """Brouillons d'entreprise créés pendant le jour Paris `jour` (ceux des offres ne comptent pas)."""
+    debut = datetime.combine(jour, time.min, tzinfo=PARIS)
+    return session.execute(
+        select(func.count())
+        .select_from(brouillons.join(candidatures, brouillons.c.candidature_id == candidatures.c.id))
+        .where(
+            candidatures.c.entreprise_id.is_not(None),
+            brouillons.c.cree_le >= _utc_naif(debut),
+            brouillons.c.cree_le < _utc_naif(debut + timedelta(days=1)),
+        )
+    ).scalar_one()  # fmt: skip
+
+
+def verifier_brouillon_entreprise(
+    session: Session, entreprise_id: int, type_: str, now: datetime, maximum: int
+) -> None:  # fmt: skip
+    """Lève si un brouillon d'entreprise n'est pas permis ; avant tout appel au modèle."""
+    if type_ not in TYPES_BROUILLON_ENTREPRISE:
+        raise ValueError(f"Type de brouillon inconnu pour une entreprise : {type_}")
+    if session.execute(select(entreprises.c.id).where(entreprises.c.id == entreprise_id)).first() is None:
+        raise EntrepriseInconnue(entreprise_id)
+    courant = statut_de_entreprise(session, entreprise_id)
+    if courant not in (None, Statut.INTERESSANTE):  # écartée, contactée ou à issue finale
+        raise TransitionInvalide(f"{courant} -> brouillon")
+    if nb_brouillons_entreprise_le(session, now.astimezone(PARIS).date()) >= maximum:
+        raise PlafondAtteint(maximum)
+
+
+def enregistrer_brouillon_entreprise(
+    session: Session, entreprise_id: int, type_: str, contenu: str, now: datetime, maximum: int
+) -> int:  # fmt: skip
+    """Enregistre le brouillon ; crée le suivi `interessante` au premier brouillon, sans jamais l'envoyer."""
+    verifier_brouillon_entreprise(session, entreprise_id, type_, now, maximum)
+    if statut_de_entreprise(session, entreprise_id) is None:
+        marquer_entreprise(session, entreprise_id, Statut.INTERESSANTE, now)
+    candidature_id = session.execute(
+        select(candidatures.c.id).where(candidatures.c.entreprise_id == entreprise_id)
+    ).scalar_one()
+    res = session.execute(
+        brouillons.insert().values(
+            candidature_id=candidature_id, type=type_, contenu=contenu, gmail_draft=False,
+            cree_le=_utc_naif(now),
+        )
+    )  # fmt: skip
+    return int(res.inserted_primary_key[0])  # type: ignore[attr-defined]
 
 
 def marquer_depose(session: Session, brouillon_id: int) -> None:
