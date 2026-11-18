@@ -2,13 +2,17 @@
 
 from pathlib import Path
 
-from denicheur.models import Offre, Piste, ScoreLLM
+from denicheur.models import Entreprise, Offre, Piste, ScoreLLM
 from denicheur.scoring.prompts import MAX_DESCRIPTION, _nettoyer
 
 PROFILE = Path(__file__).resolve().parents[3] / "profile"
 # Jamais cv_*.md : ils contiennent les coordonnées du candidat.
 FICHIERS = ("regles_ecriture.md", "lettre_modele.md", "profil.md")
 TYPES = ("email", "lettre", "relance", "spontanee")
+TYPES_ENTREPRISE = (
+    "spontanee",
+    "lettre",
+)  # jamais de relance : une entreprise n'a pas de candidature envoyée
 LIGNE_PROFIL = "Éléments du profil utilisés"
 # type -> (plage de mots, consigne)
 PLAGES = {"email": (120, 180), "lettre": (250, 300), "relance": (120, 180), "spontanee": (120, 180)}
@@ -61,4 +65,46 @@ def message_utilisateur(offre: Offre, score: ScoreLLM, type_: str) -> str:
         "Réponds uniquement par le texte demandé, sans phrase d'introduction ni commentaire.\n"
         f"Termine par une ligne « {LIGNE_PROFIL} : … ».\n"
         f"Description de l'offre :\n{description}"
+    )
+
+
+_CONSIGNES_ENTREPRISE = {
+    "spontanee": (
+        "Rédige une candidature spontanée par message (pas d'offre en cours), "
+        "qui parle de l'activité de l'entreprise"
+    ),
+    "lettre": (
+        "Rédige la lettre de motivation d'une candidature spontanée (pas d'offre en cours ; "
+        "corps de la lettre seulement), qui parle de l'activité de l'entreprise"
+    ),
+}
+
+
+def _champ(texte: str | None, defaut: str) -> str:
+    """Une seule ligne, sans e-mail ni téléphone, bornée : un nom d'entreprise est une entrée non fiable."""
+    propre = " ".join(_nettoyer(texte or "").split())[:150]
+    return propre or defaut
+
+
+def message_utilisateur_entreprise(entreprise: Entreprise, type_: str) -> str:
+    """Candidature spontanée : le modèle ne reçoit que le nom, l'activité et la commune."""
+    if type_ not in TYPES_ENTREPRISE:
+        raise ValueError(f"Type de brouillon inconnu pour une entreprise : {type_}")
+    bas, haut = PLAGES[type_]
+    return (
+        f"{_CONSIGNES_ENTREPRISE[type_]}, de {bas} à {haut} mots "
+        f"(vise {(bas + haut) // 2} mots, jamais moins de {bas}).\n"
+        f"Entreprise : {_champ(entreprise.nom, 'non précisée')}\n"
+        f"Activité : {_champ(entreprise.activite, 'non précisée')}\n"
+        f"Lieu : {_champ(entreprise.commune, 'non précisé')}\n"
+        f"Disponibilité à indiquer : {_DISPONIBILITE[Piste.ALTERNANCE]}\n"
+        "Il n'y a pas de poste précis : ne cite aucun intitulé de poste et présente une candidature "
+        "pour une alternance en développement.\n"
+        "Projet à citer : choisis le projet du profil le plus proche de l'activité de l'entreprise.\n"
+        "Tu ne sais rien d'autre sur cette entreprise : n'invente ni produit, ni client, ni chiffre, "
+        "ni recrutement en cours.\n"
+        "Le texte doit être complet et prêt à envoyer : aucun texte entre crochets, "
+        "aucun trou à compléter.\n"
+        "Réponds uniquement par le texte demandé, sans phrase d'introduction ni commentaire.\n"
+        f"Termine par une ligne « {LIGNE_PROFIL} : … »."
     )

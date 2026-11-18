@@ -9,14 +9,16 @@ from pathlib import Path
 import httpx
 
 from denicheur.config import LLMConfig
-from denicheur.models import Offre, ScoreLLM
+from denicheur.models import Entreprise, Offre, ScoreLLM
 from denicheur.redaction.prompts import (
     LIGNE_PROFIL,
     PLAGES,
     PROFILE,
     TYPES,
+    TYPES_ENTREPRISE,
     message_systeme,
     message_utilisateur,
+    message_utilisateur_entreprise,
 )
 from denicheur.scoring.llm import OllamaIndisponible
 
@@ -95,7 +97,16 @@ class Redacteur:
         if type_ not in TYPES:
             raise ValueError(f"Type de brouillon inconnu : {type_}")
         systeme = message_systeme(self.dossier)  # lève avant tout appel si un fichier manque
-        utilisateur = message_utilisateur(offre, score, type_)
+        return self._produire(systeme, message_utilisateur(offre, score, type_), type_)
+
+    def rediger_entreprise(self, entreprise: Entreprise, type_: str) -> str:
+        """Candidature spontanée (`spontanee` ou `lettre`) ; la relance n'existe pas pour une entreprise."""
+        if type_ not in TYPES_ENTREPRISE:
+            raise ValueError(f"Type de brouillon inconnu pour une entreprise : {type_}")
+        systeme = message_systeme(self.dossier)
+        return self._produire(systeme, message_utilisateur_entreprise(entreprise, type_), type_)
+
+    def _produire(self, systeme: str, utilisateur: str, type_: str) -> str:
         plage = PLAGES[type_]
 
         corps, ligne, duree = self._essai(systeme, utilisateur)
