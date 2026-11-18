@@ -84,10 +84,37 @@ def _jobtome(msg: EmailMessage) -> list[OffreMail]:
     return offres
 
 
+# LinkedIn : par offre, titre / entreprise / « Ville, Région, France » (+ lignes de contexte facultatives),
+# puis « Voir l'offre d'emploi : lien ». Aucun département : la région seule n'aide pas le géocodage.
+_LIEU_LINKEDIN = re.compile(r"^([^,]+), .+, France$")
+_OFFRE_LINKEDIN = re.compile(r"/jobs/view/(\d+)")
+
+
+def _linkedin(msg: EmailMessage) -> list[OffreMail]:
+    corps = msg.get_body(("plain",))
+    if corps is None:
+        return []
+    offres = []
+    for bloc in re.split(r"\n\s*-{10,}\s*\n", corps.get_content()):
+        lignes = [ligne.strip() for ligne in bloc.splitlines() if ligne.strip()]
+        voir = next((ligne for ligne in lignes if ligne.startswith("Voir l")), "")
+        ident = _OFFRE_LINKEDIN.search(voir)
+        lieu = next((i for i, ligne in enumerate(lignes) if _LIEU_LINKEDIN.match(ligne)), -1)
+        if not ident or lieu < 2:
+            continue
+        ville = _LIEU_LINKEDIN.match(lignes[lieu])[1]  # type: ignore[index]
+        lien = f"https://www.linkedin.com/jobs/view/{ident[1]}"
+        offres.append(
+            OffreMail("linkedin", lignes[lieu - 2], lignes[lieu - 1], ville, "", lien, "", ident[1])
+        )
+    return offres
+
+
 # Domaine de l'expéditeur (suffixe) -> analyseur. Ajouter un site = une fonction + une fixture.
 ANALYSEURS: dict[str, Callable[[EmailMessage], list[OffreMail]]] = {
     "indeed.com": _indeed,
     "jobtomealert.com": _jobtome,
+    "linkedin.com": _linkedin,
 }
 
 

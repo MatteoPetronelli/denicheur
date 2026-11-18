@@ -9,7 +9,14 @@ import pytest
 from denicheur.mail.parsers import analyser, lien_propre
 
 EMAILS = Path(__file__).parent / "fixtures" / "emails"
-ATTENDU = {"indeed_1.eml": 7, "indeed_2.eml": 5, "indeed_3.eml": 4, "jobtome_1.eml": 4, "jobtome_2.eml": 0}
+ATTENDU = {
+    "indeed_1.eml": 7,
+    "indeed_2.eml": 5,
+    "indeed_3.eml": 4,
+    "jobtome_1.eml": 4,
+    "jobtome_2.eml": 0,
+    "linkedin_1.eml": 6,
+}
 
 
 def _charger(nom: str):
@@ -90,3 +97,51 @@ def test_jobtome_champs_et_identifiant_stable():
     )  # le chemin identifie l'offre, la requête porte le jeton du destinataire
     assert (offres[1].entreprise, offres[1].ville) == ("Quai des Notaires", "Paris")
     assert offres[2].titre == "Développeur Full Stack Java / React H/F (It) / Freelance"
+
+
+def test_linkedin_champs_et_identifiant_stable():
+    offres = analyser(_charger("linkedin_1.eml"))
+    premiere = offres[0]
+    assert premiere.site == "linkedin"
+    assert premiere.titre == "Développeur fullstack PHP/Javascript - Alternance (H/F)"
+    assert premiere.entreprise == "IKA"
+    assert (premiere.ville, premiere.departement) == ("Boulogne-Billancourt", "")
+    assert premiere.lien == "https://www.linkedin.com/jobs/view/4490941967"
+    assert premiere.ident == "4490941967"
+    assert [o.entreprise for o in offres] == [
+        "IKA",
+        "EDF",
+        "KONCRETE",
+        "Capgemini Engineering",
+        "Thales",
+        "Schneider Electric",
+    ]
+
+
+def test_linkedin_les_lignes_de_contexte_ne_decalent_pas_les_champs():
+    # Lignes de contexte (« 2 anciens élèves », etc.) ou aucune : titre et entreprise restent les bons
+    offres = {o.entreprise: o for o in analyser(_charger("linkedin_1.eml"))}
+    assert offres["EDF"].titre == "STAGE - Développeur/euse Full Stack - Java /Angular F/H"
+    assert offres["KONCRETE"].titre == "[Stage] Développeur Full Stack H/F"
+    assert offres["Thales"].ville == "Cergy"
+
+
+def test_linkedin_le_lien_perd_les_jetons_du_destinataire():
+    for o in analyser(_charger("linkedin_1.eml")):
+        assert re.fullmatch(r"https://www\.linkedin\.com/jobs/view/\d+", o.lien)
+
+
+def test_linkedin_un_mail_sans_offre_donne_zero():
+    msg = _charger("linkedin_1.eml")
+    msg.set_content("Confirmez votre adresse e-mail : https://www.linkedin.com/comm/confirm")
+    assert analyser(msg) == []
+
+
+def test_linkedin_une_offre_sans_lieu_lisible_est_ignoree():
+    msg = _charger("linkedin_1.eml")
+    msg.set_content(
+        "Titre seul\nEntreprise\nVoir l’offre d’emploi : https://www.linkedin.com/comm/jobs/view/123?x=1\n"
+        "\n-----------------------------------------\n\n"
+        "Entreprise\nParis, Île-de-France, France\nVoir l’offre d’emploi : https://www.linkedin.com/comm/jobs/view/456\n"
+    )
+    assert analyser(msg) == []
