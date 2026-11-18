@@ -1,0 +1,37 @@
+# Tasks
+
+## 1. Lot 1 : socle web et accès à la base (skills : sveltekit, tdd-workflow, mutation-verified-testing)
+
+- [x] 1.1 Étape bloquante : `node -v` (≥ 22) et `npm -v`, puis essai de `better-sqlite3` sous Node 24 sur Windows (ouvrir une base temporaire en lecture et en écriture). Vérifié : l'essai passe, sinon le repli `node:sqlite` est choisi et consigné dans `design.md`. Sauvegarde de la vraie base hors git avant tout essai sur elle.
+- [x] 1.2 `web/` : projet SvelteKit TypeScript minimal (`npx sv create web`), `adapter-node`, scripts `dev`, `build`, `start` (liaison `127.0.0.1` fixée), `check`, `test`, entrées de `.gitignore`. Vérifié : `npm run build` réussit et `npm start` répond sur `http://127.0.0.1` mais pas sur l'adresse du réseau local.
+- [x] 1.3 `src/lib/server/db.ts` : ouverture de `DB_PATH` (défaut `../denicheur.db`) en `fileMustExist`, `foreign_keys`, `busy_timeout`, vérification de la présence de `candidatures` ; erreurs françaises « Base introuvable » et « Schéma inattendu ». Vérifié par tests Vitest sur une base migrée par Python (`web/tests/creer_base.py`, qui appelle `migrer()`), fichier absent = erreur et fichier non créé, base vide sans schéma = erreur ; mutation : retirer `fileMustExist` → rouge.
+- [x] 1.4 `src/hooks.server.ts` : requête refusée si l'en-tête `Host` n'est pas `127.0.0.1` ou `localhost`. Vérifié par tests (`Host: exemple.fr` = 403, `localhost:3000` = passe) ; mutation : accepter tout hôte → rouge.
+- [x] 1.5 Mise en page commune en français (navigation `/`, `/entreprises`, `/offres`, `/stats`, `/projet`), thème clair/sombre, page d'erreur « Base introuvable ». Vérifié par `npm run check` et une page de démarrage lue dans un vrai navigateur (`browser-proof`) sur une base synthétique ; `fixing-accessibility` : navigation au clavier et contrastes.
+- [x] 1.6 README : section « Tableau de bord » (prérequis Node, démarrage, `DB_PATH`, « ne jamais exposer le port ») ; test Python qui vérifie la présence de l'avertissement. Vérifié : le test passe.
+- [x] 1.7 Gate complète verte (Python : `ruff format --check`, `ruff check`, `mypy src`, `pytest -q` ; web : `npm run check`, `npm test`, `npm run build`), `openspec validate dashboard --strict`, `graphify update .`.
+
+## 2. Lot 2 : tableau, statuts et entreprises (skills : sveltekit, tdd-workflow, mutation-verified-testing, browser-proof, fixing-accessibility, avoid-ai-writing)
+
+- [ ] 2.1 `web/src/lib/transitions.json` et `statuts.ts` (statuts, libellés français, statuts atteignables), test Python `tests/test_dashboard_statuts.py` qui compare le JSON à `repo._TRANSITIONS` et aux valeurs de `Statut`. Vérifié : le test passe ; mutation : retirer une transition du JSON ou du Python → rouge.
+- [ ] 2.2 `src/lib/server/suivi.ts` : changement de statut équivalent à `repo._marquer` et `marquer_entreprise` (transition refusée sans écriture, même statut sans effet, première ligne de suivi créée, `envoyee_le`, `contactee_le`, `ignoree_le`, offre ou entreprise inconnue refusée, un seul des deux identifiants). Vérifié par tests Vitest sur base migrée, puis relecture des lignes écrites par les fonctions Python (`repo.statut_de`, `repo.statut_de_entreprise`, dates lues sans erreur) ; mutations : ne pas poser `contactee_le`, accepter `ignoree` → `candidature_envoyee` → rouge.
+- [ ] 2.3 Lecture : requêtes du tableau (suivis d'offres et d'entreprises, « Nouvelles » limitées à 50 sans reprendre les offres déjà suivies, `offre_id IS NOT NULL` dans toute sous-requête `NOT IN`), filtres piste et nature. Vérifié par tests Vitest (une entreprise suivie sans offre ne vide pas « Nouvelles », entreprise comptée comme alternance, piste stage = aucune entreprise) ; mutation : retirer `offre_id IS NOT NULL` → rouge.
+- [ ] 2.4 Page `/` : colonnes, effectifs, cartes d'offre et d'entreprise, lien affiché seulement s'il commence par `http`, écartées masquées avec bascule, formulaire de statut par carte (statuts atteignables seulement), message d'erreur en français, `use:enhance`. Vérifié par tests de la page, mutation sur le contrôle du lien, puis `browser-proof` : déplacer une carte au clavier et à la souris, recharger, voir le statut conservé.
+- [ ] 2.5 Fiche d'une carte : brouillons rattachés (type, date, état Gmail, texte échappé, lecture seule). Vérifié par test avec un texte contenant `<script>` rendu sans exécution.
+- [ ] 2.6 Page `/entreprises` : filtres (statut dont « sans suivi », recherche sur le nom), tri priorité puis distance (priorités nulles à la fin), pages de 50, colonnes de la spec, offre ouverte rattachée par SIRET exact seulement, boutons « Contactée » et « Écartée ». Vérifié par tests (nom voisin sans SIRET égal = pas de rattachement, 120 entreprises = 3 pages, recherche avec `%` et `_` traités comme texte) ; mutation : rapprocher par nom → rouge.
+- [ ] 2.7 Page `/offres` : offres notées avec statut de suivi, seuil `score_min` lu dans `config/recherches.yaml` (`CONFIG_PATH`), mention « sous le seuil », filtre piste, rejetées du préfiltre exclues. Vérifié par tests (40 sous 60 listée et marquée, rejetée absente) ; mutation : inclure les rejetées → rouge ; passage de `avoid-ai-writing` sur les textes visibles.
+- [ ] 2.8 Avec l'utilisateur : démarrer le tableau sur la vraie base (sauvegardée), marquer une entreprise « Contactée », vérifier dans Telegram `/candidatures` et au prochain `digest` qu'elle n'est plus proposée. Vérifié : les deux côtés montrent le même statut.
+- [ ] 2.9 Gate complète verte (Python et web), `openspec validate dashboard --strict`, `graphify update .`.
+
+## 3. Lot 3 : statistiques, page projet et documentation (skills : sveltekit, tdd-workflow, browser-proof, fixing-accessibility, avoid-ai-writing)
+
+- [ ] 3.1 Page `/stats` : comptes (vues, retenues, notées, notifiées, candidatures offres et entreprises séparées, réponses) et durée du LLM (moyenne, total) tirés de `executions`, dernières exécutions avec nombre d'erreurs sans leur texte. Vérifié par tests Vitest (10 offres dont 4 rejetées = 6 retenues, base sans exécution = « 0 s », texte d'erreur absent de la page) ; mutation : afficher le détail des erreurs → rouge.
+- [ ] 3.2 Page `/projet` : but, architecture locale, garde-fous (envoi toujours humain, local et gratuit), sans donnée personnelle. Vérifié par un test qui parcourt la page générée et ne trouve ni adresse e-mail, ni chiffre de téléphone, ni chemin de disque, ni valeur lue dans la base ; passage de `avoid-ai-writing`.
+- [ ] 3.3 README en français avec captures de l'application et du bot, prises sur une base synthétique (aucune donnée de la vraie base). Vérifié : les images existent, aucun nom d'entreprise réel dans les captures, README relu avec `avoid-ai-writing`.
+- [ ] 3.4 `browser-proof` complet sur la base synthétique : parcours des cinq pages, déplacement d'une carte, filtre entreprises, statistiques, 0 erreur dans la console, `fixing-accessibility` (clavier, contrastes, libellés). Vérifié : rapport sans anomalie ouverte.
+- [ ] 3.5 CLAUDE.md et README mis à jour (statut C7, commandes web). Vérifié : relecture, mention de `liste_par_jour: 0` et de la façon de réactiver la liste du jour.
+- [ ] 3.6 Gate complète verte (Python et web), `openspec validate dashboard --strict`, `openspec validate --specs --strict` après archivage, `graphify update .`.
+
+## Workflow follow-up
+
+- Avec l'utilisateur, décider de remettre `entreprises.liste_par_jour` à 10 quand le tableau sert de suivi.
+- Archiver le change après revue ; vérifier que les trois nouvelles specs ont un Purpose et passent `--strict`.
