@@ -14,7 +14,8 @@ from denicheur import messages_fr as fr
 from denicheur.clock import paris_now
 from denicheur.config import Config
 from denicheur.db import repo
-from denicheur.models import Offre, ScoreLLM, Statut
+from denicheur.models import Entreprise, Offre, ScoreLLM, Statut
+from denicheur.redaction.cible import Cible
 from denicheur.redaction.documents import (
     IDENTITE,
     LIENS,
@@ -48,6 +49,8 @@ _ACTIONS = {
 
 class Redacteur(Protocol):
     def rediger(self, offre: Offre, score: ScoreLLM, type_: str) -> str: ...
+
+    def rediger_entreprise(self, entreprise: Entreprise, type_: str) -> str: ...
 
 
 @dataclass
@@ -83,10 +86,66 @@ def _identite(deps: BotDeps, cq: dict[str, Any], *, dossier: bool) -> Identite |
         return None
 
 
+def _generer(deps: BotDeps, etiquette: str, appel: Callable[[], str]) -> str | None:
+    """Appelle le modèle ; en cas d'échec, prévient l'utilisateur en français et renvoie None."""
+    api = deps.api
+    debut = time.monotonic()
+    try:
+        texte = appel()
+    except OllamaIndisponible:
+        log.warning("rédaction %s : Ollama indisponible", etiquette)
+        api.send_message(fr.ECHEC_OLLAMA)
+        return None
+    except RedactionInvalide as e:  # str(e) = nom de l'erreur, jamais d'URL ni de texte
+        log.warning("rédaction %s : %s après %.1f s", etiquette, e, time.monotonic() - debut)
+        api.send_message(fr.ECHEC_REDACTION)
+        return None
+    except ProfilManquant as e:
+        api.send_message(fr.echec_profil(str(e)))
+        return None
+    log.info("rédaction %s : %.1f s", etiquette, time.monotonic() - debut)
+    return texte
+
+
+def _livrer(
+    deps: BotDeps, texte: str, type_: str, cible: Cible, identite: Identite | None,
+    enregistrer: Callable[[], int],
+) -> None:  # fmt: skip
+    """Écrit les fichiers d'une lettre, enregistre le brouillon, puis envoie texte et fichiers."""
+    api = deps.api
+    fichiers: tuple[Path, Path] | None = None
+    if identite is not None and deps.dossier_lettres is not None:
+        try:  # avant l'enregistrement : un échec d'écriture ne laisse aucun brouillon
+            fichiers = ecrire_lettre(
+                texte,
+                cible,
+                identite,
+                deps.dossier_lettres,
+                paris_now(deps.maintenant()).date(),
+                lire_liens(deps.chemin_liens),
+            )
+        except ErreurDocuments:
+            api.send_message(fr.ECHEC_FICHIERS)
+            return
+    brouillon_id = enregistrer()
+    deps.session.commit()
+    if fichiers is None or identite is None:
+        api.send_message(fr.texte_brouillon(type_, texte), clavier_brouillon(brouillon_id))
+        return
+    api.send_message(fr.texte_brouillon(type_, texte))  # le texte relu garde la ligne de vérification
+    for chemin, mime in zip(fichiers, (PDF, DOCX), strict=True):
+        api.send_document(chemin.name, chemin.read_bytes(), mime)
+    api.send_message(
+        fr.accompagnement_telegram(cible.poste, cible.entreprise, identite.nom),
+        clavier_brouillon(brouillon_id),
+    )
+
+
 def _rediger(deps: BotDeps, cq: dict[str, Any], offre_id: int, type_: str) -> None:
     """Génère, enregistre et envoie un brouillon ; la boucle bloque pendant l'appel au modèle."""
     api, session = deps.api, deps.session
-    if deps.redacteur is None:
+    redacteur = deps.redacteur
+    if redacteur is None:
         api.answer_callback(cq["id"], fr.CB_REDACTION_ABSENTE)
         return
     try:
@@ -112,47 +171,61 @@ def _rediger(deps: BotDeps, cq: dict[str, Any], offre_id: int, type_: str) -> No
             return
     api.answer_callback(cq["id"], fr.CB_ATTENTE)
     offre = repo.lire_offre(session, offre_id)
-    debut = time.monotonic()
-    try:
-        texte = deps.redacteur.rediger(offre, score, type_)
-    except OllamaIndisponible:
-        log.warning("rédaction %s offre %s : Ollama indisponible", type_, offre_id)
-        api.send_message(fr.ECHEC_OLLAMA)
+    texte = _generer(deps, f"{type_} offre {offre_id}", lambda: redacteur.rediger(offre, score, type_))
+    if texte is None:
         return
-    except RedactionInvalide as e:  # str(e) = nom de l'erreur, jamais d'URL ni de texte
-        log.warning("rédaction %s offre %s : %s après %.1f s", type_, offre_id, e, time.monotonic() - debut)
-        api.send_message(fr.ECHEC_REDACTION)
+    _livrer(
+        deps, texte, type_, Cible.depuis_offre(offre), identite,
+        lambda: repo.enregistrer_brouillon(session, offre_id, type_, texte, deps.maintenant()),
+    )  # fmt: skip
+
+
+def _rediger_entreprise(deps: BotDeps, cq: dict[str, Any], entreprise_id: int, type_: str) -> None:
+    """Candidature spontanée (message ou lettre) : garde-fous des offres, plus le plafond du jour."""
+    api, session = deps.api, deps.session
+    redacteur = deps.redacteur
+    if redacteur is None:
+        api.answer_callback(cq["id"], fr.CB_REDACTION_ABSENTE)
         return
-    except ProfilManquant as e:
-        api.send_message(fr.echec_profil(str(e)))
+    maximum = deps.config.entreprises.brouillons_max_jour
+    try:  # avant l'appel au modèle : un refus ne coûte rien
+        repo.verifier_brouillon_entreprise(session, entreprise_id, type_, deps.maintenant(), maximum)
+    except repo.EntrepriseInconnue:
+        api.answer_callback(cq["id"], fr.CB_ENTREPRISE_INTROUVABLE)
         return
-    log.info("rédaction %s offre %s : %.1f s", type_, offre_id, time.monotonic() - debut)
-    fichiers: tuple[Path, Path] | None = None
-    if identite is not None and deps.dossier_lettres is not None:
-        try:  # avant l'enregistrement : un échec d'écriture ne laisse aucun brouillon
-            fichiers = ecrire_lettre(
-                texte,
-                offre,
-                identite,
-                deps.dossier_lettres,
-                paris_now(deps.maintenant()).date(),
-                lire_liens(deps.chemin_liens),
-            )
-        except ErreurDocuments:
-            api.send_message(fr.ECHEC_FICHIERS)
+    except repo.TransitionInvalide:
+        courant = repo.statut_de_entreprise(session, entreprise_id)
+        api.answer_callback(cq["id"], fr.cb_impossible_entreprise(courant.value if courant else None))
+        return
+    except repo.PlafondAtteint:
+        api.answer_callback(cq["id"], fr.cb_plafond(maximum))
+        return
+    identite = None
+    if type_ == "lettre":
+        identite = _identite(deps, cq, dossier=True)
+        if identite is None:
             return
-    brouillon_id = repo.enregistrer_brouillon(session, offre_id, type_, texte, deps.maintenant())
-    session.commit()
-    if fichiers is None or identite is None:
-        api.send_message(fr.texte_brouillon(type_, texte), clavier_brouillon(brouillon_id))
-        return
-    api.send_message(fr.texte_brouillon(type_, texte))  # le texte relu garde la ligne de vérification
-    for chemin, mime in zip(fichiers, (PDF, DOCX), strict=True):
-        api.send_document(chemin.name, chemin.read_bytes(), mime)
-    api.send_message(
-        fr.accompagnement_telegram(offre.titre, offre.entreprise, identite.nom),
-        clavier_brouillon(brouillon_id),
+    api.answer_callback(cq["id"], fr.CB_ATTENTE)
+    entreprise = repo.lire_entreprise(session, entreprise_id)
+    texte = _generer(
+        deps, f"{type_} entreprise {entreprise_id}", lambda: redacteur.rediger_entreprise(entreprise, type_)
     )
+    if texte is None:
+        return
+    _livrer(
+        deps, texte, type_, Cible.depuis_entreprise(entreprise), identite,
+        lambda: repo.enregistrer_brouillon_entreprise(
+            session, entreprise_id, type_, texte, deps.maintenant(), maximum
+        ),
+    )  # fmt: skip
+
+
+def _cible_du_brouillon(session: Session, brouillon: repo.BrouillonLu) -> Cible | None:
+    if brouillon.offre_id is not None:
+        return Cible.depuis_offre(repo.lire_offre(session, brouillon.offre_id))
+    if brouillon.entreprise_id is not None:
+        return Cible.depuis_entreprise(repo.lire_entreprise(session, brouillon.entreprise_id))
+    return None
 
 
 def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
@@ -167,7 +240,10 @@ def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
     if deps.deposer is None:
         api.answer_callback(cq["id"], fr.CB_GMAIL_ABSENT)
         return
-    offre = repo.lire_offre(session, brouillon.offre_id)
+    cible = _cible_du_brouillon(session, brouillon)
+    if cible is None:
+        api.answer_callback(cq["id"], fr.CB_INTROUVABLE)
+        return
     corps, pieces = corps_pour_gmail(brouillon.contenu), []
     if brouillon.type == "lettre":  # message fixe en corps, PDF régénéré en pièce jointe (rien n'est écrit)
         identite = _identite(deps, cq, dossier=False)
@@ -175,14 +251,14 @@ def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
             return
         try:
             jour = paris_now(deps.maintenant()).date()
-            pdf, _ = rendre_lettre(brouillon.contenu, offre, identite, jour, lire_liens(deps.chemin_liens))
+            pdf, _ = rendre_lettre(brouillon.contenu, cible, identite, jour, lire_liens(deps.chemin_liens))
         except ErreurDocuments:
             api.answer_callback(cq["id"], fr.CB_FICHIERS_ECHEC)
             return
-        corps = fr.message_accompagnement(offre.titre, offre.entreprise, identite.nom)
-        pieces = [Piece(f"{nom_fichier(offre.entreprise)}.pdf", PDF, pdf)]
+        corps = fr.message_accompagnement(cible.poste, cible.entreprise, identite.nom)
+        pieces = [Piece(f"{nom_fichier(cible.entreprise)}.pdf", PDF, pdf)]
     try:
-        deps.deposer(sujet_brouillon(brouillon.type, offre), corps, pieces)
+        deps.deposer(sujet_brouillon(brouillon.type, cible), corps, pieces)
     except ErreurGmail:
         api.answer_callback(cq["id"], fr.CB_GMAIL_ECHEC)
         return
@@ -195,7 +271,7 @@ def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
 def _bouton_entreprise(deps: BotDeps, cq: dict[str, Any], action: str, entreprise_id: int) -> None:
     api, session = deps.api, deps.session
     if action in ("s", "t"):
-        api.answer_callback(cq["id"], fr.CB_ENTREPRISE_BIENTOT)
+        _rediger_entreprise(deps, cq, entreprise_id, {"s": "spontanee", "t": "lettre"}[action])
         return
     statut, fait, deja = (
         (Statut.CANDIDATURE_ENVOYEE, fr.CB_ENVOYEE, fr.CB_DEJA_ENVOYEE)

@@ -98,7 +98,8 @@ def _message(uid, texte, *, chat=CHAT):
 def _lancer(session, api, tours=1, **options):
     restants = iter([True] * tours)
     pauses: list[float] = []
-    deps = BotDeps(api, session, CONFIG, CHAT, lambda: NOW, **options)
+    maintenant = options.pop("maintenant", NOW)
+    deps = BotDeps(api, session, CONFIG, CHAT, lambda: maintenant, **options)
     boucle(deps, sleep=pauses.append, continuer=lambda: next(restants, False))
     return pauses
 
@@ -294,6 +295,13 @@ class FauxRedacteur:
     def rediger(self, offre, score, type_):
         self.api.appels.append(("rediger", type_))
         self.demandes.append((offre.titre, type_))
+        if self.erreur:
+            raise self.erreur
+        return self.texte
+
+    def rediger_entreprise(self, entreprise, type_):
+        self.api.appels.append(("rediger", type_))
+        self.demandes.append((entreprise.nom, type_))
         if self.erreur:
             raise self.erreur
         return self.texte
@@ -845,18 +853,227 @@ def test_identifiant_d_entreprise_et_d_offre_identiques_ne_se_melangent_pas(sess
     assert repo.statut_de_entreprise(session, eid) is Statut.CANDIDATURE_ENVOYEE
 
 
-@pytest.mark.parametrize("action", ["s", "t"])
-def test_brouillon_d_entreprise_pas_encore_disponible_ne_plante_pas(session, action):
-    eid = _entreprise(session)
-    api = FauxAPI([_bouton(10, f"{action}:{eid}")])
-    _lancer(session, api)
-    assert api.de_type("answer_callback")[0][2] == "Brouillon d'entreprise : bientôt disponible."
-    assert session.execute(select(brouillons)).all() == []
-
-
 @pytest.mark.parametrize(("action", "statut"), [("e", Statut.CANDIDATURE_ENVOYEE), ("i", Statut.IGNOREE)])
 def test_marquage_d_entreprise_valide_en_base(session, action, statut):
     eid = _entreprise(session)
     _lancer(session, FauxAPI([_bouton(10, f"{action}:{eid}")]))
     session.rollback()  # ce qui n'est pas validé disparaît
     assert repo.statut_de_entreprise(session, eid) is statut
+
+
+# --- brouillons et lettres d'entreprise (s, t) ---
+def _brouillons_du_jour_pour_entreprises(session, n):
+    for i in range(100, 100 + n):
+        eid = _entreprise(session, i)
+        repo.enregistrer_brouillon_entreprise(session, eid, "spontanee", "texte", NOW, 99)
+    session.commit()
+
+
+def test_brouillon_spontane_repond_attente_genere_enregistre_et_propose_gmail(session):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"s:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur)
+    ordre = [a[0] for a in api.appels if a[0] in ("answer_callback", "rediger", "send_message")]
+    assert ordre == ["answer_callback", "rediger", "send_message"]
+    assert api.de_type("answer_callback")[0][2] == "⏳ Rédaction…"
+    assert redacteur.demandes == [("SOC1", "spontanee")]
+    (ligne,) = _brouillons(session)
+    assert ligne["type"] == "spontanee" and ligne["contenu"] == TEXTE and ligne["gmail_draft"] is False
+    texte, clavier = _texte_du_message(api)
+    assert clavier == clavier_brouillon(ligne["id"]) and PROFIL_LIGNE in texte
+    assert "<b>piégé</b>" not in texte  # échappé comme pour une offre
+    assert repo.statut_de_entreprise(session, eid) is Statut.INTERESSANTE
+    assert _ligne_entreprise(session, eid)["contactee_le"] is None
+
+
+def test_lettre_d_entreprise_ecrit_les_deux_fichiers_puis_propose_le_depot(session, lettres):
+    options, dossier = lettres
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"t:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [("SOC1", "lettre")]
+    assert _noms(dossier) == ["Lettre de motivation SOC1.docx", "Lettre de motivation SOC1.pdf"]
+    ordre = [a[0] for a in api.appels if a[0] in ("send_message", "send_document")]
+    assert ordre == ["send_message", "send_document", "send_document", "send_message"]
+    messages = [a for a in api.appels if a[0] == "send_message"]
+    assert PROFIL_LIGNE in messages[0][1]
+    (ligne,) = _brouillons(session)
+    assert ligne["type"] == "lettre" and messages[1][2] == clavier_brouillon(ligne["id"])
+    assert "candidature spontanée" in messages[1][1] and "SOC1" in messages[1][1]
+    assert "Jeanne Exemple" in messages[1][1] and "poste" not in messages[1][1]
+    pdf = api.de_type("send_document")[0]
+    assert pdf[1] == "Lettre de motivation SOC1.pdf" and "Candidature spontanée" in _texte_pdf(pdf[2])
+    assert repo.statut_de_entreprise(session, eid) is Statut.INTERESSANTE
+
+
+@pytest.mark.parametrize("action", ["s", "t"])
+@pytest.mark.parametrize(
+    ("statut", "fragment"),
+    [(Statut.IGNOREE, "ignoree"), (Statut.CANDIDATURE_ENVOYEE, "candidature_envoyee")],
+)
+def test_entreprise_ecartee_ou_contactee_refusee_sans_appel_au_modele(
+    session, lettres, action, statut, fragment
+):
+    options, dossier = lettres
+    eid = _entreprise(session)
+    repo.marquer_entreprise(session, eid, statut, NOW)
+    session.commit()
+    api = FauxAPI([_bouton(10, f"{action}:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == []
+    assert api.de_type("answer_callback")[0][2] == f"Impossible : l'entreprise est déjà « {fragment} »."
+    assert _brouillons(session) == [] and api.de_type("send_message") == [] and _noms(dossier) == []
+
+
+@pytest.mark.parametrize("action", ["s", "t"])
+def test_plafond_du_jour_refuse_sans_appel_au_modele(session, lettres, action):
+    options, dossier = lettres
+    _brouillons_du_jour_pour_entreprises(session, 15)
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"{action}:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == []
+    assert (
+        api.de_type("answer_callback")[0][2]
+        == "Plafond du jour atteint : 15 brouillons d'entreprise par jour."
+    )
+    assert len(_brouillons(session)) == 15 and repo.statut_de_entreprise(session, eid) is None
+    assert _noms(dossier) == []
+
+
+def test_le_seizieme_est_accepte_le_lendemain(session):
+    _brouillons_du_jour_pour_entreprises(session, 15)
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"s:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, maintenant=datetime(2026, 11, 17, 9, 0, tzinfo=UTC))
+    assert redacteur.demandes == [("SOC1", "spontanee")]
+
+
+@pytest.mark.parametrize("action", ["s", "t"])
+def test_entreprise_inconnue_ou_redacteur_absent(session, lettres, action):
+    options, _ = lettres
+    api = FauxAPI([_bouton(10, f"{action}:99")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert api.de_type("answer_callback")[0][2] == "Entreprise introuvable." and redacteur.demandes == []
+    eid = _entreprise(session)
+    api2 = FauxAPI([_bouton(11, f"{action}:{eid}")])
+    _lancer(session, api2, **options)
+    assert api2.de_type("answer_callback")[0][2] == "Rédaction non configurée."
+
+
+@pytest.mark.parametrize(
+    ("erreur", "fragment"),
+    [
+        (OllamaIndisponible("down"), "Ollama ne répond pas"),
+        (RedactionInvalide("TimeoutException"), "dépassé le délai"),
+        (ProfilManquant("Fichier de profil introuvable : profil.md"), "profil.md"),
+    ],
+)
+def test_echec_de_redaction_d_entreprise_message_francais_et_rien_d_enregistre(session, erreur, fragment):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"s:{eid}")])
+    _lancer(session, api, redacteur=FauxRedacteur(api, erreur=erreur))
+    assert fragment in _texte_du_message(api)[0]
+    assert _brouillons(session) == [] and repo.statut_de_entreprise(session, eid) is None
+
+
+def test_lettre_d_entreprise_identite_ou_dossier_absents_refus_avant_le_modele(session, lettres, tmp_path):
+    options, dossier = lettres
+    eid = _entreprise(session)
+    options["chemin_identite"].unlink()
+    api = FauxAPI([_bouton(10, f"t:{eid}")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [] and api.de_type("answer_callback")[0][2]
+    api2 = FauxAPI([_bouton(11, f"t:{eid}")])
+    _lancer(session, api2, redacteur=redacteur, dossier_lettres=None)
+    assert (
+        api2.de_type("answer_callback")[0][2] == "Dossier des lettres non configuré."
+        and redacteur.demandes == []
+    )
+
+
+def test_lettre_d_entreprise_echec_d_ecriture_aucun_brouillon(session, lettres, monkeypatch):
+    options, _ = lettres
+    eid = _entreprise(session)
+
+    def casse(*a, **k):
+        raise ErreurDocuments("Disque plein : C:\\secret")
+
+    monkeypatch.setattr("denicheur.telegram.bot.ecrire_lettre", casse)
+    api = FauxAPI([_bouton(10, f"t:{eid}")])
+    _lancer(session, api, redacteur=FauxRedacteur(api), **options)
+    assert "secret" not in str(api.appels)
+    assert _brouillons(session) == [] and repo.statut_de_entreprise(session, eid) is None
+
+
+@pytest.mark.parametrize("action", ["s", "t"])
+def test_bouton_d_entreprise_d_un_autre_chat_ne_declenche_rien(session, lettres, action):
+    options, dossier = lettres
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"{action}:{eid}", chat="999")])
+    redacteur = FauxRedacteur(api)
+    _lancer(session, api, redacteur=redacteur, **options)
+    assert redacteur.demandes == [] and api.de_type("answer_callback") == [] and _noms(dossier) == []
+
+
+def test_la_duree_de_redaction_d_entreprise_est_journalisee(session, caplog):
+    import logging
+
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"s:{eid}")])
+    with caplog.at_level(logging.INFO):
+        _lancer(session, api, redacteur=FauxRedacteur(api))
+    assert any(f"rédaction spontanee entreprise {eid} :" in m for m in caplog.messages)
+
+
+def _avec_brouillon_entreprise(session, type_, n=1):
+    eid = _entreprise(session, n)
+    bid = repo.enregistrer_brouillon_entreprise(session, eid, type_, TEXTE, NOW, 15)
+    session.commit()
+    return eid, bid
+
+
+def test_depot_gmail_d_un_message_spontane_sans_piece_jointe_ni_destinataire(session, lettres):
+    options, dossier = lettres
+    _, bid = _avec_brouillon_entreprise(session, "spontanee")
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    ((sujet, corps),) = depot.depots
+    assert sujet == "Candidature spontanée : SOC1"
+    assert corps.startswith("Madame, Monsieur,") and PROFIL_LIGNE not in corps
+    assert depot.pieces == [[]] and _noms(dossier) == []
+    assert repo.lire_brouillon(session, bid).depose is True
+    assert api.de_type("answer_callback")[0][2] == "📥 Brouillon Gmail créé"
+
+
+def test_depot_gmail_d_une_lettre_spontanee_joint_le_pdf_et_le_message_fixe(session, lettres):
+    options, dossier = lettres
+    _, bid = _avec_brouillon_entreprise(session, "lettre")
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    ((sujet, corps),) = depot.depots
+    assert sujet == "Candidature spontanée : SOC1"
+    assert "candidature spontanée au sein de SOC1" in corps and corps.rstrip().endswith("Jeanne Exemple")
+    ((piece,),) = depot.pieces
+    assert piece.nom == "Lettre de motivation SOC1.pdf" and piece.octets[:4] == b"%PDF"
+    assert "Candidature spontanée" in _texte_pdf(piece.octets)
+    assert _noms(dossier) == []
+
+
+def test_depot_gmail_d_une_lettre_spontanee_identite_absente_aucun_depot(session, lettres):
+    options, _ = lettres
+    _, bid = _avec_brouillon_entreprise(session, "lettre")
+    options["chemin_identite"].unlink()
+    api = FauxAPI([_bouton(10, f"g:{bid}")])
+    depot = FauxDepot()
+    _lancer(session, api, deposer=depot, **options)
+    assert depot.depots == [] and repo.lire_brouillon(session, bid).depose is False
