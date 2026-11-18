@@ -428,3 +428,136 @@ def test_exception_des_entreprises_isolee(env):
     b = env.run(T0, entreprises=ent)
     assert b.ok and "entreprises : RuntimeError" in b.erreurs and "secret" not in str(b.erreurs)
     assert b.collectees > 0
+
+
+# --- liste du jour des entreprises ---
+DIGEST = datetime(2026, 11, 17, 7, 31, tzinfo=UTC)  # 08:31 Paris
+
+
+def _entreprises(env, n, depart=1):
+    from denicheur.models import Entreprise
+
+    for i in range(depart, depart + n):
+        e = Entreprise(siret=f"{i:09d}00011", nom=f"SOC{i}", priorite=i, distance_km=float(i), origine="csv")
+        repo.enregistrer_entreprise(env.session, e, T0)
+    env.session.commit()
+
+
+def _messages_entreprises(env):
+    return [(c["text"], c.get("reply_markup")) for c in env.corps if c["text"].startswith("🏢")]
+
+
+def _donnees(clavier):
+    return [b["callback_data"] for ligne in clavier["inline_keyboard"] for b in ligne]
+
+
+def test_liste_du_jour_apres_le_digest_dix_entreprises_avec_leurs_boutons(env):
+    _entreprises(env, 25)
+    env.run(DIGEST, sources={})
+    assert env.envoyes[0] == "Rien de nouveau aujourd'hui"
+    assert env.envoyes[1] == "🏢 10 entreprises à démarcher aujourd'hui"
+    messages = _messages_entreprises(env)[1:]  # le premier est l'en-tête
+    assert len(messages) == 10
+    assert [m[0].split("\n")[0] for m in messages] == [f"🏢 <b>SOC{i}</b>" for i in range(1, 11)]
+    assert _donnees(messages[0][1]) == ["s:1", "t:1", "e:1", "i:1"]
+    assert _donnees(messages[9][1]) == ["s:10", "t:10", "e:10", "i:10"]
+    assert repo.get_param(env.session, "derniere_liste_entreprises") == "2026-11-17"
+    assert repo.nb_listees_le(env.session, datetime(2026, 11, 17).date()) == 10
+    assert len(repo.entreprises_du_jour(env.session, 100)) == 15
+
+
+def test_liste_une_seule_fois_par_jour_puis_dix_nouvelles_le_lendemain(env):
+    _entreprises(env, 25)
+    env.run(DIGEST, sources={})
+    env.corps.clear()
+    env.run(DIGEST + timedelta(hours=1), sources={})
+    assert _messages_entreprises(env) == []
+    env.run(DIGEST + timedelta(days=1), sources={})
+    suivants = [m[0].split("\n")[0] for m in _messages_entreprises(env)[1:]]
+    assert suivants == [f"🏢 <b>SOC{i}</b>" for i in range(11, 21)]  # jamais deux fois la même
+
+
+def test_pas_de_liste_avant_l_heure_du_digest(env):
+    _entreprises(env, 3)
+    env.run(datetime(2026, 11, 17, 6, 59, tzinfo=UTC), sources={})  # 07:59 Paris
+    assert _messages_entreprises(env) == []
+    assert repo.get_param(env.session, "derniere_liste_entreprises") is None
+
+
+def test_mode_digest_envoie_la_liste(env):
+    _entreprises(env, 3)
+    env.run(T0, mode="digest", sources={})
+    assert len(_messages_entreprises(env)) == 4
+
+
+def test_pause_aucune_entreprise_envoyee_ni_marquee(env):
+    _entreprises(env, 3)
+    repo.set_param(env.session, "pause", "1")
+    env.run(DIGEST, sources={})
+    assert env.envoyes == []
+    assert len(repo.entreprises_du_jour(env.session, 100)) == 3
+
+
+def test_dry_run_aucune_entreprise_marquee(env):
+    _entreprises(env, 3)
+    env.run(DIGEST, sources={}, api=None)
+    assert len(repo.entreprises_du_jour(env.session, 100)) == 3
+
+
+def test_rien_d_eligible_aucun_message_puis_liste_des_qu_il_y_en_a(env):
+    env.run(DIGEST, sources={})
+    assert _messages_entreprises(env) == []
+    assert repo.get_param(env.session, "derniere_liste_entreprises") is None
+    _entreprises(env, 2)
+    env.run(DIGEST + timedelta(hours=1), sources={})
+    assert len(_messages_entreprises(env)) == 3
+
+
+def test_entreprises_contactees_ou_ecartees_jamais_listees(env):
+    _entreprises(env, 4)
+    repo.marquer_entreprise(env.session, 1, Statut.CANDIDATURE_ENVOYEE, T0)
+    repo.marquer_entreprise(env.session, 2, Statut.IGNOREE, T0)
+    env.session.commit()
+    env.run(DIGEST, sources={})
+    noms = [m[0].split("\n")[0] for m in _messages_entreprises(env)[1:]]
+    assert noms == ["🏢 <b>SOC3</b>", "🏢 <b>SOC4</b>"]
+
+
+def test_echec_en_cours_de_liste_pas_de_renvoi_et_reprise_du_reste(env):
+    _entreprises(env, 25)
+    envois = []
+
+    def handler(req):
+        envois.append(json.loads(req.content)["text"])
+        if len(envois) == 6:  # digest + en-tête + trois entreprises passent, la quatrième échoue
+            return httpx.Response(500, json={"ok": False})
+        return httpx.Response(200, json={"ok": True, "result": {}})
+
+    api = TelegramAPI(
+        "t", httpx.Client(transport=httpx.MockTransport(handler)), chat_id="1", sleep=lambda s: None
+    )
+    b = env.run(DIGEST, sources={}, api=api)
+    assert not b.ok
+    assert repo.nb_listees_le(env.session, datetime(2026, 11, 17).date()) == 3
+    assert repo.get_param(env.session, "derniere_liste_entreprises") is None
+    env.corps.clear()
+    env.run(DIGEST + timedelta(hours=1), sources={})
+    reprise = [m[0].split("\n")[0] for m in _messages_entreprises(env)]
+    assert reprise[0] == "🏢 7 entreprises à démarcher aujourd'hui"
+    assert reprise[1:] == [f"🏢 <b>SOC{i}</b>" for i in range(4, 11)]  # ni renvoi des trois, ni plus de dix
+    assert repo.nb_listees_le(env.session, datetime(2026, 11, 17).date()) == 10
+
+
+def test_message_d_entreprise_mentionne_l_offre_ouverte_de_meme_siret(env):
+    from denicheur.models import Offre, Piste
+
+    _entreprises(env, 1)
+    o = Offre(
+        source="t", source_id="1", url="https://x/1", titre="Alternance dev web", entreprise="SOC1",
+        siret="000000001" "00011", commune="Paris", lat=None, lon=None, piste=Piste.ALTERNANCE,
+        duree_mois=None, debut=None, niveau_diplome=None, description="d", publiee_le=None, expire_le=None,
+    )  # fmt: skip
+    repo.inserer_offre(env.session, o, cle_dedup="k", now=T0)
+    env.session.commit()
+    env.run(DIGEST, sources={})
+    assert "📌 Offre ouverte aussi : Alternance dev web" in _messages_entreprises(env)[1][0]

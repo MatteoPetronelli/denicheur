@@ -760,3 +760,103 @@ def test_depot_gmail_d_une_lettre_joint_un_pdf_avec_les_liens(session, lettres, 
     depot = FauxDepot()
     _lancer(session, api, deposer=depot, **options)
     assert "https://github.com/exemple/riftmind" in _texte_pdf(depot.pieces[0][0].octets)
+
+
+# --- boutons d'une entreprise (e, i) ---
+def _entreprise(session, n=1):
+    from denicheur.models import Entreprise
+
+    eid, _ = repo.enregistrer_entreprise(
+        session, Entreprise(siret=f"{n:09d}00011", nom=f"SOC{n}", origine="csv"), NOW
+    )
+    session.commit()
+    return eid
+
+
+def _ligne_entreprise(session, eid):
+    from denicheur.db.tables import entreprises
+
+    return session.execute(select(entreprises).where(entreprises.c.id == eid)).mappings().one()
+
+
+def test_entreprise_envoyee_marque_le_contact_repond_et_remplace_le_clavier(session):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"e:{eid}", message_id=33)])
+    _lancer(session, api)
+    assert repo.statut_de_entreprise(session, eid) is Statut.CANDIDATURE_ENVOYEE
+    assert _ligne_entreprise(session, eid)["contactee_le"] == datetime(2026, 11, 16, 9, 0)
+    assert api.de_type("answer_callback") == [("answer_callback", "cb10", "✅ Candidature notée")]
+    assert api.de_type("edit_keyboard") == [("edit_keyboard", 33, clavier_envoyee())]
+
+
+def test_entreprise_envoyee_deux_fois_ne_change_rien_et_ne_remplace_pas_deux_fois_le_clavier(session):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"e:{eid}"), _bouton(11, f"e:{eid}")])
+    _lancer(session, api)
+    assert [a[2] for a in api.de_type("answer_callback")] == [
+        "✅ Candidature notée",
+        "Déjà notée comme envoyée.",
+    ]
+    assert len(api.de_type("edit_keyboard")) == 1
+
+
+def test_entreprise_ecartee_pose_la_date_et_repond(session):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"i:{eid}"), _bouton(11, f"i:{eid}")])
+    _lancer(session, api)
+    assert repo.statut_de_entreprise(session, eid) is Statut.IGNOREE
+    assert _ligne_entreprise(session, eid)["ignoree_le"] == datetime(2026, 11, 16, 9, 0)
+    assert [a[2] for a in api.de_type("answer_callback")] == ["❌ Entreprise ignorée.", "Déjà ignorée."]
+    assert api.de_type("edit_keyboard") == []
+
+
+def test_entreprise_envoyee_apres_ecart_refusee_avec_explication(session):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"i:{eid}"), _bouton(11, f"e:{eid}")])
+    _lancer(session, api)
+    assert api.de_type("answer_callback")[1][2] == "Impossible : l'entreprise est déjà « ignoree »."
+    assert _ligne_entreprise(session, eid)["contactee_le"] is None
+    assert api.de_type("edit_keyboard") == []
+
+
+@pytest.mark.parametrize("action", ["e", "i"])
+def test_entreprise_inconnue_repond_une_erreur_sans_rien_ecrire(session, action):
+    api = FauxAPI([_bouton(10, f"{action}:99")])
+    _lancer(session, api)
+    assert api.de_type("answer_callback") == [("answer_callback", "cb10", "Entreprise introuvable.")]
+    assert session.execute(select(candidatures)).all() == []
+
+
+@pytest.mark.parametrize("auteur", ["999"])
+def test_bouton_d_entreprise_d_un_autre_chat_ou_auteur_ignore(session, auteur):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"e:{eid}", chat="999"), _bouton(11, f"i:{eid}", auteur=auteur)])
+    _lancer(session, api)
+    assert repo.statut_de_entreprise(session, eid) is None
+    assert api.de_type("answer_callback") == []
+
+
+def test_identifiant_d_entreprise_et_d_offre_identiques_ne_se_melangent_pas(session):
+    oid, eid = _offre(session), _entreprise(session)
+    assert oid == eid
+    api = FauxAPI([_bouton(10, f"e:{eid}")])
+    _lancer(session, api)
+    assert _statut(session, oid) is None
+    assert repo.statut_de_entreprise(session, eid) is Statut.CANDIDATURE_ENVOYEE
+
+
+@pytest.mark.parametrize("action", ["s", "t"])
+def test_brouillon_d_entreprise_pas_encore_disponible_ne_plante_pas(session, action):
+    eid = _entreprise(session)
+    api = FauxAPI([_bouton(10, f"{action}:{eid}")])
+    _lancer(session, api)
+    assert api.de_type("answer_callback")[0][2] == "Brouillon d'entreprise : bientôt disponible."
+    assert session.execute(select(brouillons)).all() == []
+
+
+@pytest.mark.parametrize(("action", "statut"), [("e", Statut.CANDIDATURE_ENVOYEE), ("i", Statut.IGNOREE)])
+def test_marquage_d_entreprise_valide_en_base(session, action, statut):
+    eid = _entreprise(session)
+    _lancer(session, FauxAPI([_bouton(10, f"{action}:{eid}")]))
+    session.rollback()  # ce qui n'est pas validé disparaît
+    assert repo.statut_de_entreprise(session, eid) is statut

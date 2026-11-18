@@ -192,6 +192,34 @@ def _deposer(deps: BotDeps, cq: dict[str, Any], brouillon_id: int) -> None:
     api.edit_keyboard(cq["message"]["message_id"], clavier_depose())
 
 
+def _bouton_entreprise(deps: BotDeps, cq: dict[str, Any], action: str, entreprise_id: int) -> None:
+    api, session = deps.api, deps.session
+    if action in ("s", "t"):
+        api.answer_callback(cq["id"], fr.CB_ENTREPRISE_BIENTOT)
+        return
+    statut, fait, deja = (
+        (Statut.CANDIDATURE_ENVOYEE, fr.CB_ENVOYEE, fr.CB_DEJA_ENVOYEE)
+        if action == "e"
+        else (Statut.IGNOREE, fr.CB_ENTREPRISE_IGNOREE, fr.CB_DEJA_IGNOREE)
+    )
+    courant = repo.statut_de_entreprise(session, entreprise_id)
+    if courant is statut:
+        api.answer_callback(cq["id"], deja)
+        return
+    try:
+        repo.marquer_entreprise(session, entreprise_id, statut, deps.maintenant())
+        session.commit()
+    except repo.EntrepriseInconnue:
+        api.answer_callback(cq["id"], fr.CB_ENTREPRISE_INTROUVABLE)
+        return
+    except repo.TransitionInvalide:
+        api.answer_callback(cq["id"], fr.cb_impossible_entreprise(courant.value if courant else None))
+        return
+    api.answer_callback(cq["id"], fait)
+    if statut is Statut.CANDIDATURE_ENVOYEE:
+        api.edit_keyboard(cq["message"]["message_id"], clavier_envoyee())
+
+
 def _bouton(deps: BotDeps, cq: dict[str, Any]) -> None:
     api, session = deps.api, deps.session
     # Le chat et l'auteur doivent être les nôtres : un bouton transféré vers un autre compte ne compte pas.
@@ -201,7 +229,10 @@ def _bouton(deps: BotDeps, cq: dict[str, Any]) -> None:
     if lu is None:
         api.answer_callback(cq["id"], fr.CB_INCONNU)
         return
-    action, offre_id = lu
+    action, offre_id = lu  # pour s, t, e, i l'identifiant est celui d'une entreprise
+    if action in ("s", "t", "e", "i"):
+        _bouton_entreprise(deps, cq, action, offre_id)
+        return
     if action in ("b", "l", "d"):
         _rediger(deps, cq, offre_id, {"b": "email", "l": "relance", "d": "lettre"}[action])
         return

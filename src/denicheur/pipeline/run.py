@@ -17,7 +17,7 @@ from denicheur.pipeline.prefilter import prefiltrer
 from denicheur.scoring.llm import Scorer
 from denicheur.scoring.service import scorer_offres
 from denicheur.telegram.api import TelegramAPI, TelegramError
-from denicheur.telegram.digest import envoyer_digest
+from denicheur.telegram.digest import envoyer_digest, envoyer_liste_entreprises
 from denicheur.telegram.keyboard import clavier_offre, clavier_rappel
 
 MODES = ("auto", "alternance", "stage", "digest")
@@ -136,6 +136,14 @@ def _notifier(deps: Deps, mode: str, now: datetime) -> int:
     if attendu and repo.get_param(s, "dernier_digest") != aujourdhui:
         envoyees += envoyer_digest(s, api, cfg, now)
         repo.set_param(s, "dernier_digest", aujourdhui)
+        s.commit()
+    # Sans entreprise éligible, rien n'est marqué : la liste part au premier run qui en trouve.
+    if (
+        attendu
+        and repo.get_param(s, "derniere_liste_entreprises") != aujourdhui
+        and envoyer_liste_entreprises(s, api, cfg, now)
+    ):
+        repo.set_param(s, "derniere_liste_entreprises", aujourdhui)
         s.commit()
     if is_daytime(now, *cfg.plage_alertes):
         for offre_id, offre in repo.candidatures_a_relancer(s, paris_now(now).date()):

@@ -2,12 +2,19 @@ from datetime import date, datetime
 
 from sqlalchemy.orm import Session
 
+from denicheur.clock import paris_now
 from denicheur.config import Config
 from denicheur.db import repo
-from denicheur.messages_fr import RIEN_DE_NEUF, entete_digest, format_offre
+from denicheur.messages_fr import (
+    RIEN_DE_NEUF,
+    entete_digest,
+    entete_entreprises,
+    format_entreprise,
+    format_offre,
+)
 from denicheur.models import Offre, Piste, ScoreLLM
 from denicheur.telegram.api import TelegramAPI
-from denicheur.telegram.keyboard import clavier_offre
+from denicheur.telegram.keyboard import clavier_entreprise, clavier_offre
 
 
 def envoyer_digest(session: Session, api: TelegramAPI, config: Config, now: datetime) -> int:
@@ -20,6 +27,25 @@ def envoyer_digest(session: Session, api: TelegramAPI, config: Config, now: date
     for offre_id, offre, score in a_envoyer:
         api.send_message(format_offre(offre, score), clavier_offre(offre_id))
         repo.marquer_notifiee(session, offre_id, now)
+        session.commit()  # un échec en cours de route ne renvoie pas ce qui est déjà parti
+    return len(a_envoyer)
+
+
+def envoyer_liste_entreprises(session: Session, api: TelegramAPI, config: Config, now: datetime) -> int:
+    """Envoie les entreprises du jour, une par message ; chacune est marquée listée dès son envoi.
+
+    Le quota du jour tient compte de celles déjà listées (reprise après un échec) : jamais plus de
+    `liste_par_jour` par jour Paris, jamais deux fois la même.
+    """
+    restant = config.entreprises.liste_par_jour - repo.nb_listees_le(session, paris_now(now).date())
+    a_envoyer = repo.entreprises_du_jour(session, restant)
+    if not a_envoyer:
+        return 0
+    api.send_message(entete_entreprises(len(a_envoyer)))
+    for entreprise_id, entreprise in a_envoyer:
+        offres = repo.titres_offres_du_siret(session, entreprise.siret)
+        api.send_message(format_entreprise(entreprise, offres), clavier_entreprise(entreprise_id))
+        repo.marquer_listee(session, entreprise_id, now)
         session.commit()  # un échec en cours de route ne renvoie pas ce qui est déjà parti
     return len(a_envoyer)
 
