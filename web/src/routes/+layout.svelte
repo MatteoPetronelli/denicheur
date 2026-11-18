@@ -7,7 +7,11 @@
 	let { children }: LayoutProps = $props();
 
 	// Une page s'ajoute ici quand elle existe : jamais de lien mort.
-	const pages = [{ chemin: '/', libelle: 'Accueil' }];
+	const pages = [
+		{ chemin: '/', libelle: 'Candidatures' },
+		{ chemin: '/entreprises', libelle: 'Entreprises' },
+		{ chemin: '/offres', libelle: 'Offres' }
+	];
 </script>
 
 <svelte:head>

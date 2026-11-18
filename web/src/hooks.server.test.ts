@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { handle, hoteAutorise } from './hooks.server';
 
 describe('hoteAutorise', () => {
@@ -25,11 +25,17 @@ describe('hoteAutorise', () => {
 });
 
 describe('handle', () => {
-	const evenement = (hote: string) =>
-		({ request: new Request('http://127.0.0.1/', { headers: { host: hote } }) }) as RequestEvent;
+	const evenement = (hote: string, chemin = '/') =>
+		({ request: new Request(`http://${hote}${chemin}`, { headers: { host: hote } }), url: new URL(`http://${hote}${chemin}`) }) as RequestEvent;
 	const suite = async () => new Response('ok');
+	const AVANT = process.env.ORIGIN;
+	afterEach(() => {
+		if (AVANT === undefined) delete process.env.ORIGIN;
+		else process.env.ORIGIN = AVANT;
+	});
 
 	it('laisse passer un hôte local', async () => {
+		delete process.env.ORIGIN;
 		const reponse = await handle({ event: evenement('localhost:3000'), resolve: suite });
 		expect(reponse.status).toBe(200);
 	});
@@ -43,5 +49,24 @@ describe('handle', () => {
 		expect(reponse.status).toBe(403);
 		expect(appelee).toBe(false);
 		expect(await reponse.text()).toContain('Accès refusé');
+	});
+
+	it('redirige localhost vers l’origine fixée, chemin et recherche conservés', async () => {
+		process.env.ORIGIN = 'http://127.0.0.1:3000';
+		const reponse = await handle({ event: evenement('localhost:3000', '/entreprises?q=a'), resolve: suite });
+		expect(reponse.status).toBe(308);
+		expect(reponse.headers.get('location')).toBe('http://127.0.0.1:3000/entreprises?q=a');
+	});
+
+	it('ne redirige pas quand l’hôte est déjà l’origine fixée', async () => {
+		process.env.ORIGIN = 'http://127.0.0.1:3000';
+		const reponse = await handle({ event: evenement('127.0.0.1:3000'), resolve: suite });
+		expect(reponse.status).toBe(200);
+	});
+
+	it('un hôte étranger reste refusé même avec une origine fixée', async () => {
+		process.env.ORIGIN = 'http://127.0.0.1:3000';
+		const reponse = await handle({ event: evenement('exemple.fr:3000'), resolve: suite });
+		expect(reponse.status).toBe(403);
 	});
 });

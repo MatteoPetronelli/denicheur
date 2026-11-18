@@ -1,0 +1,24 @@
+{
+	"libelles": {
+		"interessante": "Intéressante",
+		"candidature_envoyee": "Candidature envoyée",
+		"relancee": "Relancée",
+		"entretien": "Entretien",
+		"offre": "Offre reçue",
+		"refus": "Refus",
+		"sans_reponse": "Sans réponse",
+		"ignoree": "Écartée"
+	},
+	"colonnes": ["interessante", "candidature_envoyee", "relancee", "entretien", "offre", "refus", "sans_reponse"],
+	"transitions": {
+		"nouvelle": ["interessante", "candidature_envoyee", "ignoree"],
+		"interessante": ["candidature_envoyee", "ignoree"],
+		"candidature_envoyee": ["relancee", "entretien", "refus", "offre", "sans_reponse", "ignoree"],
+		"relancee": ["entretien", "refus", "offre", "sans_reponse", "ignoree"],
+		"entretien": ["ignoree"],
+		"refus": ["ignoree"],
+		"offre": ["ignoree"],
+		"sans_reponse": ["ignoree"],
+		"ignoree": []
+	}
+}
