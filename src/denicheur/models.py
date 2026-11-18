@@ -30,6 +30,7 @@ class Offre(BaseModel):
     url: str
     titre: str
     entreprise: str | None
+    siret: str | None = None  # SIRET de l'employeur, quand la source le donne
     commune: str | None
     lat: float | None
     lon: float | None
@@ -59,3 +60,24 @@ class ScoreLLM(BaseModel):
     alerte: str | None
     projet_a_citer: str
     resume: str
+
+
+SIRET_RE = r"^[0-9]{14}$"
+
+
+class Entreprise(BaseModel):
+    """Entreprise à démarcher sans offre ; les champs d'état (listée, contactée, écartée) restent en base."""
+
+    siret: str = Field(pattern=SIRET_RE)
+    nom: str = Field(min_length=1)
+    activite: str | None = None
+    naf: str | None = None
+    effectif: str | None = None
+    adresse: str | None = None
+    commune: str | None = None
+    lat: float | None = None
+    lon: float | None = None
+    distance_km: float | None = None
+    priorite: int | None = None
+    url_candidature: str | None = None
+    origine: Literal["csv", "lba", "sirene"]

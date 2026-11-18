@@ -25,6 +25,7 @@ offres = Table(
     Column("cle_dedup", String(64), nullable=False),
     Column("titre", String, nullable=False),
     Column("entreprise", String),
+    Column("siret", String(14)),
     Column("commune", String),
     Column("lat", Float),
     Column("lon", Float),
@@ -43,6 +44,7 @@ offres = Table(
     Column("notifiee_le", DateTime),
     Index("uq_offres_source", "source", "source_id", unique=True),
     Index("ix_offres_cle_dedup", "cle_dedup"),
+    Index("ix_offres_siret", "siret"),
 )  # fmt: skip
 
 scores = Table(
@@ -62,11 +64,34 @@ scores = Table(
     Column("cree_le", DateTime, nullable=False),
 )  # fmt: skip
 
+entreprises = Table(
+    "entreprises", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("siret", String(14), nullable=False, unique=True),
+    Column("nom", String, nullable=False),
+    Column("activite", String),
+    Column("naf", String),
+    Column("effectif", String),
+    Column("adresse", String),
+    Column("commune", String),
+    Column("lat", Float),
+    Column("lon", Float),
+    Column("distance_km", Float),
+    Column("priorite", Integer),
+    Column("url_candidature", String),
+    Column("origine", String, nullable=False),
+    Column("listee_le", DateTime),
+    Column("contactee_le", DateTime),
+    Column("ignoree_le", DateTime),
+    Column("cree_le", DateTime, nullable=False),
+    Column("maj_le", DateTime, nullable=False),
+)  # fmt: skip
+
 candidatures = Table(
     "candidatures", metadata,
     Column("id", Integer, primary_key=True),
     Column("offre_id", Integer, ForeignKey("offres.id")),
-    Column("entreprise_id", Integer),  # FK ajoutée en C6
+    Column("entreprise_id", Integer, ForeignKey("entreprises.id")),
     Column("statut", String, nullable=False),
     Column("envoyee_le", DateTime),
     Column("rappel_le", DateTime),
@@ -74,6 +99,7 @@ candidatures = Table(
     Column("notes", Text),
     Column("cree_le", DateTime, nullable=False),
     Column("maj_le", DateTime, nullable=False),
+    Index("uq_candidatures_entreprise", "entreprise_id", unique=True),
 )  # fmt: skip
 
 brouillons = Table(

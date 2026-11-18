@@ -8,8 +8,16 @@ from sqlalchemy import case, func, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from denicheur.db.tables import brouillons, candidatures, executions, offres, parametres, scores
-from denicheur.models import Offre, Piste, ScoreLLM, Statut
+from denicheur.db.tables import (
+    brouillons,
+    candidatures,
+    entreprises,
+    executions,
+    offres,
+    parametres,
+    scores,
+)
+from denicheur.models import Entreprise, Offre, Piste, ScoreLLM, Statut
 
 PARIS = ZoneInfo("Europe/Paris")
 # Champs de `Offre` stockés tels quels dans `offres`.
@@ -368,3 +376,38 @@ def lire_brouillon(session: Session, brouillon_id: int) -> BrouillonLu | None:
 
 def marquer_depose(session: Session, brouillon_id: int) -> None:
     session.execute(brouillons.update().where(brouillons.c.id == brouillon_id).values(gmail_draft=True))
+
+
+_CHAMPS_ENTREPRISE = [c for c in Entreprise.model_fields if c not in ("siret", "origine", "priorite")]
+
+
+def enregistrer_entreprise(session: Session, entreprise: Entreprise, now: datetime) -> tuple[int, bool]:
+    """Crée ou met à jour par SIRET ; (id, créée). Une valeur absente n'efface jamais une valeur connue.
+
+    Jamais touchés : `listee_le`, `contactee_le`, `ignoree_le`, `origine` (celle de la création).
+    La priorité ne vient que du CSV, la liste voulue par l'utilisateur.
+    """
+    maintenant = _utc_naif(now)
+    champs = {c: getattr(entreprise, c) for c in _CHAMPS_ENTREPRISE if getattr(entreprise, c) is not None}
+    if entreprise.origine == "csv" and entreprise.priorite is not None:
+        champs["priorite"] = entreprise.priorite
+    existante = session.execute(
+        select(entreprises.c.id).where(entreprises.c.siret == entreprise.siret)
+    ).scalar_one_or_none()
+    if existante is None:
+        res = session.execute(
+            entreprises.insert().values(
+                siret=entreprise.siret, origine=entreprise.origine, cree_le=maintenant,
+                maj_le=maintenant, **champs,
+            )
+        )  # fmt: skip
+        return int(res.inserted_primary_key[0]), True  # type: ignore[attr-defined]
+    session.execute(
+        entreprises.update().where(entreprises.c.id == existante).values(**champs, maj_le=maintenant)
+    )
+    return existante, False
+
+
+def lire_entreprise(session: Session, entreprise_id: int) -> Entreprise:
+    ligne = session.execute(select(entreprises).where(entreprises.c.id == entreprise_id)).mappings().one()
+    return Entreprise(**{k: ligne[k] for k in Entreprise.model_fields})

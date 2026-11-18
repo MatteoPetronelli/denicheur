@@ -25,9 +25,9 @@ def make_engine(url: str) -> Engine:
     return engine
 
 
-def migrer(url: str) -> None:
-    """Applique les migrations Alembic (`init-db`)."""
+def migrer(url: str, revision: str = "head") -> None:
+    """Applique les migrations Alembic jusqu'à `revision` (`init-db`)."""
     cfg = AlembicConfig(str(RACINE / "alembic.ini"))
     cfg.set_main_option("script_location", str(RACINE / "migrations"))
     cfg.attributes["url"] = url
-    command.upgrade(cfg, "head")
+    command.upgrade(cfg, revision)

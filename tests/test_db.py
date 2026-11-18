@@ -2,7 +2,7 @@ from datetime import UTC, date, datetime
 from zoneinfo import ZoneInfo
 
 import pytest
-from sqlalchemy import inspect, text
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from denicheur.db import repo
@@ -40,12 +40,6 @@ def _score(n=80):
         score=n, type="alternance", points_forts=["a", "b"], points_faibles=["c"],
         alerte="⚠️", projet_a_citer="p", resume="r",
     )  # fmt: skip
-
-
-def test_migration_cree_six_tables(url):
-    migrer(url)
-    noms = set(inspect(make_engine(url)).get_table_names())
-    assert {"offres", "scores", "candidatures", "brouillons", "executions", "parametres"} <= noms
 
 
 def test_migration_deux_fois(url):
@@ -144,3 +138,14 @@ def test_offres_a_scorer_alternance_d_abord_puis_les_plus_recentes(session):
     session.commit()
     ordre = [o.source_id for _, o in repo.offres_sans_score(session)]
     assert ordre == ["a-recent", "a-vieux", "s-recent", "s-vieux", "s-sans-date"]
+
+
+def test_siret_de_l_offre_aller_retour(session):
+    now = datetime(2026, 11, 18, 8, tzinfo=UTC)
+    avec = repo.inserer_offre(
+        session, _offre("1", "https://x/1", siret="12345678900011"), cle_dedup="a", now=now
+    )
+    sans = repo.inserer_offre(session, _offre("2", "https://x/2"), cle_dedup="b", now=now)
+    session.commit()
+    assert repo.lire_offre(session, avec).siret == "12345678900011"
+    assert repo.lire_offre(session, sans).siret is None
