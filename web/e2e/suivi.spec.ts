@@ -17,18 +17,59 @@ test('tableau : « Nouvelles », colonnes et cartes avec score, distance et entr
 	await page.screenshot({ path: 'test-results/tableau-avant.png', fullPage: true });
 });
 
-test('déplacer une carte au clavier : le statut est conservé après rechargement', async ({ page }) => {
+test('colonnes : une colonne vide est plus étroite que « Nouvelles », et garde son libellé et son effectif', async ({ page }) => {
 	await page.goto('/');
-	const carte = page.getByRole('article', { name: 'Développeur web en alternance' });
-	const choix = carte.getByLabel('Passer à');
-	await choix.focus();
-	await page.keyboard.type('Candidature'); // recherche au clavier dans la liste
-	await page.keyboard.press('Tab');
-	await expect(carte.getByRole('button', { name: 'Changer' })).toBeFocused();
+	const largeur = (id: string) => page.locator(`section:has(> h2#${id})`).evaluate((e) => e.getBoundingClientRect().width);
+	await expect(page.getByRole('heading', { level: 2, name: 'Relancée (0)' })).toBeVisible();
+	expect(await largeur('col-relancee')).toBeLessThan(await largeur('col-nouvelles'));
+});
+
+test('carte : un clic hors des liens ouvre la fiche, le lien externe ne l’ouvre pas', async ({ page, context }) => {
+	await page.goto('/');
+	const carte = page.getByRole('article', { name: 'Développeur full stack' });
+	const boite = (await carte.boundingBox())!;
+	const [onglet] = await Promise.all([context.waitForEvent('page'), carte.getByRole('link', { name: "Voir l'offre" }).click()]);
+	await onglet.close();
+	await expect(page).toHaveURL(/\/$/);
+	await page.mouse.click(boite.x + boite.width - 6, boite.y + 6); // coin haut-droit, hors du titre
+	await expect(page).toHaveURL(/\/fiche\/offre\/\d+$/);
+});
+
+test('carte : le niveau du score est écrit, pas seulement coloré', async ({ page }) => {
+	await page.goto('/');
+	const score = (titre: string) => page.getByRole('article', { name: titre }).getByRole('listitem').filter({ hasText: 'Score' });
+	await expect(score('Stage support informatique')).toHaveText('Score 40 · sous le seuil');
+	await expect(score('Développeur web en alternance')).toHaveText('Score 82 · fort');
+	await expect(score('Stage analyse de données')).toHaveText('Score 70');
+});
+
+test('menu : une carte « Intéressante » ne propose que « Candidature envoyée » et « Écartée »', async ({ page }) => {
+	await page.goto('/');
+	const carte = page.getByRole('article', { name: 'Beta SA' });
+	await carte.getByText('Déplacer').click();
+	await expect(carte.getByRole('button')).toHaveText(['Candidature envoyée', 'Écartée']);
+});
+
+test('menu : ouvrir un menu ferme les autres', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('article', { name: 'Beta SA' }).getByText('Déplacer').click();
+	await page.getByRole('article', { name: 'Développeur full stack' }).getByText('Déplacer').click();
+	await expect(page.locator('details.menu[open]')).toHaveCount(1);
+});
+
+test('déplacer une carte au clavier : message, focus sur la carte, statut conservé après rechargement', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('article', { name: 'Développeur web en alternance' }).getByText('Déplacer').focus();
 	await page.keyboard.press('Enter');
-	await expect(page.getByRole('status')).toHaveText('Statut mis à jour.');
+	await page.keyboard.press('Tab');
+	await expect(page.getByRole('button', { name: 'Passer « Développeur web en alternance » à Intéressante' })).toBeFocused();
+	await page.keyboard.press('Tab');
+	await page.keyboard.press('Enter'); // Candidature envoyée
+	await expect(page.getByRole('status')).toHaveText('« Développeur web en alternance » passée à Candidature envoyée.');
 	await expect(page.getByRole('heading', { level: 2, name: 'Candidature envoyée (1)' })).toBeVisible();
 	await expect(page.getByRole('heading', { level: 2, name: 'Nouvelles (3)' })).toBeVisible();
+	expect(await page.evaluate(() => document.activeElement?.id)).toMatch(/^carte-offre-\d+$/);
+	await expect(page.locator(':focus')).toHaveAccessibleName('Développeur web en alternance');
 	await page.reload();
 	await expect(page.getByRole('heading', { level: 2, name: 'Candidature envoyée (1)' })).toBeVisible();
 	await page.screenshot({ path: 'test-results/tableau-apres.png', fullPage: true });
@@ -37,11 +78,30 @@ test('déplacer une carte au clavier : le statut est conservé après rechargeme
 test('déplacer une carte à la souris, puis le statut final n’offre plus que « Écartée »', async ({ page }) => {
 	await page.goto('/');
 	const carte = page.getByRole('article', { name: 'Développeur web en alternance' });
-	await carte.getByLabel('Passer à').selectOption({ label: 'Entretien' });
-	await carte.getByRole('button', { name: 'Changer' }).click();
+	await carte.getByText('Déplacer').click();
+	await carte.getByRole('button', { name: /à Entretien$/ }).click();
 	await expect(page.getByRole('heading', { level: 2, name: 'Entretien (1)' })).toBeVisible();
-	const options = await page.getByRole('article', { name: 'Développeur web en alternance' }).getByLabel('Passer à').locator('option').allTextContents();
-	expect(options).toEqual(['Choisir…', 'Écartée']);
+	const deplacee = page.getByRole('article', { name: 'Développeur web en alternance' });
+	await deplacee.getByText('Déplacer').click();
+	await expect(deplacee.getByRole('button')).toHaveText(['Écartée']);
+});
+
+test('« Beta SA » déplacée : message et focus, puis la dernière colonne est atteinte au clavier', async ({ page }) => {
+	await page.goto('/');
+	await page.getByRole('article', { name: 'Beta SA' }).getByText('Déplacer').click();
+	await page.getByRole('button', { name: 'Passer « Beta SA » à Candidature envoyée' }).click();
+	await expect(page.getByRole('status')).toContainText('Beta SA');
+	await expect(page.getByRole('status')).toContainText('Candidature envoyée');
+	expect(await page.evaluate(() => document.activeElement?.id)).toMatch(/^carte-entreprise-\d+$/);
+
+	await page.getByRole('article', { name: 'Beta SA' }).getByText('Déplacer').click();
+	await page.getByRole('button', { name: 'Passer « Beta SA » à Sans réponse' }).click();
+	await expect(page.getByRole('heading', { level: 2, name: 'Sans réponse (1)' })).toBeVisible();
+	await page.goto('/');
+	const titre = page.locator('section:has(> h2#col-sans_reponse)').getByRole('link', { name: 'Beta SA' });
+	for (let i = 0; i < 80 && !(await titre.evaluate((e) => e === document.activeElement)); i++) await page.keyboard.press('Tab');
+	await expect(titre).toBeFocused();
+	await expect(titre).toBeInViewport();
 });
 
 test('filtres : stage seulement, puis entreprises seulement', async ({ page }) => {
@@ -61,8 +121,8 @@ test('filtres : stage seulement, puis entreprises seulement', async ({ page }) =
 test('un filtre reste actif après un changement de statut', async ({ page }) => {
 	await page.goto('/?piste=stage');
 	const carte = page.getByRole('article', { name: 'Stage analyse de données' });
-	await carte.getByLabel('Passer à').selectOption({ label: 'Intéressante' });
-	await carte.getByRole('button', { name: 'Changer' }).click();
+	await carte.getByText('Déplacer').click();
+	await carte.getByRole('button', { name: /à Intéressante$/ }).click();
 	await expect(page.getByRole('status')).toBeVisible();
 	await expect(page).toHaveURL(/piste=stage/);
 	await expect(page.getByRole('article', { name: 'Développeur full stack' })).toHaveCount(0);
@@ -71,8 +131,8 @@ test('un filtre reste actif après un changement de statut', async ({ page }) =>
 test('écartées : masquées, puis affichées à la demande', async ({ page }) => {
 	await page.goto('/');
 	const carte = page.getByRole('article', { name: 'Stage support informatique' });
-	await carte.getByLabel('Passer à').selectOption({ label: 'Écartée' });
-	await carte.getByRole('button', { name: 'Changer' }).click();
+	await carte.getByText('Déplacer').click();
+	await carte.getByRole('button', { name: /à Écartée$/ }).click();
 	await expect(page.getByRole('article', { name: 'Stage support informatique' })).toHaveCount(0);
 	await page.getByLabel(/Afficher les écartées/).check();
 	await page.getByRole('button', { name: 'Filtrer' }).click();
@@ -169,5 +229,17 @@ test.describe('sans JavaScript', () => {
 		await page.getByRole('button', { name: 'Marquer Société 05 comme contactée' }).click();
 		await expect(page.getByRole('status')).toHaveText('Statut mis à jour.');
 		await expect(page.getByRole('row', { name: /Société 05/ })).toContainText('Candidature envoyée');
+	});
+});
+
+test.describe('sans JavaScript, sur le tableau', () => {
+	test.use({ javaScriptEnabled: false });
+
+	test('le menu « Déplacer » recharge la page avec la carte dans sa nouvelle colonne', async ({ page }) => {
+		await page.goto('/');
+		const carte = page.getByRole('article', { name: 'Développeur full stack' });
+		await carte.getByText('Déplacer').click();
+		await carte.getByRole('button', { name: /à Intéressante$/ }).click();
+		await expect(page.locator('section:has(> h2#col-interessante)').getByRole('article', { name: 'Développeur full stack' })).toBeVisible();
 	});
 });

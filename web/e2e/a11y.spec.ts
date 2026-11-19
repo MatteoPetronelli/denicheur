@@ -41,9 +41,10 @@ const STYLES: Record<string, Record<string, string>> = {
 		'titre de colonne': '.tableau h2',
 		'titre de carte': '.carte h3 a',
 		'texte de carte': '.carte p',
-		'étiquette': '.puces li',
-		'lien externe': '.carte p a[target]',
-		bouton: 'button[type=submit]',
+		badge: '.puces .badge',
+		menu: '.menu summary',
+		'lien externe': '.carte a[target]',
+		bouton: 'button.btn-secondaire',
 		'navigation': 'header nav a'
 	},
 	'/entreprises': {
@@ -113,3 +114,14 @@ test('boutons : chaque bouton a un nom unique qui dit sur quelle entreprise il a
 	expect(noms.length).toBeGreaterThan(10);
 	expect(new Set(noms).size).toBe(noms.length);
 });
+
+for (const theme of ['light', 'dark'] as const) {
+	test(`axe : aucune violation avec un menu « Déplacer » ouvert, thème ${theme}`, async ({ page }) => {
+		await page.emulateMedia({ colorScheme: theme });
+		await page.goto('/');
+		await page.getByRole('article', { name: 'Beta SA' }).getByText('Déplacer').click();
+		const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+		expect(violations.map((v) => `${v.id} : ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+		expect(await contraste(page, '.menu[open] button.btn-secondaire')).toBeGreaterThanOrEqual(4.5);
+	});
+}

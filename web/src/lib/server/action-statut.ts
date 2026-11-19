@@ -18,5 +18,7 @@ export async function traiterStatut(request: Request) {
 		if (e instanceof ErreurSuivi) return fail(400, { erreur: e.message, genre, id });
 		throw e;
 	}
-	return { ok: true as const, genre, id };
+	// Titre renvoyé par le formulaire, seulement pour le message (affiché échappé, tronqué).
+	const titre = typeof form.get('titre') === 'string' ? String(form.get('titre')).slice(0, 200) || null : null;
+	return { ok: true as const, genre, id, titre, statut: String(statut) as Statut };
 }

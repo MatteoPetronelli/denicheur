@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CarteSuivi from '#lib/components/CarteSuivi.svelte';
-	import { COLONNES, LIBELLES } from '#lib/statuts.js';
+	import { COLONNES, GROUPE_STATUT, LIBELLES } from '#lib/statuts.js';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -16,6 +16,19 @@
 			.map((p) => `&${p}`)
 			.join('')
 	);
+	// Indique par un fondu qu'il reste des colonnes à droite, seulement quand c'est vrai.
+	function debordement(el: HTMLElement) {
+		const maj = () => el.classList.toggle('reste', el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+		const observateur = new ResizeObserver(maj);
+		observateur.observe(el);
+		el.addEventListener('scroll', maj, { passive: true });
+		return {
+			destroy() {
+				observateur.disconnect();
+				el.removeEventListener('scroll', maj);
+			}
+		};
+	}
 	const erreurDe = (genre: string, id: number) => (form && 'erreur' in form && form.genre === genre && form.id === id ? form.erreur : null);
 </script>
 
@@ -46,27 +59,31 @@
 		<input type="checkbox" name="ecartees" value="1" checked={data.filtres.ecartees} />
 		Afficher les écartées ({data.tableau.nbEcartees})
 	</label>
-	<button type="submit">Filtrer</button>
+	<button type="submit" class="btn-secondaire">Filtrer</button>
 </form>
 
 {#if form && 'ok' in form && form.ok}
-	<p role="status" class="ok">Statut mis à jour.</p>
+	<p role="status" class="ok">
+		{#if form.titre && form.statut}« {form.titre} » passée à {LIBELLES[form.statut]}.{:else}Statut mis à jour.{/if}
+	</p>
 {/if}
 
-<div class="tableau">
-	<section aria-labelledby="col-nouvelles">
-		<h2 id="col-nouvelles">Nouvelles ({data.tableau.nouvelles.length})</h2>
+<div class="tableau" use:debordement>
+	<section class="colonne" class:vide={!data.tableau.nouvelles.length} aria-labelledby="col-nouvelles">
+		<h2 id="col-nouvelles"><span class="pastille" aria-hidden="true"></span>Nouvelles <span class="compte">({data.tableau.nouvelles.length})</span></h2>
 		{#each data.tableau.nouvelles as carte (`${carte.genre}-${carte.id}`)}
-			<CarteSuivi {carte} {suite} erreur={erreurDe(carte.genre, carte.id)} />
+			<CarteSuivi {carte} {suite} scoreMin={data.scoreMin} erreur={erreurDe(carte.genre, carte.id)} />
 		{:else}
 			<p class="discret">Rien de nouveau.</p>
 		{/each}
 	</section>
 	{#each colonnes as col (col.statut)}
-		<section aria-labelledby={`col-${col.statut}`}>
-			<h2 id={`col-${col.statut}`}>{LIBELLES[col.statut]} ({col.cartes.length})</h2>
+		<section class="colonne" class:vide={!col.cartes.length} aria-labelledby={`col-${col.statut}`}>
+			<h2 id={`col-${col.statut}`}>
+				<span class={`pastille ${GROUPE_STATUT[col.statut]}`} aria-hidden="true"></span>{LIBELLES[col.statut]} <span class="compte">({col.cartes.length})</span>
+			</h2>
 			{#each col.cartes as carte (`${carte.genre}-${carte.id}`)}
-				<CarteSuivi {carte} {suite} erreur={erreurDe(carte.genre, carte.id)} />
+				<CarteSuivi {carte} {suite} scoreMin={data.scoreMin} erreur={erreurDe(carte.genre, carte.id)} />
 			{:else}
 				<p class="discret">Aucune candidature.</p>
 			{/each}
@@ -79,7 +96,7 @@
 		<h2 id="col-ecartees">Écartées ({data.tableau.ecartees.length})</h2>
 		<div class="grille">
 			{#each data.tableau.ecartees as carte (`${carte.genre}-${carte.id}`)}
-				<CarteSuivi {carte} {suite} erreur={erreurDe(carte.genre, carte.id)} />
+				<CarteSuivi {carte} {suite} scoreMin={data.scoreMin} erreur={erreurDe(carte.genre, carte.id)} />
 			{/each}
 		</div>
 	</section>

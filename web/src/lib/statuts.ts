@@ -16,3 +16,17 @@ export function estStatut(valeur: unknown): valeur is Statut {
 export function atteignables(courant: Statut | null): Statut[] {
 	return (TRANSITIONS[courant ?? 'nouvelle'] ?? []) as Statut[];
 }
+
+export type Groupe = 'en-cours' | 'positif' | 'clos';
+
+/** Groupe visuel de chaque statut (pastilles et badges) : trois tons plutôt qu'une couleur par statut. */
+export const GROUPE_STATUT: Record<Statut, Groupe> = {
+	interessante: 'en-cours',
+	candidature_envoyee: 'en-cours',
+	relancee: 'en-cours',
+	entretien: 'positif',
+	offre: 'positif',
+	refus: 'clos',
+	sans_reponse: 'clos',
+	ignoree: 'clos'
+};

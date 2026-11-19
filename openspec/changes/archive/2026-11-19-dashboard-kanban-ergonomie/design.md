@@ -29,3 +29,14 @@
 - [Un `<details>` ouvert reste ouvert si l'utilisateur clique ailleurs] → un petit gestionnaire `toggle` ferme les autres menus quand un menu s'ouvre. Sans JavaScript, plusieurs menus peuvent rester ouverts, ce qui est sans gravité.
 - [Les noms accessibles longs (« Passer « Développeur web en alternance » à Candidature envoyée »)] → le libellé visible reste court ; seul le nom accessible est long, ce qu'exige l'unicité des noms dans `a11y.spec.ts`.
 - [Les tests e2e actuels visent « Passer à »/« Changer »] → ils sont réécrits dans le même lot. Les scénarios couverts (clavier, refus, écartées, filtres) restent les mêmes.
+
+## Résultats du lot 1
+
+- Colonnes : 17rem, 8rem quand elles sont vides, pistes de grille en `auto`. Avec `minmax(16rem, 1fr)`, la piste gardait 16rem même quand la colonne était étroite : le test de largeur passait, mais la capture montrait le vide. À 1280 px, sept colonnes sur huit sont visibles et la huitième est signalée par le fondu. La zone du tableau défile dans les deux sens (`max-height`), pour que les en-têtes collants restent visibles : dans un conteneur `overflow-x: auto`, un `position: sticky` ne suit pas le défilement de la page.
+- Fondu de bord : petite action Svelte (`ResizeObserver` et `scroll`) qui pose `.reste` tant qu'il reste des colonnes à droite. Écarté : l'animation liée au défilement, que le bloc `prefers-reduced-motion` des fondations aurait neutralisée.
+- Carte : le lien externe garde son texte (« Voir l'offre ↗ ») plutôt qu'une icône seule, plus clair à la même taille. Niveau du score écrit dans le badge : « · fort » (≥ seuil + 15), rien (au-dessus du seuil), « · sous le seuil » ; le seuil vient de `config/recherches.yaml`, comme pour `/offres`. `niveauScore` est testé sur ses bornes.
+- Message après déplacement : le titre arrive par un champ caché du formulaire, tronqué à 200 caractères et affiché échappé ; `/entreprises` ne l'envoie pas et garde « Statut mis à jour. ».
+- Test du clic hors des liens : le coin haut-droit et non le coin bas-gauche, où se trouve désormais le menu.
+- Mutations, toutes rouges puis restaurées : sans la classe `vide`, sans le `z-index` du lien externe, avec tous les statuts dans le menu, sans le `focus()` après déplacement ; plus `GROUPE_STATUT` sans `refus` (Vitest).
+- `axe` vert dans les deux thèmes, avec un menu fermé et un menu ouvert. `browser-proof` à 1280 px clair et sombre et à 375 px (le tableau défile dans sa zone, pas le document). Parcours au clavier couvert par les tests : ouvrir le menu, choisir, message annoncé, focus sur la carte, dernière colonne atteinte par Tab.
+- Écart des règles Vercel accepté : « Écartée » s'applique sans confirmation, comme avant ; une carte écartée se rouvre depuis « Afficher les écartées ».

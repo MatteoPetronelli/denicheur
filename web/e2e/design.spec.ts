@@ -28,3 +28,11 @@ test('petit écran : à 375 px, aucune page ne déborde horizontalement', async 
 		expect(large, `largeur du document sur ${url}`).toBeLessThanOrEqual(fenetre);
 	}
 });
+
+test('petit écran : le tableau défile dans sa zone, pas le document', async ({ page }) => {
+	await page.setViewportSize({ width: 375, height: 812 });
+	await page.goto('/');
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+	expect(await page.locator('.tableau').evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
+	await page.screenshot({ path: 'test-results/tableau-375.png' });
+});

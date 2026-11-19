@@ -1,0 +1,18 @@
+# Tasks
+
+## 1. Lot 1 : colonnes, cartes et menu de statut (skills : frontend-design, design-system, fixing-accessibility, sveltekit, browser-proof, tdd-workflow, mutation-verified-testing)
+
+- [x] 1.1 Étape bloquante : vérifier que `dashboard-fondations-visuelles` est archivé (`openspec list` ne le montre plus, et `openspec/specs/dashboard-design/spec.md` existe), puis que la gate web est verte. Vérifié : les deux conditions sont remplies.
+- [x] 1.2 `GROUPE_STATUT` dans `web/src/lib/statuts.ts` (en cours, positif, clos pour chaque statut de `LIBELLES`) et test Vitest qui vérifie que chaque statut a exactement un groupe. Vérifié : test vert ; mutation : retirer `refus` de la table → rouge.
+- [x] 1.3 Colonnes : grille à défilement aimanté, en-tête collant avec pastille et effectif, colonne vide repliée (`.vide`), dégradé de bord seulement en cas de débordement. Tests Playwright à 1280 px : la colonne « Sans réponse » est atteinte par `Tab` et sa carte reçoit le focus ; la largeur d'une colonne vide est inférieure à celle de « Nouvelles ». Vérifié : tests verts ; mutation : retirer la classe `vide` → test de largeur rouge.
+- [x] 1.4 `CarteSuivi.svelte` compacte : lien étiré sur le titre, entreprise ou activité et commune, badges (score avec niveau et nom accessible « sous le seuil » si besoin, km en `.donnee`, piste ou priorité), lien externe en icône avec libellé, `id="carte-{genre}-{id}"` et `tabindex="-1"`. Tests Playwright : un clic au coin bas-gauche de la carte ouvre la fiche, un clic sur le lien externe ne l'ouvre pas, et le score 40 a un nom accessible qui contient « sous le seuil ». Le test du lien non `http` reste vert. Vérifié : tests verts ; mutation : retirer `z-index` du lien externe → rouge.
+- [x] 1.5 Menu « Déplacer » (`<details>`, un `<button name="statut">` par statut atteignable, avec `aria-label` qui cite la carte, « Écartée » à part), fermeture des autres menus à l'ouverture. Réécriture des tests de `web/e2e/suivi.spec.ts` (déplacement au clavier et à la souris, refus, écartées, filtres conservés dans l'action) et ajout d'un test sans JavaScript. Vérifié : tests verts, et le menu d'une carte `interessante` liste exactement deux actions ; mutation : lister tous les statuts au lieu de `atteignables()` → rouge.
+- [x] 1.6 Retour après action : `?/statut` renvoie `titre` et `statut` ; message `role="status"` « « {titre} » passée à {libellé}. » ; focus rendu à la carte déplacée. Test serveur Vitest sur le retour de l'action, puis test Playwright : après le déplacement de « Beta SA », le message contient les deux textes et `document.activeElement.id` vaut `carte-entreprise-…`. Vérifié : tests verts ; mutation : ne pas appeler `focus()` → rouge.
+- [x] 1.7 Barre de filtres sur une ligne, « Filtrer » en `.btn-secondaire` ; sélecteurs de contraste de `web/e2e/a11y.spec.ts` mis à jour pour la nouvelle carte (titre, badges, menu) ; `axe` vert dans les deux thèmes, avec un menu ouvert et fermé. Vérifié : `npm run e2e` vert.
+- [x] 1.8 `browser-proof` et `web-design-guidelines` sur `/` : captures clair et sombre à 1280 px et 375 px, relues à côté de `docs/captures/avant-c8/_-light.png`, parcours complet au clavier seul (filtrer, ouvrir un menu, déplacer, retrouver le focus). Résultat noté dans `design.md` (`## Résultats du lot 1`). Vérifié : le rapport ne laisse aucune anomalie ouverte.
+- [x] 1.9 Gate complète verte (web et Python), `openspec validate dashboard-kanban-ergonomie --strict`, `graphify update .`.
+
+## Workflow follow-up
+
+- Archiver le change, puis `openspec validate --specs --strict`.
+- `npm run captures` pour la capture `docs/captures/tableau.png` du README.

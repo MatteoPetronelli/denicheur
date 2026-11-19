@@ -419,52 +419,139 @@ button[aria-busy='true'] {
 	padding: var(--e-2) var(--e-3);
 }
 
+/* Tableau des candidatures : colonnes côte à côte, défilement dans la zone (les en-têtes y restent collés). */
 .tableau {
-	display: flex;
-	gap: var(--e-4);
-	overflow-x: auto;
-	align-items: flex-start;
-	padding-bottom: var(--e-4);
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: auto;
+	gap: var(--e-3);
+	align-items: start;
+	overflow: auto;
+	max-height: max(24rem, calc(100dvh - 12rem));
+	scroll-snap-type: x proximity;
+	padding-bottom: var(--e-3);
+	overscroll-behavior-inline: contain;
 }
 
-.tableau > section {
-	flex: 0 0 17rem;
+.tableau.reste {
+	mask-image: linear-gradient(to right, black calc(100% - 3rem), transparent);
+}
+
+.colonne {
+	width: 17rem;
 	min-width: 0;
+	scroll-snap-align: start;
+}
+
+.colonne.vide {
+	width: 8rem;
 }
 
 .tableau h2,
 .ecartees h2 {
-	font-size: var(--t-m);
+	display: flex;
+	align-items: center;
+	gap: var(--e-2);
+	font-size: var(--t-s);
 	margin: 0 0 var(--e-2);
+}
+
+.tableau h2 {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: var(--fond);
+	padding: var(--e-2) 0;
+	border-bottom: 2px solid var(--bordure);
+}
+
+.compte {
+	color: var(--discret);
+	font-weight: 500;
+	font-variant-numeric: tabular-nums;
+}
+
+.pastille {
+	flex: none;
+	width: 0.625rem;
+	height: 0.625rem;
+	border-radius: var(--r-plein);
+	border: 2px solid var(--bordure-forte);
+}
+
+.pastille.en-cours {
+	background: var(--statut-en-cours);
+	border-color: var(--statut-en-cours);
+}
+
+.pastille.positif {
+	background: var(--statut-positif);
+	border-color: var(--statut-positif);
+}
+
+.pastille.clos {
+	background: var(--statut-clos);
+	border-color: var(--statut-clos);
+}
+
+.colonne.vide .discret {
+	font-size: var(--t-xs);
 }
 
 .grille {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-	gap: var(--e-4);
+	grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+	gap: var(--e-3);
 }
 
 .carte {
+	position: relative;
 	background: var(--surface);
 	border: 1px solid var(--bordure);
 	border-radius: var(--r-2);
 	box-shadow: var(--ombre-1);
 	padding: var(--e-3);
-	margin-bottom: var(--e-3);
+	margin-bottom: var(--e-2);
 	overflow-wrap: anywhere;
+	transition:
+		border-color var(--duree),
+		box-shadow var(--duree);
+}
+
+.carte:hover {
+	border-color: var(--bordure-forte);
+	box-shadow: var(--ombre-2);
+}
+
+.carte:focus-within {
+	border-color: var(--accent);
 }
 
 .carte h3 {
 	margin: 0;
+	font-size: var(--t-m);
+}
+
+.carte h3 a {
+	text-decoration: none;
+	color: var(--texte);
+}
+
+.carte h3 a:hover {
+	text-decoration: underline;
+}
+
+/* Lien étiré : toute la carte ouvre la fiche ; le lien externe et le menu restent au-dessus. */
+.carte .etire::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
 }
 
 .carte p {
-	margin: var(--e-1) 0;
-}
-
-.carte .genre {
-	font-size: var(--t-xs);
-	color: var(--discret);
+	margin: var(--e-1) 0 0;
+	font-size: var(--t-s);
 }
 
 .puces {
@@ -473,22 +560,82 @@ button[aria-busy='true'] {
 	gap: var(--e-1);
 	list-style: none;
 	padding: 0;
-	margin: var(--e-2) 0;
+	margin: var(--e-2) 0 0;
 }
 
-.puces li {
-	border: 1px solid var(--bordure);
-	border-radius: var(--r-plein);
-	padding: 0 var(--e-2);
-	font-size: var(--t-s);
-	color: var(--texte-2);
-}
-
-.carte form {
-	display: grid;
+.pied {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
 	gap: var(--e-2);
-	justify-items: start;
 	margin-top: var(--e-2);
+}
+
+.pied .externe,
+.pied .menu {
+	position: relative;
+	z-index: 1;
+}
+
+.externe {
+	font-size: var(--t-s);
+}
+
+.menu {
+	margin-left: auto;
+}
+
+.menu[open] {
+	flex-basis: 100%;
+}
+
+.menu summary {
+	display: inline-flex;
+	align-items: center;
+	min-height: 2rem;
+	padding: 0 var(--e-3);
+	border: 1px solid var(--bordure-forte);
+	border-radius: var(--r-1);
+	font-size: var(--t-s);
+	font-weight: 500;
+	cursor: pointer;
+	list-style: none;
+	transition: background-color var(--duree);
+}
+
+.menu summary::-webkit-details-marker {
+	display: none;
+}
+
+.menu summary::after {
+	content: '▾';
+	margin-left: var(--e-1);
+	color: var(--discret);
+}
+
+.menu summary:hover,
+.menu[open] summary {
+	background: var(--surface-relevee);
+}
+
+.menu form {
+	display: grid;
+	gap: var(--e-1);
+	margin-top: var(--e-2);
+}
+
+.menu form button {
+	min-height: 2rem;
+	font-size: var(--t-s);
+	text-align: left;
+}
+
+.menu .ecarter {
+	margin-top: var(--e-1);
+	border-top: 1px solid var(--bordure);
+	border-radius: 0;
+	padding-top: var(--e-2);
 }
 
 .details {

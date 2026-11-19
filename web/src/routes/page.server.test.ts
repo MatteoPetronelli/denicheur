@@ -68,6 +68,20 @@ describe('action « statut »', () => {
 		expect(statutEnBase('offre', o)?.statut).toBe('candidature_envoyee');
 	});
 
+	it('renvoie le titre et le nouveau statut pour le message, le titre tronqué à 200 caractères', async () => {
+		const o = ajouterOffre(base());
+		expect(await envoyer({ genre: 'offre', id: String(o), statut: 'interessante', titre: 'Dev' })).toEqual({
+			ok: true,
+			genre: 'offre',
+			id: o,
+			titre: 'Dev',
+			statut: 'interessante'
+		});
+		const long = await envoyer({ genre: 'offre', id: String(o), statut: 'candidature_envoyee', titre: 'x'.repeat(500) });
+		expect((long as { titre: string }).titre).toHaveLength(200);
+		expect(await envoyer({ genre: 'offre', id: String(o), statut: 'ignoree' })).toMatchObject({ titre: null });
+	});
+
 	it('change le statut d’une entreprise et pose sa date de contact', async () => {
 		const e = ajouterEntreprise(base());
 		await envoyer({ genre: 'entreprise', id: String(e), statut: 'candidature_envoyee' });
