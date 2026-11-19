@@ -27,3 +27,12 @@ it('charge les statistiques de la base', () => {
 	expect(stats.offres.vues).toBe(1);
 	expect(stats.llm.total_s).toBe(30);
 });
+
+it('base vide : la page rendue ne contient ni NaN ni Infinity', async () => {
+	const { render } = await import('svelte/server');
+	const { default: Page } = await import('./+page.svelte');
+	const data = load({} as Parameters<typeof load>[0]) as unknown as { stats: Stats };
+	const { body } = render(Page, { props: { data, form: undefined, params: {} } as never });
+	expect(body).toContain('offres vues');
+	expect(body).not.toMatch(/NaN|Infinity/);
+});

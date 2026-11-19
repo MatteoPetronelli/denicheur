@@ -2,6 +2,7 @@
 	<title>Le projet · Dénicheur</title>
 </svelte:head>
 
+<div class="prose">
 <h1>Le projet Dénicheur</h1>
 
 <p class="intro">
@@ -58,3 +59,4 @@
 	<li><strong>Pas de contournement.</strong> Aucune page protégée n'est lue, aucun CAPTCHA n'est contourné, les limites des API sont respectées.</li>
 	<li><strong>Pas de compte, donc pas d'ouverture.</strong> Le tableau n'écoute que sur la machine et refuse tout autre nom d'hôte.</li>
 </ul>
+</div>

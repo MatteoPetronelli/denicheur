@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { dateFr } from '#lib/dates.js';
 	import { formaterDuree } from '#lib/duree.js';
+	import { etapes, pourcent } from '#lib/entonnoir.js';
 	import { LIBELLES, type Statut } from '#lib/statuts.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 	const s = $derived(data.stats);
 	const statuts = Object.keys(LIBELLES) as Statut[];
+	const entonnoir = $derived(etapes(s.offres));
+	// Échelle commune aux barres de la répartition ; au moins 1 pour ne jamais diviser par zéro.
+	const maximum = $derived(Math.max(1, ...statuts.flatMap((st) => [s.candidatures.offres[st], s.candidatures.entreprises[st]])));
 </script>
 
 <svelte:head>
@@ -16,40 +20,38 @@
 <h1>Statistiques</h1>
 
 <h2>Offres</h2>
-<ul class="cartes">
-	<li><span class="nombre">{s.offres.vues}</span> offres vues</li>
-	<li><span class="nombre">{s.offres.retenues}</span> retenues par le préfiltre</li>
-	<li><span class="nombre">{s.offres.notees}</span> notées par le modèle</li>
-	<li><span class="nombre">{s.offres.notifiees}</span> envoyées sur Telegram</li>
-</ul>
+<ol class="entonnoir">
+	{#each entonnoir as e (e.cle)}
+		<li>
+			<span class="barre" aria-hidden="true" style={`--part: ${e.part ?? 0}`}></span>
+			<span class="valeur"><span class="nombre">{e.valeur}</span> {e.cle === 'vues' ? 'offres vues' : e.libelle}</span>
+			{#if e.cle !== 'vues'}
+				<span class="discret taux">{pourcent(e.part)} des vues · {pourcent(e.taux)} de l'étape précédente</span>
+			{/if}
+		</li>
+	{/each}
+</ol>
 
 <h2>Candidatures</h2>
 <ul class="cartes">
-	<li><span class="nombre">{s.reponses.total}</span> réponses (entretien, offre ou refus)</li>
-	<li><span class="nombre">{s.reponses.offres}</span> sur des offres</li>
-	<li><span class="nombre">{s.reponses.entreprises}</span> sur des entreprises</li>
+	<li class="principale">
+		<span class="nombre">{s.reponses.total}</span> réponses (entretien, offre ou refus)
+		<span class="ventilation"><span class="donnee">{s.reponses.offres}</span> sur des offres · <span class="donnee">{s.reponses.entreprises}</span> sur des entreprises</span>
+	</li>
 </ul>
-<div class="defile">
-	<table class="etroit">
-		<caption class="sr-only">Candidatures par statut, offres et entreprises séparées</caption>
-		<thead>
-			<tr>
-				<th scope="col">Statut</th>
-				<th scope="col">Offres</th>
-				<th scope="col">Entreprises</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each statuts as statut (statut)}
-				<tr>
-					<th scope="row">{LIBELLES[statut]}</th>
-					<td class="donnee">{s.candidatures.offres[statut]}</td>
-					<td class="donnee">{s.candidatures.entreprises[statut]}</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
+
+<h3>Par statut</h3>
+<dl class="repartition">
+	{#each statuts as statut (statut)}
+		{@const o = s.candidatures.offres[statut]}
+		{@const en = s.candidatures.entreprises[statut]}
+		<div class:vide={o + en === 0}>
+			<dt>{LIBELLES[statut]}</dt>
+			<dd class="offres"><span class="barre" aria-hidden="true" style={`--part: ${o / maximum}`}></span>Offres <span class="donnee">{o}</span></dd>
+			<dd class="entreprises"><span class="barre" aria-hidden="true" style={`--part: ${en / maximum}`}></span>Entreprises <span class="donnee">{en}</span></dd>
+		</div>
+	{/each}
+</dl>
 
 <h2>Modèle local</h2>
 <ul class="cartes">
@@ -66,11 +68,11 @@
 			<tr>
 				<th scope="col">Début</th>
 				<th scope="col">Mode</th>
-				<th scope="col">Collectées</th>
-				<th scope="col">Retenues</th>
-				<th scope="col">Notées</th>
-				<th scope="col">Envoyées</th>
-				<th scope="col">Modèle</th>
+				<th scope="col" class="nombre">Collectées</th>
+				<th scope="col" class="nombre">Retenues</th>
+				<th scope="col" class="nombre">Notées</th>
+				<th scope="col" class="nombre">Envoyées</th>
+				<th scope="col" class="nombre">Modèle</th>
 				<th scope="col">Erreurs</th>
 			</tr>
 		</thead>
@@ -78,17 +80,17 @@
 			{#each s.dernieres as e (e.id)}
 				<tr>
 					<th scope="row" class="donnee">{dateFr(e.debut)}</th>
-					<td>{e.mode}</td>
-					<td class="donnee">{e.collectees}</td>
-					<td class="donnee">{e.retenues}</td>
-					<td class="donnee">{e.scorees}</td>
-					<td class="donnee">{e.notifiees}</td>
-					<td class="donnee">{formaterDuree(e.duree_llm_s)}</td>
+					<td><span class="badge">{e.mode}</span></td>
+					<td class="nombre donnee">{e.collectees}</td>
+					<td class="nombre donnee">{e.retenues}</td>
+					<td class="nombre donnee">{e.scorees}</td>
+					<td class="nombre donnee">{e.notifiees}</td>
+					<td class="nombre donnee">{formaterDuree(e.duree_llm_s)}</td>
 					<td>
 						{#if e.nbErreurs}
-							{e.nbErreurs} erreur{e.nbErreurs > 1 ? 's' : ''}, détail dans les journaux
+							<span class="badge danger" title="Détail dans les journaux">{e.nbErreurs} erreur{e.nbErreurs > 1 ? 's' : ''}</span><span class="discret">, détail dans les journaux</span>
 						{:else}
-							aucune
+							<span class="discret">aucune</span>
 						{/if}
 					</td>
 				</tr>

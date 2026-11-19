@@ -170,6 +170,10 @@ span.donnee {
 	max-width: 65ch;
 }
 
+.prose h2 {
+	margin-top: var(--e-6);
+}
+
 .saut {
 	position: absolute;
 	left: -999px;
@@ -791,6 +795,8 @@ table.liste {
 	min-width: 48rem;
 }
 
+th.nombre,
+td.nombre,
 table.liste th.nombre,
 table.liste td.nombre {
 	text-align: end;
@@ -854,6 +860,88 @@ main ul:not(.cartes):not(.puces) li {
 
 	.intro {
 		font-size: var(--t-m);
+	}
+}
+
+/* Statistiques : barres proportionnelles, la valeur reste toujours écrite à côté. */
+.barre {
+	display: block;
+	height: 0.5rem;
+	inline-size: calc(var(--part, 0) * 100%);
+	background: var(--accent);
+	border-radius: var(--r-plein);
+}
+
+.entonnoir {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 var(--e-5);
+	display: grid;
+	gap: var(--e-3);
+	max-width: 48rem;
+}
+
+.entonnoir li {
+	display: grid;
+	gap: var(--e-1);
+}
+
+.entonnoir .valeur {
+	color: var(--texte-2);
+}
+
+.entonnoir .nombre {
+	font-size: var(--t-xl);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--texte);
+}
+
+.entonnoir .taux {
+	font-size: var(--t-s);
+}
+
+.cartes li.principale .ventilation {
+	display: block;
+	margin-top: var(--e-1);
+	font-size: var(--t-s);
+	color: var(--discret);
+}
+
+.repartition {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+	gap: var(--e-3) var(--e-5);
+	margin: 0 0 var(--e-5);
+}
+
+.repartition dt {
+	font-weight: 600;
+	font-size: var(--t-s);
+}
+
+.repartition dd {
+	margin: var(--e-1) 0 0;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	align-items: center;
+	gap: var(--e-2);
+	font-size: var(--t-s);
+	color: var(--texte-2);
+}
+
+.repartition .entreprises .barre {
+	background: var(--statut-positif);
+}
+
+.repartition .vide dt,
+.repartition .vide dd {
+	color: var(--discret);
+}
+
+@media (forced-colors: active) {
+	.barre {
+		background: CanvasText;
 	}
 }
 

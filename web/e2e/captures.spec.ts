@@ -7,8 +7,8 @@ const TAILLE = { width: 1280, height: 760 };
 
 async function deplacer(page: Page, titre: string, statut: string) {
 	const carte = page.getByRole('article', { name: titre });
-	await carte.getByLabel('Passer à').selectOption({ label: statut });
-	await carte.getByRole('button', { name: 'Changer' }).click();
+	await carte.getByText('Déplacer').click();
+	await carte.getByRole('button', { name: `Passer « ${titre} » à ${statut}` }).click();
 	await expect(page.getByRole('status')).toBeVisible();
 }
 

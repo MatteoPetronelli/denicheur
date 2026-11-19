@@ -58,7 +58,7 @@ const STYLES: Record<string, Record<string, string>> = {
 		'sous-ligne': 'tbody .sous.discret'
 	},
 	'/offres': { 'en-tête de tableau': 'thead th', 'étiquette seuil': '.badge.avertissement', cellule: 'tbody td' },
-	'/stats': { titre: 'h1', 'sous-titre': 'h2', 'chiffre en carte': '.cartes .nombre', 'texte en carte': '.cartes li', 'en-tête': 'thead th', 'ligne': 'tbody th', cellule: 'tbody td' },
+	'/stats': { titre: 'h1', 'sous-titre': 'h2', 'étape': '.entonnoir .valeur', 'taux': '.entonnoir .taux', 'chiffre en carte': '.cartes .nombre', 'texte en carte': '.cartes li', 'ventilation': '.ventilation', 'statut': '.repartition dt', 'répartition': '.repartition dd', 'statut vide': '.repartition .vide dd', 'en-tête': 'thead th', 'ligne': 'tbody th', cellule: 'tbody td', 'erreur': '.badge.danger' },
 	'/projet': { titre: 'h1', introduction: '.intro', 'sous-titre': 'h2', 'étape': '.etapes li', 'liste': 'main ul li', 'lien de navigation': 'header nav a' },
 	'/fiche/entreprise/2': { 'terme': '.details dt', 'description': '.details dd', brouillon: '.brouillon pre', 'date': '.brouillon p', "fil d'Ariane": '.ariane a', 'page de la fiche': '.ariane [aria-current]', badge: '.details .badge' }
 };

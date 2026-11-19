@@ -28,3 +28,15 @@
 - [Des arrondis qui ne tombent pas juste (33 % + 67 %)] → chaque pourcentage est indépendant et ne se somme pas. On l'accepte, et le test vérifie les valeurs du scénario de la spec.
 - [Le test de chiffres de `pages.spec.ts` vise les tuiles « offres vues »] → il vise désormais l'entonnoir par son libellé. Les valeurs attendues ne changent pas.
 - [Barres peu visibles en mode contraste élevé (`forced-colors`)] → `@media (forced-colors: active)` donne aux barres `background: CanvasText`, et les valeurs restent en texte de toute façon.
+
+## Résultats du lot 1
+
+- Spec : *Statistics page* reste telle quelle ; l'entonnoir et la répartition sont des requirements ajoutés (*Offer funnel*, *Status distribution*), car le texte allongé dépassait la limite de `--strict`.
+- Entonnoir : `etapes()` et `pourcent()` testés en Vitest, y compris la base vide. Un rendu serveur de la page (`svelte/server`) sur base vide ne contient ni `NaN` ni `Infinity`.
+- Répartition : `dl` par statut, barres offres (accent) et entreprises (ton positif) à l'échelle du plus grand effectif, libellé et valeur écrits ; une valeur nulle n'affiche aucune barre (le trait de 2 px du premier essai a été retiré).
+- Exécutions : nombres à droite, mode en badge, « n erreur(s) » en badge danger suivi de « , détail dans les journaux », « aucune » en discret.
+- Tuiles : les réponses passent en une tuile principale avec la ventilation offres et entreprises dessous ; le modèle local garde trois tuiles.
+- `/projet` : contenu enveloppé dans `.prose`, texte inchangé (le diff n'ajoute que le `<div>`).
+- Mutations, toutes rouges puis restaurées : garde du dénominateur retirée (Vitest), division par `vues` dans la page (rendu Vitest), offres et entreprises inversées, badge danger à zéro (Playwright).
+- `axe` et le contraste maison verts dans les deux thèmes, avec l'entonnoir, la répartition et le badge d'erreur ajoutés aux sélecteurs. Captures clair et sombre relues à côté de `docs/captures/avant-c8/_stats-light.png` ; 375 px couvert par le test de débordement.
+- Gate : verte (Vitest 173, Playwright 65, pytest 721). Un passage de `npm test` a montré un échec isolé qui ne s'est pas reproduit au passage suivant (173/173) ; non identifié. `e2e/captures.spec.ts` visait encore « Passer à »/« Changer » : passé au menu « Déplacer », captures du README régénérées.

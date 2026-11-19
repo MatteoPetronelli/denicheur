@@ -637,6 +637,7 @@ Same constraints as C7: no CSS framework or chart library, forms work without Ja
 nothing leaves 127.0.0.1. Skills: `frontend-design`, `ui-ux-pro-max`, `design-system`,
 `web-design-guidelines`, `fixing-accessibility`, `anti-ui-slop`, `browser-proof`, `sveltekit`.
 Done when: the four changes are archived and the README screenshots are regenerated.
+**Status (2026-11-19): done.** All four changes archived, README screenshots regenerated.
 
 ---
 
