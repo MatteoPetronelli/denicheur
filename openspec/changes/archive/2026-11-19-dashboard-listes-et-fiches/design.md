@@ -30,3 +30,13 @@
 - [Réunir nom, activité et commune change ce que lit un lecteur d'écran par cellule] → le nom reste le `<th scope="row">` de la ligne, et le reste vient après lui dans la même cellule.
 - [`data-libelle` désynchronisé du `<thead>`] → les deux sont produits par la même liste de colonnes ; un test Playwright à 375 px vérifie le libellé de chaque valeur.
 - [Les tests de pagination visent « Page suivante → »] → le libellé devient « Suivante » avec `rel="next"`, et les tests visent le rôle et `rel`.
+
+## Résultats du lot 1
+
+- Spec : les requirements existants *Companies page*, *Offers page* et *Drafts are read-only* ne sont pas modifiés. Les textes allongés dépassaient la limite de `--strict` (500 caractères) ; les nouveaux comportements sont des requirements ajoutés (*List values presentation*, *Numbered pagination*, *Lists on small screens*, *Record page navigation*).
+- `/entreprises` passe à 8 colonnes, `/offres` à 5. Activité et commune vont sous le nom (absentes : rien n'est affiché, et non « — », puisqu'elles ne forment plus de colonne). Effectif, priorité et « Offre ouverte » vides affichent « — ». « Contactée » est en bouton secondaire, « Écarter » en lien-bouton discret.
+- Pagination : composant `Pagination.svelte` partagé, noms accessibles « Page précédente », « Page suivante » et « Page n », la page courante en `aria-current`. Masquée quand il n'y a qu'une page.
+- Petit écran : `.defile` ne laisse plus déborder les seules tables `.liste` (`:has`), puisque `/stats` garde ses tableaux défilants ; un premier essai global faisait déborder `/stats` à 972 px, ce que le test 375 px a pris.
+- Fiche : fil d'Ariane selon la nature, statut en badge, `dl` sur une colonne sous 48rem, brouillon limité à 65ch. La graine e2e ajoute une ligne de 300 caractères au brouillon existant (le compte de brouillons ne change pas).
+- Mutations, toutes rouges puis restaurées : ellipse gauche supprimée (Vitest), `0` traité comme vide (Vitest), `''` au lieu de « — », une cellule sans `data-libelle`, `overflow-wrap` retiré des brouillons.
+- `axe` et le contraste maison verts dans les deux thèmes, avec la pagination, la page courante, les badges, les sous-lignes et le fil d'Ariane ajoutés. Captures à 1280 px relues à côté de `docs/captures/avant-c8/`.

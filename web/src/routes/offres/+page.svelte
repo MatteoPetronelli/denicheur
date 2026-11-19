@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { LIBELLES } from '#lib/statuts.js';
+	import Pagination from '#lib/components/Pagination.svelte';
+	import { GROUPE_STATUT, LIBELLES } from '#lib/statuts.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -12,6 +13,7 @@
 		return p.toString();
 	}
 	const lien = (page: number) => `/offres${requete(page) ? `?${requete(page)}` : ''}`;
+	const ENTETES = ['Offre', 'Piste', 'Score', 'Distance', 'Suivi'];
 	const libellePiste = { stage: 'Stage', alternance: 'Alternance', autre: 'Autre' } as const;
 </script>
 
@@ -41,7 +43,7 @@
 			<option value="sous" selected={data.filtres.seuil === 'sous'}>Sous le seuil</option>
 		</select>
 	</label>
-	<button type="submit">Filtrer</button>
+	<button type="submit" class="btn-secondaire">Filtrer</button>
 </form>
 
 <p class="discret">
@@ -49,39 +51,35 @@
 </p>
 
 <div class="defile">
-	<table>
+	<table class="liste">
 		<caption class="sr-only">Offres notées, par score décroissant</caption>
 		<thead>
 			<tr>
-				<th scope="col">Offre</th>
-				<th scope="col">Entreprise</th>
-				<th scope="col">Piste</th>
-				<th scope="col">Score</th>
-				<th scope="col">Distance</th>
-				<th scope="col">Suivi</th>
+				{#each ENTETES as e, i (e)}<th scope="col" class:nombre={i === 2 || i === 3}>{e}</th>{/each}
 			</tr>
 		</thead>
 		<tbody>
 			{#each data.liste.lignes as o (o.id)}
 				<tr>
-					<th scope="row">
+					<th scope="row" data-libelle={ENTETES[0]}>
 						<a href={`/fiche/offre/${o.id}`}>{o.titre}</a>
-						{#if o.lien}<br /><a href={o.lien} target="_blank" rel="noopener noreferrer">Voir l'offre</a>{/if}
+						<span class="sous discret">{o.entreprise ?? '—'}</span>
+						{#if o.lien}<a class="sous" href={o.lien} target="_blank" rel="noopener noreferrer">Voir l'offre<span aria-hidden="true"> ↗</span></a>{/if}
 					</th>
-					<td>{o.entreprise ?? ''}</td>
-					<td>{libellePiste[o.piste]}</td>
-					<td><span class="donnee">{o.score}</span>{#if o.sousSeuil} <span class="badge avertissement">sous le seuil</span>{/if}</td>
-					<td class="donnee">{o.distance_km !== null ? `${Math.round(o.distance_km)} km` : ''}</td>
-					<td>{o.statut ? LIBELLES[o.statut] : 'Sans suivi'}</td>
+					<td data-libelle={ENTETES[1]}>{libellePiste[o.piste]}</td>
+					<td class="nombre" data-libelle={ENTETES[2]}>
+						<span class="donnee">{o.score}</span>{#if o.sousSeuil}<span class="badge avertissement seuil">sous le seuil</span>{/if}
+					</td>
+					<td class="nombre donnee" data-libelle={ENTETES[3]}>{o.distance_km !== null ? `${Math.round(o.distance_km)} km` : '—'}</td>
+					<td data-libelle={ENTETES[4]}>
+						{#if o.statut}<span class={`badge ${GROUPE_STATUT[o.statut]}`}>{LIBELLES[o.statut]}</span>{:else}<span class="badge">Sans suivi</span>{/if}
+					</td>
 				</tr>
 			{:else}
-				<tr><td colspan="6">Aucune offre ne correspond.</td></tr>
+				<tr><td colspan="5">Aucune offre ne correspond.</td></tr>
 			{/each}
 		</tbody>
 	</table>
 </div>
 
-<nav aria-label="Pages de la liste" class="pagination">
-	{#if data.liste.page > 1}<a href={lien(data.liste.page - 1)} rel="prev">← Page précédente</a>{/if}
-	{#if data.liste.page < data.liste.pages}<a href={lien(data.liste.page + 1)} rel="next">Page suivante →</a>{/if}
-</nav>
+<Pagination page={data.liste.page} pages={data.liste.pages} {lien} />

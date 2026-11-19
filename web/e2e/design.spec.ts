@@ -36,3 +36,43 @@ test('petit écran : le tableau défile dans sa zone, pas le document', async ({
 	expect(await page.locator('.tableau').evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(true);
 	await page.screenshot({ path: 'test-results/tableau-375.png' });
 });
+
+test('listes : « — » pour une valeur absente, nombres alignés à droite, pagination numérotée', async ({ page }) => {
+	await page.goto('/entreprises');
+	const ligne = page.getByRole('row', { name: /^Société 01/ });
+	await expect(ligne.locator('td[data-libelle="Effectif"]')).toHaveText('—');
+	expect(await ligne.locator('td[data-libelle="Distance"]').evaluate((e) => getComputedStyle(e).textAlign)).toBe('end');
+	const pages = page.getByRole('navigation', { name: 'Pages de la liste' });
+	await expect(pages.locator('[aria-current="page"]')).toHaveText('1');
+	await expect(pages.getByRole('link', { name: 'Page 2' })).toBeVisible();
+});
+
+test('offres : « sous le seuil » est un badge à part du score', async ({ page }) => {
+	await page.goto('/offres');
+	const cellule = page.getByRole('row', { name: /Stage support informatique/ }).locator('td[data-libelle="Score"]');
+	await expect(cellule.locator('.donnee')).toHaveText('40');
+	await expect(cellule.locator('.badge')).toHaveText('sous le seuil');
+});
+
+test('listes en petit écran : chaque valeur porte un libellé du <thead>', async ({ page }) => {
+	await page.setViewportSize({ width: 375, height: 812 });
+	for (const url of ['/entreprises', '/offres']) {
+		await page.goto(url);
+		const entetes = await page.locator('thead th').allTextContents();
+		const libelles = await page.locator('tbody tr').first().locator('th, td').evaluateAll((els) => els.map((e) => e.getAttribute('data-libelle')));
+		expect(libelles.every((l) => l !== null && entetes.includes(l)), `libellés sur ${url} : ${libelles.join(', ')}`).toBe(true);
+		expect(await page.locator('tbody tr').first().evaluate((e) => getComputedStyle(e).display)).toBe('block');
+	}
+});
+
+test('fiche : fil d’Ariane vers la liste, statut en badge, brouillon sans défilement à 375 px', async ({ page }) => {
+	await page.goto('/fiche/entreprise/2');
+	const ariane = page.getByRole('navigation', { name: "Fil d'Ariane" });
+	await expect(ariane.getByRole('link', { name: 'Entreprises' })).toHaveAttribute('href', '/entreprises');
+	await expect(ariane.locator('[aria-current="page"]')).toHaveText('Beta SA');
+	await expect(page.locator('.details .badge')).toHaveText('Intéressante');
+	await page.setViewportSize({ width: 375, height: 812 });
+	await page.reload();
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+	expect(await page.locator('.brouillon pre').evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+});

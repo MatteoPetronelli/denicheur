@@ -43,7 +43,8 @@ export function creerBaseDemo(): void {
 		ajouterExecution(db, { debut: '2026-11-18 08:30:00.000000', collectees: 18, retenues: 5, scorees: 5, notifiees: 3, duree_llm_s: 510 });
 		db.prepare("insert into candidatures (entreprise_id, statut, cree_le, maj_le) values (?, 'interessante', ?, ?)").run(beta, MAINTENANT, MAINTENANT);
 		db.prepare("insert into brouillons (candidature_id, type, contenu, gmail_draft, cree_le) values (1, 'spontanee', ?, 0, ?)").run(
-			'Bonjour,\nJe vous écris pour une alternance. <script>window.__xss = 1</script>',
+			// La dernière ligne, longue et sans espace, doit passer à la ligne dans la fiche.
+			'Bonjour,\nJe vous écris pour une alternance. <script>window.__xss = 1</script>\nhttps://exemple.fr/' + 'a'.repeat(280),
 			MAINTENANT
 		);
 	} finally {

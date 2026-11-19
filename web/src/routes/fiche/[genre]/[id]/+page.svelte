@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { dateFr } from '#lib/dates.js';
-	import { LIBELLES } from '#lib/statuts.js';
+	import { GROUPE_STATUT, LIBELLES } from '#lib/statuts.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -17,13 +17,18 @@
 	<title>{c.titre} · Dénicheur</title>
 </svelte:head>
 
-<p><a href="/">← Retour au tableau</a></p>
+<nav aria-label="Fil d'Ariane" class="ariane">
+	<ol>
+		<li>{#if c.genre === 'offre'}<a href="/offres">Offres</a>{:else}<a href="/entreprises">Entreprises</a>{/if}</li>
+		<li><span aria-current="page">{c.titre}</span></li>
+	</ol>
+</nav>
 <h1>{c.titre}</h1>
 <p class="genre discret">{c.genre === 'offre' ? 'Offre' : 'Entreprise'}</p>
 
 <dl class="details">
 	<dt>Statut</dt>
-	<dd>{c.statut ? LIBELLES[c.statut] : 'Nouvelle (sans suivi)'}</dd>
+	<dd>{#if c.statut}<span class={`badge ${GROUPE_STATUT[c.statut]}`}>{LIBELLES[c.statut]}</span>{:else}<span class="badge">Nouvelle (sans suivi)</span>{/if}</dd>
 	{#if c.entreprise}<dt>Entreprise</dt><dd>{c.entreprise}</dd>{/if}
 	{#if c.activite}<dt>Activité</dt><dd>{c.activite}</dd>{/if}
 	{#if c.commune}<dt>Commune</dt><dd>{c.commune}</dd>{/if}
