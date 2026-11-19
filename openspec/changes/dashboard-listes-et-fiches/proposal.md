@@ -19,7 +19,7 @@
 ### New Capabilities
 
 ### Modified Capabilities
-- `dashboard-tracking` : les requirements *Companies page*, *Offers page* et *Drafts are read-only* changent (présentation des valeurs, petit écran, pagination numérotée, brouillons lisibles). Ajout de *Record page navigation* (fil d'Ariane et statut des fiches).
+- `dashboard-tracking` : ajout de *List values presentation*, *Numbered pagination*, *Lists on small screens* et *Record page navigation*. Les requirements existants restent inchangés, puisque les textes allongés dépassaient la limite de `--strict`.
 
 ## Impact
 

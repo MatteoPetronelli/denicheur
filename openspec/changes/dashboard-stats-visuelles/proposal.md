@@ -18,7 +18,7 @@ La page `/stats` (capture `web/test-results/_stats-light.png`) aligne dix tuiles
 ### New Capabilities
 
 ### Modified Capabilities
-- `dashboard-stats` : les requirements *Statistics page* et *Recent runs* changent (entonnoir proportionnel, répartition par statut, signalement des exécutions en erreur).
+- `dashboard-stats` : ajout de *Offer funnel* et *Status distribution* ; *Recent runs* change (signalement des exécutions en erreur).
 
 ## Impact
 

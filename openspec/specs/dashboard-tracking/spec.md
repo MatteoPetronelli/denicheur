@@ -6,7 +6,7 @@ Afficher toutes les candidatures, sur offres et sur entreprises, dans un tableau
 ## Requirements
 
 ### Requirement: Kanban by status
-La page `/` SHALL présenter une colonne par statut de suivi (`interessante`, `candidature_envoyee`, `relancee`, `entretien`, `offre`, `refus`, `sans_reponse`) et une colonne « Nouvelles » pour les offres notifiées sans suivi. Les candidatures `ignoree` SHALL être masquées par défaut et consultables à la demande. Chaque colonne SHALL afficher son effectif. Toutes les colonnes SHALL être atteignables au clavier et à la souris sans réduire la page ; l'en-tête de chaque colonne SHALL rester visible pendant le défilement vertical, et une colonne vide SHALL occuper moins de largeur qu'une colonne qui contient des cartes.
+La page `/` SHALL présenter une colonne par statut de suivi (`interessante`, `candidature_envoyee`, `relancee`, `entretien`, `offre`, `refus`, `sans_reponse`) et une colonne « Nouvelles » pour les offres notifiées sans suivi. Les candidatures `ignoree` SHALL être masquées par défaut et consultables à la demande. Chaque colonne SHALL afficher son effectif.
 
 #### Scenario: Offer and company together
 - **WHEN** une offre et une entreprise sont toutes deux `candidature_envoyee`
@@ -20,16 +20,8 @@ La page `/` SHALL présenter une colonne par statut de suivi (`interessante`, `c
 - **WHEN** une ligne de suivi n'a pas d'offre
 - **THEN** elle s'affiche comme entreprise, sans erreur ni offre manquante
 
-#### Scenario: Last column reachable
-- **WHEN** la fenêtre fait 1280 px de large et qu'une carte est `sans_reponse`
-- **THEN** l'utilisateur peut amener la colonne « Sans réponse » à l'écran par défilement ou par tabulation, et la carte reçoit le focus
-
-#### Scenario: Empty column collapsed
-- **WHEN** la colonne « Relancée » est vide et que « Nouvelles » contient des cartes
-- **THEN** « Relancée » est plus étroite que « Nouvelles » et affiche toujours son libellé et « 0 »
-
 ### Requirement: Cards
-Une carte d'offre SHALL montrer le titre, l'entreprise, le score, la distance et la piste ; une carte d'entreprise SHALL montrer le nom, l'activité, la commune, la distance et la priorité. Le titre SHALL mener à la fiche de la carte, et toute la surface de la carte SHALL être cliquable vers cette fiche, sans masquer les autres actions de la carte. Chaque carte SHALL renvoyer vers l'offre ou le site de candidature quand le lien existe et commence par `http`. Le score SHALL être signalé comme haut, moyen ou bas par rapport au seuil `score_min`, par du texte et non par la couleur seule.
+Une carte d'offre SHALL montrer le titre, l'entreprise, le score, la distance et la piste ; une carte d'entreprise SHALL montrer le nom, l'activité, la commune, la distance et la priorité. Chaque carte SHALL renvoyer vers l'offre ou le site de candidature quand le lien existe et commence par `http`.
 
 #### Scenario: Offer card
 - **WHEN** une offre notée 82 à 12 km est suivie
@@ -39,16 +31,8 @@ Une carte d'offre SHALL montrer le titre, l'entreprise, le score, la distance et
 - **WHEN** le lien d'une entreprise ne commence pas par `http`
 - **THEN** la carte n'affiche aucun lien
 
-#### Scenario: Whole card opens the record
-- **WHEN** l'utilisateur clique sur la carte hors du titre, du lien externe et du menu de statut
-- **THEN** la fiche de la carte s'ouvre
-
-#### Scenario: Score below threshold
-- **WHEN** une offre notée 40 est affichée et que `score_min` vaut 65
-- **THEN** son badge de score porte un nom accessible qui contient « sous le seuil »
-
 ### Requirement: Status change with bot rules
-Chaque carte SHALL proposer un menu « Déplacer » qui liste uniquement les statuts atteignables depuis le statut courant, selon les mêmes transitions que le bot (nouvelle → `interessante`, `candidature_envoyee` ou `ignoree` ; `interessante` → `candidature_envoyee` ou `ignoree` ; `candidature_envoyee` → `relancee`, issue ou `ignoree` ; `relancee` → issue ou `ignoree` ; issue → `ignoree`). Chaque action du menu SHALL avoir un nom accessible qui cite la carte et le statut visé, et SHALL fonctionner sans JavaScript. Une transition refusée SHALL laisser la base inchangée. Après un changement réussi, la page SHALL annoncer la carte et son nouveau statut, et le focus SHALL revenir sur la carte déplacée.
+Un formulaire par carte SHALL proposer uniquement les statuts atteignables depuis le statut courant, selon les mêmes transitions que le bot (nouvelle → `interessante`, `candidature_envoyee` ou `ignoree` ; `interessante` → `candidature_envoyee` ou `ignoree` ; `candidature_envoyee` → `relancee`, issue ou `ignoree` ; `relancee` → issue ou `ignoree` ; issue → `ignoree`). Une transition refusée SHALL laisser la base inchangée.
 
 #### Scenario: Allowed move
 - **WHEN** l'utilisateur passe une offre `interessante` à `candidature_envoyee`
@@ -61,6 +45,31 @@ Chaque carte SHALL proposer un menu « Déplacer » qui liste uniquement les sta
 #### Scenario: First marking
 - **WHEN** une offre « nouvelle » est marquée `interessante`
 - **THEN** une seule ligne de suivi est créée pour elle
+
+### Requirement: Board columns layout
+Toutes les colonnes du tableau SHALL être atteignables au clavier et à la souris sans réduire la page. L'en-tête de chaque colonne SHALL rester visible pendant le défilement vertical, et une colonne vide SHALL occuper moins de largeur qu'une colonne qui contient des cartes.
+
+#### Scenario: Last column reachable
+- **WHEN** la fenêtre fait 1280 px de large et qu'une carte est `sans_reponse`
+- **THEN** l'utilisateur peut amener la colonne « Sans réponse » à l'écran par défilement ou par tabulation, et la carte reçoit le focus
+
+#### Scenario: Empty column collapsed
+- **WHEN** la colonne « Relancée » est vide et que « Nouvelles » contient des cartes
+- **THEN** « Relancée » est plus étroite que « Nouvelles » et affiche toujours son libellé et « 0 »
+
+### Requirement: Card navigation and score level
+Toute la surface d'une carte SHALL mener à sa fiche, sans masquer le lien externe ni le menu de statut. Le score SHALL être signalé comme haut, moyen ou bas par rapport au seuil `score_min`, par du texte et non par la couleur seule.
+
+#### Scenario: Whole card opens the record
+- **WHEN** l'utilisateur clique sur la carte hors du titre, du lien externe et du menu de statut
+- **THEN** la fiche de la carte s'ouvre
+
+#### Scenario: Score below threshold
+- **WHEN** une offre notée 40 est affichée et que `score_min` vaut 65
+- **THEN** son badge de score porte un nom accessible qui contient « sous le seuil »
+
+### Requirement: Status menu feedback
+Le changement de statut SHALL passer par un menu « Déplacer » dont chaque action a un nom accessible qui cite la carte et le statut visé, et qui fonctionne sans JavaScript. Après un changement réussi, la page SHALL annoncer la carte et son nouveau statut, et le focus SHALL revenir sur la carte déplacée.
 
 #### Scenario: Only reachable statuses
 - **WHEN** l'utilisateur ouvre le menu « Déplacer » d'une carte `interessante`
