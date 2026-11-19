@@ -1,4 +1,9 @@
 <script lang="ts">
+	// Polices servies par l'application elle-même (sous-ensemble latin) : aucune requête hors de 127.0.0.1.
+	import '@fontsource/ibm-plex-sans/latin-400.css';
+	import '@fontsource/ibm-plex-sans/latin-500.css';
+	import '@fontsource/ibm-plex-sans/latin-600.css';
+	import '@fontsource/ibm-plex-mono/latin-400.css';
 	import '../app.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import { page } from '$app/state';

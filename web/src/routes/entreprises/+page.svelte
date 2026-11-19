@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { envoi } from '#lib/envoi.js';
 	import { dateFr } from '#lib/dates.js';
 	import { atteignables, LIBELLES } from '#lib/statuts.js';
 	import type { PageProps } from './$types';
@@ -76,26 +77,26 @@
 					</th>
 					<td>{e.activite ?? ''}</td>
 					<td>{e.commune ?? ''}</td>
-					<td>{e.effectif ?? ''}</td>
-					<td>{e.distance_km !== null ? `${Math.round(e.distance_km)} km` : ''}</td>
-					<td>{e.priorite ?? ''}</td>
+					<td class="donnee">{e.effectif ?? ''}</td>
+					<td class="donnee">{e.distance_km !== null ? `${Math.round(e.distance_km)} km` : ''}</td>
+					<td class="donnee">{e.priorite ?? ''}</td>
 					<td>{e.statut ? LIBELLES[e.statut] : 'Sans suivi'}</td>
-					<td>{dateFr(e.contactee_le)}</td>
-					<td>{e.nbBrouillons}</td>
+					<td class="donnee">{dateFr(e.contactee_le)}</td>
+					<td class="donnee">{e.nbBrouillons}</td>
 					<td>
 						{#each e.offresOuvertes as o (o.id)}
 							<a href={`/fiche/offre/${o.id}`}>{o.titre}</a><br />
 						{/each}
 					</td>
 					<td>
-						<form method="POST" action={`?/statut${suite}`} use:enhance class="actions">
+						<form method="POST" action={`?/statut${suite}`} use:enhance={envoi} class="actions">
 							<input type="hidden" name="genre" value="entreprise" />
 							<input type="hidden" name="id" value={e.id} />
 							{#if atteignables(e.statut).includes('candidature_envoyee')}
 								<button type="submit" name="statut" value="candidature_envoyee" aria-label={`Marquer ${e.nom} comme contactée`}>Contactée</button>
 							{/if}
 							{#if atteignables(e.statut).includes('ignoree')}
-								<button type="submit" name="statut" value="ignoree" class="secondaire" aria-label={`Écarter ${e.nom}`}>Écartée</button>
+								<button type="submit" name="statut" value="ignoree" class="btn-secondaire" aria-label={`Écarter ${e.nom}`}>Écarter</button>
 							{/if}
 						</form>
 						{#if erreurDe(e.id)}<p class="erreur" role="alert">{erreurDe(e.id)}</p>{/if}

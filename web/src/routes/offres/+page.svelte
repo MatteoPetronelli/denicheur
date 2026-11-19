@@ -70,8 +70,8 @@
 					</th>
 					<td>{o.entreprise ?? ''}</td>
 					<td>{libellePiste[o.piste]}</td>
-					<td>{o.score}{#if o.sousSeuil} <span class="etiquette">sous le seuil</span>{/if}</td>
-					<td>{o.distance_km !== null ? `${Math.round(o.distance_km)} km` : ''}</td>
+					<td><span class="donnee">{o.score}</span>{#if o.sousSeuil} <span class="badge avertissement">sous le seuil</span>{/if}</td>
+					<td class="donnee">{o.distance_km !== null ? `${Math.round(o.distance_km)} km` : ''}</td>
 					<td>{o.statut ? LIBELLES[o.statut] : 'Sans suivi'}</td>
 				</tr>
 			{:else}

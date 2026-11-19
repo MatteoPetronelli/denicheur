@@ -142,3 +142,32 @@ test('offres : les offres sous le seuil sont marquées, le filtre « sous le seu
 	await expect(page.locator('tbody tr')).toHaveCount(1);
 	await page.screenshot({ path: 'test-results/offres.png', fullPage: true });
 });
+
+test('envoi : le bouton est occupé pendant la requête, puis plus rien n’est occupé', async ({ page }) => {
+	await page.goto('/entreprises');
+	let liberer = () => {};
+	const attente = new Promise<void>((r) => (liberer = r));
+	await page.route((u) => u.search.includes('/statut'), async (route) => {
+		await attente;
+		await route.continue();
+	});
+	const bouton = page.getByRole('button', { name: 'Marquer Société 06 comme contactée' });
+	await bouton.click();
+	await expect(bouton).toHaveAttribute('aria-busy', 'true');
+	await expect(bouton).toBeDisabled();
+	liberer();
+	await expect(page.getByRole('status')).toBeVisible();
+	await expect(page.getByRole('row', { name: /Société 06/ })).toContainText('Candidature envoyée');
+	await expect(page.locator('[aria-busy]')).toHaveCount(0);
+});
+
+test.describe('sans JavaScript', () => {
+	test.use({ javaScriptEnabled: false });
+
+	test('un changement de statut recharge la page avec le résultat', async ({ page }) => {
+		await page.goto('/entreprises');
+		await page.getByRole('button', { name: 'Marquer Société 05 comme contactée' }).click();
+		await expect(page.getByRole('status')).toHaveText('Statut mis à jour.');
+		await expect(page.getByRole('row', { name: /Société 05/ })).toContainText('Candidature envoyée');
+	});
+});

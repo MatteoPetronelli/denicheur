@@ -1,12 +1,62 @@
+/* Tokens : seules valeurs de couleur, d'espacement, de texte, de rayon et d'ombre du tableau de bord.
+   Spec dashboard-design ; le reste du fichier et les pages n'utilisent que ces variables. */
 :root {
 	--fond: #f7f7f5;
 	--surface: #ffffff;
+	--surface-relevee: #efefeb;
 	--texte: #1c1c1a;
+	--texte-2: #3a3a36;
 	--discret: #55554f;
 	--bordure: #d6d6cf;
-	--accent: #1d4ed8;
+	--bordure-forte: #8a8a82;
+	--accent: #155e75;
+	--accent-fort: #0e4757;
 	--accent-texte: #ffffff;
-	--erreur: #b42318;
+	--succes: #2f6f3e;
+	--succes-fond: #e5f1e7;
+	--avertissement: #8a5300;
+	--avertissement-fond: #fbefd9;
+	--danger: #b42318;
+	--danger-fond: #fbe8e5;
+	--info: #155e75;
+	--info-fond: #e1eff3;
+	--erreur: var(--danger);
+
+	/* Groupes de statut : en cours (intéressante, envoyée, relancée), positif (entretien, offre), clos (refus, sans réponse, écartée). */
+	--statut-en-cours: var(--info);
+	--statut-en-cours-fond: var(--info-fond);
+	--statut-positif: var(--succes);
+	--statut-positif-fond: var(--succes-fond);
+	--statut-clos: var(--discret);
+	--statut-clos-fond: var(--surface-relevee);
+
+	--e-1: 0.25rem;
+	--e-2: 0.5rem;
+	--e-3: 0.75rem;
+	--e-4: 1rem;
+	--e-5: 1.5rem;
+	--e-6: 2rem;
+	--e-7: 3rem;
+	--e-8: 4rem;
+
+	--t-xs: 0.8125rem;
+	--t-s: 0.875rem;
+	--t-m: 1rem;
+	--t-l: 1.25rem;
+	--t-xl: 1.5625rem;
+	--t-2xl: 2rem;
+
+	--r-1: 0.25rem;
+	--r-2: 0.5rem;
+	--r-plein: 999px;
+
+	--ombre-1: 0 1px 2px rgb(28 28 26 / 0.06);
+	--ombre-2: 0 4px 12px rgb(28 28 26 / 0.12);
+
+	--police: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--police-donnees: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+	--duree: 150ms;
+
 	color-scheme: light dark;
 }
 
@@ -14,12 +64,36 @@
 	:root {
 		--fond: #141413;
 		--surface: #1e1e1c;
+		--surface-relevee: #2a2a27;
 		--texte: #ece8e8;
+		--texte-2: #d6d2cf;
 		--discret: #b4b4ac;
 		--bordure: #3a3a36;
-		--accent: #8fb0ff;
-		--accent-texte: #0b1220;
-		--erreur: #ff9b8f;
+		--bordure-forte: #7a7a72;
+		--accent: #67c6dd;
+		--accent-fort: #8ad6e8;
+		--accent-texte: #0b1a20;
+		--succes: #85d197;
+		--succes-fond: #1c2e21;
+		--avertissement: #f0b459;
+		--avertissement-fond: #33270f;
+		--danger: #ff9b8f;
+		--danger-fond: #3a1d1a;
+		--info: #67c6dd;
+		--info-fond: #15282e;
+		--ombre-1: 0 1px 2px rgb(0 0 0 / 0.4);
+		--ombre-2: 0 4px 12px rgb(0 0 0 / 0.5);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
 	}
 }
 
@@ -31,16 +105,69 @@ body {
 	margin: 0;
 	background: var(--fond);
 	color: var(--texte);
-	font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', sans-serif;
+	font-family: var(--police);
+	font-size: var(--t-m);
+	line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.2;
+	font-weight: 600;
+	text-wrap: balance;
+}
+
+a,
+button,
+summary,
+label {
+	touch-action: manipulation;
+}
+
+h1 {
+	font-size: var(--t-2xl);
+	margin: var(--e-5) 0 var(--e-4);
+	letter-spacing: -0.01em;
+}
+
+h2 {
+	font-size: var(--t-l);
+	margin: var(--e-5) 0 var(--e-2);
+}
+
+h3 {
+	font-size: var(--t-m);
 }
 
 a {
 	color: var(--accent);
+	text-underline-offset: 0.15em;
+	transition: color var(--duree);
+}
+
+a:hover {
+	color: var(--accent-fort);
 }
 
 :focus-visible {
 	outline: 3px solid var(--accent);
 	outline-offset: 2px;
+}
+
+/* Valeurs comparées en colonne : scores, distances, effectifs, dates. */
+.donnee {
+	font-family: var(--police-donnees);
+	font-variant-numeric: tabular-nums;
+}
+
+/* La Mono paraît plus grande à taille égale : réduite seulement au fil du texte, les cellules gardent leur taille. */
+span.donnee {
+	font-size: 0.92em;
+}
+
+.prose {
+	max-width: 65ch;
 }
 
 .saut {
@@ -49,11 +176,11 @@ a {
 }
 
 .saut:focus {
-	left: 8px;
-	top: 8px;
+	left: var(--e-2);
+	top: var(--e-2);
 	z-index: 10;
 	background: var(--surface);
-	padding: 0.5rem 0.75rem;
+	padding: var(--e-2) var(--e-3);
 }
 
 header.haut {
@@ -63,27 +190,43 @@ header.haut {
 
 header.haut .contenu {
 	display: flex;
-	gap: 1.5rem;
+	gap: var(--e-2) var(--e-5);
 	align-items: center;
 	flex-wrap: wrap;
-	padding: 0.75rem 1rem;
+	padding: var(--e-3) var(--e-4);
 	max-width: 80rem;
 	margin: 0 auto;
 }
 
 header.haut strong {
-	font-size: 1.1rem;
+	font-size: var(--t-l);
+	letter-spacing: -0.01em;
+}
+
+nav {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 var(--e-4);
 }
 
 nav a {
-	margin-right: 1rem;
-	padding: 0.25rem 0;
+	display: inline-block;
+	padding: var(--e-1) 0;
 	text-decoration: none;
-	color: var(--texte);
+	color: var(--texte-2);
 	border-bottom: 2px solid transparent;
+	transition:
+		color var(--duree),
+		border-color var(--duree);
+}
+
+nav a:hover {
+	color: var(--texte);
+	border-bottom-color: var(--bordure-forte);
 }
 
 nav a[aria-current='page'] {
+	color: var(--texte);
 	border-bottom-color: var(--accent);
 	font-weight: 600;
 }
@@ -91,12 +234,12 @@ nav a[aria-current='page'] {
 main {
 	max-width: 80rem;
 	margin: 0 auto;
-	padding: 1rem;
+	padding: var(--e-4);
 }
 
 .cartes {
 	display: flex;
-	gap: 1rem;
+	gap: var(--e-4);
 	flex-wrap: wrap;
 	padding: 0;
 	list-style: none;
@@ -105,15 +248,19 @@ main {
 .cartes li {
 	background: var(--surface);
 	border: 1px solid var(--bordure);
-	border-radius: 0.5rem;
-	padding: 0.75rem 1rem;
+	border-radius: var(--r-2);
+	box-shadow: var(--ombre-1);
+	padding: var(--e-3) var(--e-4);
 	min-width: 10rem;
+	color: var(--texte-2);
 }
 
 .cartes .nombre {
 	display: block;
-	font-size: 1.75rem;
-	font-weight: 700;
+	font-size: var(--t-2xl);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--texte);
 }
 
 .erreur {
@@ -126,54 +273,158 @@ main {
 
 .filtres {
 	display: flex;
-	gap: 1rem;
+	gap: var(--e-3) var(--e-4);
 	align-items: end;
 	flex-wrap: wrap;
-	margin-bottom: 1rem;
+	margin-bottom: var(--e-4);
 }
 
 .filtres label {
 	display: grid;
-	gap: 0.25rem;
-	font-size: 0.9rem;
+	gap: var(--e-1);
+	font-size: var(--t-s);
+	font-weight: 500;
 }
 
 .filtres label.case {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	gap: var(--e-2);
+	min-height: 2.25rem;
+	font-weight: 400;
 }
 
 select,
+input[type='search'],
 button {
 	font: inherit;
-	padding: 0.35rem 0.6rem;
-	border: 1px solid var(--bordure);
-	border-radius: 0.375rem;
+	min-height: 2.25rem;
+	padding: var(--e-1) var(--e-3);
+	border: 1px solid var(--bordure-forte);
+	border-radius: var(--r-1);
 	background: var(--surface);
 	color: var(--texte);
 }
 
+input[type='checkbox'] {
+	width: 1.125rem;
+	height: 1.125rem;
+	accent-color: var(--accent);
+}
+
+/* Boutons : primaire par défaut, .btn-secondaire et .btn-discret en variantes. */
 button {
 	background: var(--accent);
 	color: var(--accent-texte);
 	border-color: var(--accent);
+	font-weight: 500;
 	cursor: pointer;
+	transition:
+		background-color var(--duree),
+		border-color var(--duree),
+		color var(--duree);
+}
+
+button:hover {
+	background: var(--accent-fort);
+	border-color: var(--accent-fort);
+}
+
+button:active {
+	transform: translateY(1px);
+}
+
+.btn-secondaire {
+	background: var(--surface);
+	color: var(--texte);
+	border-color: var(--bordure-forte);
+}
+
+.btn-secondaire:hover {
+	background: var(--surface-relevee);
+	border-color: var(--texte-2);
+}
+
+.btn-discret {
+	background: transparent;
+	color: var(--accent);
+	border-color: transparent;
+	text-decoration: underline;
+	text-underline-offset: 0.15em;
+}
+
+.btn-discret:hover {
+	background: var(--surface-relevee);
+	border-color: transparent;
+	color: var(--accent-fort);
+}
+
+button:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+	transform: none;
+}
+
+button[aria-busy='true'] {
+	cursor: progress;
+}
+
+/* Badges : la couleur accompagne toujours un texte, jamais seule. */
+.badge {
+	--ton: var(--texte-2);
+	--ton-fond: var(--surface-relevee);
+	display: inline-block;
+	border: 1px solid var(--ton);
+	background: var(--ton-fond);
+	color: var(--ton);
+	border-radius: var(--r-plein);
+	padding: 0 var(--e-2);
+	font-size: var(--t-xs);
+	font-weight: 500;
+	line-height: 1.5;
+	white-space: nowrap;
+}
+
+.badge.succes,
+.badge.positif {
+	--ton: var(--succes);
+	--ton-fond: var(--succes-fond);
+}
+
+.badge.avertissement {
+	--ton: var(--avertissement);
+	--ton-fond: var(--avertissement-fond);
+}
+
+.badge.danger {
+	--ton: var(--danger);
+	--ton-fond: var(--danger-fond);
+}
+
+.badge.en-cours {
+	--ton: var(--statut-en-cours);
+	--ton-fond: var(--statut-en-cours-fond);
+}
+
+.badge.clos {
+	--ton: var(--statut-clos);
+	--ton-fond: var(--statut-clos-fond);
 }
 
 .ok {
 	background: var(--surface);
 	border: 1px solid var(--bordure);
-	border-left: 4px solid var(--accent);
-	padding: 0.5rem 0.75rem;
+	border-left: 4px solid var(--succes);
+	border-radius: var(--r-1);
+	padding: var(--e-2) var(--e-3);
 }
 
 .tableau {
 	display: flex;
-	gap: 1rem;
+	gap: var(--e-4);
 	overflow-x: auto;
 	align-items: flex-start;
-	padding-bottom: 1rem;
+	padding-bottom: var(--e-4);
 }
 
 .tableau > section {
@@ -183,66 +434,67 @@ button {
 
 .tableau h2,
 .ecartees h2 {
-	font-size: 1rem;
-	margin: 0 0 0.5rem;
+	font-size: var(--t-m);
+	margin: 0 0 var(--e-2);
 }
 
 .grille {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-	gap: 1rem;
+	gap: var(--e-4);
 }
 
 .carte {
 	background: var(--surface);
 	border: 1px solid var(--bordure);
-	border-radius: 0.5rem;
-	padding: 0.6rem 0.75rem;
-	margin-bottom: 0.75rem;
+	border-radius: var(--r-2);
+	box-shadow: var(--ombre-1);
+	padding: var(--e-3);
+	margin-bottom: var(--e-3);
 	overflow-wrap: anywhere;
 }
 
 .carte h3 {
-	font-size: 1rem;
 	margin: 0;
 }
 
 .carte p {
-	margin: 0.25rem 0;
+	margin: var(--e-1) 0;
 }
 
 .carte .genre {
-	font-size: 0.8rem;
+	font-size: var(--t-xs);
 	color: var(--discret);
 }
 
 .puces {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
+	gap: var(--e-1);
 	list-style: none;
 	padding: 0;
-	margin: 0.4rem 0;
+	margin: var(--e-2) 0;
 }
 
 .puces li {
 	border: 1px solid var(--bordure);
-	border-radius: 999px;
-	padding: 0 0.5rem;
-	font-size: 0.85rem;
+	border-radius: var(--r-plein);
+	padding: 0 var(--e-2);
+	font-size: var(--t-s);
+	color: var(--texte-2);
 }
 
 .carte form {
 	display: grid;
-	gap: 0.4rem;
+	gap: var(--e-2);
 	justify-items: start;
-	margin-top: 0.5rem;
+	margin-top: var(--e-2);
 }
 
 .details {
 	display: grid;
 	grid-template-columns: max-content 1fr;
-	gap: 0.25rem 1rem;
+	gap: var(--e-1) var(--e-4);
 }
 
 .details dt {
@@ -256,21 +508,20 @@ button {
 .brouillon {
 	background: var(--surface);
 	border: 1px solid var(--bordure);
-	border-radius: 0.5rem;
-	padding: 0.75rem 1rem;
-	margin-bottom: 1rem;
+	border-radius: var(--r-2);
+	padding: var(--e-3) var(--e-4);
+	margin-bottom: var(--e-4);
 }
 
 .brouillon h3 {
 	margin: 0;
-	font-size: 1rem;
 }
 
 .brouillon pre {
 	white-space: pre-wrap;
 	overflow-wrap: anywhere;
 	font: inherit;
-	margin: 0.5rem 0 0;
+	margin: var(--e-2) 0 0;
 }
 
 .sr-only {
@@ -297,54 +548,37 @@ th,
 td {
 	text-align: left;
 	vertical-align: top;
-	padding: 0.4rem 0.6rem;
+	padding: var(--e-2) var(--e-3);
 	border-bottom: 1px solid var(--bordure);
-	font-size: 0.9rem;
+	font-size: var(--t-s);
 }
 
 thead th {
 	position: sticky;
 	top: 0;
 	background: var(--surface);
+	font-weight: 600;
+	color: var(--texte-2);
+	border-bottom-color: var(--bordure-forte);
 }
 
 tbody th {
 	font-weight: 600;
 }
 
-.actions {
-	display: flex;
-	gap: 0.4rem;
+tbody tr:hover {
+	background: var(--surface-relevee);
 }
 
-button.secondaire {
-	background: var(--surface);
-	color: var(--texte);
-	border-color: var(--bordure);
+.actions {
+	display: flex;
+	gap: var(--e-2);
 }
 
 .pagination {
 	display: flex;
-	gap: 1.5rem;
-	margin-top: 1rem;
-}
-
-input[type='search'] {
-	font: inherit;
-	padding: 0.35rem 0.6rem;
-	border: 1px solid var(--bordure);
-	border-radius: 0.375rem;
-	background: var(--surface);
-	color: var(--texte);
-}
-
-.etiquette {
-	border: 1px solid var(--erreur);
-	color: var(--erreur);
-	border-radius: 999px;
-	padding: 0 0.5rem;
-	font-size: 0.8rem;
-	white-space: nowrap;
+	gap: var(--e-5);
+	margin-top: var(--e-4);
 }
 
 table.etroit {
@@ -352,23 +586,34 @@ table.etroit {
 	width: auto;
 }
 
-h2 {
-	font-size: 1.15rem;
-	margin: 1.5rem 0 0.5rem;
-}
-
 .intro {
-	max-width: 46rem;
-	font-size: 1.1rem;
+	max-width: 65ch;
+	font-size: var(--t-l);
+	color: var(--texte-2);
 }
 
 main ol.etapes,
 main ul:not(.cartes):not(.puces) {
-	max-width: 46rem;
-	padding-left: 1.25rem;
+	max-width: 65ch;
+	padding-left: var(--e-5);
 }
 
 main .etapes li,
 main ul:not(.cartes):not(.puces) li {
-	margin-bottom: 0.5rem;
+	margin-bottom: var(--e-2);
+}
+
+@media (max-width: 48rem) {
+	h1 {
+		font-size: var(--t-xl);
+		margin-top: var(--e-4);
+	}
+
+	main {
+		padding: var(--e-3);
+	}
+
+	.intro {
+		font-size: var(--t-m);
+	}
 }

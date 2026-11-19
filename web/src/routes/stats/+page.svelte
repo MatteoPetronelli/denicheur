@@ -43,8 +43,8 @@
 			{#each statuts as statut (statut)}
 				<tr>
 					<th scope="row">{LIBELLES[statut]}</th>
-					<td>{s.candidatures.offres[statut]}</td>
-					<td>{s.candidatures.entreprises[statut]}</td>
+					<td class="donnee">{s.candidatures.offres[statut]}</td>
+					<td class="donnee">{s.candidatures.entreprises[statut]}</td>
 				</tr>
 			{/each}
 		</tbody>
@@ -77,13 +77,13 @@
 		<tbody>
 			{#each s.dernieres as e (e.id)}
 				<tr>
-					<th scope="row">{dateFr(e.debut)}</th>
+					<th scope="row" class="donnee">{dateFr(e.debut)}</th>
 					<td>{e.mode}</td>
-					<td>{e.collectees}</td>
-					<td>{e.retenues}</td>
-					<td>{e.scorees}</td>
-					<td>{e.notifiees}</td>
-					<td>{formaterDuree(e.duree_llm_s)}</td>
+					<td class="donnee">{e.collectees}</td>
+					<td class="donnee">{e.retenues}</td>
+					<td class="donnee">{e.scorees}</td>
+					<td class="donnee">{e.notifiees}</td>
+					<td class="donnee">{formaterDuree(e.duree_llm_s)}</td>
 					<td>
 						{#if e.nbErreurs}
 							{e.nbErreurs} erreur{e.nbErreurs > 1 ? 's' : ''}, détail dans les journaux

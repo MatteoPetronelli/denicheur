@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 // Accessibilité mesurée dans un vrai navigateur, en lecture seule (base de démonstration, voir graine.ts).
@@ -49,10 +50,10 @@ const STYLES: Record<string, Record<string, string>> = {
 		'en-tête de tableau': 'thead th',
 		'nom': 'tbody th a',
 		'cellule': 'tbody td',
-		'bouton secondaire': 'button.secondaire',
+		'bouton secondaire': 'button.btn-secondaire',
 		'pagination': '.pagination a'
 	},
-	'/offres': { 'en-tête de tableau': 'thead th', 'étiquette seuil': '.etiquette', cellule: 'tbody td' },
+	'/offres': { 'en-tête de tableau': 'thead th', 'étiquette seuil': '.badge.avertissement', cellule: 'tbody td' },
 	'/stats': { titre: 'h1', 'sous-titre': 'h2', 'chiffre en carte': '.cartes .nombre', 'texte en carte': '.cartes li', 'en-tête': 'thead th', 'ligne': 'tbody th', cellule: 'tbody td' },
 	'/projet': { titre: 'h1', introduction: '.intro', 'sous-titre': 'h2', 'étape': '.etapes li', 'liste': 'main ul li', 'lien de navigation': 'header nav a' },
 	'/fiche/entreprise/2': { 'terme': '.details dt', 'description': '.details dd', brouillon: '.brouillon pre', 'date': '.brouillon p' }
@@ -68,6 +69,18 @@ for (const theme of ['light', 'dark'] as const) {
 				expect(await contraste(page, selecteur), `${quoi} sur ${url} (${theme})`).toBeGreaterThanOrEqual(4.5);
 			}
 			await page.screenshot({ path: `test-results/${url.replaceAll('/', '_') || 'accueil'}-${theme}.png`, fullPage: true });
+		});
+	}
+}
+
+for (const theme of ['light', 'dark'] as const) {
+	for (const url of Object.keys(STYLES)) {
+		test(`axe : aucune violation WCAG 2.1 A/AA sur ${url} en thème ${theme}`, async ({ page }) => {
+			await page.emulateMedia({ colorScheme: theme });
+			await page.goto(url);
+			const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+			const resume = violations.map((v) => `${v.id} : ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`);
+			expect(resume, `violations sur ${url} (${theme})`).toEqual([]);
 		});
 	}
 }

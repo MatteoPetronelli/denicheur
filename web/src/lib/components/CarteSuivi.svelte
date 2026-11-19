@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { envoi } from '#lib/envoi.js';
 	import { atteignables, LIBELLES } from '#lib/statuts.js';
 	import type { Carte } from '#lib/server/tableau.js';
 
@@ -20,8 +21,8 @@
 		<p class="discret">{[carte.activite, carte.commune].filter(Boolean).join(' · ')}</p>
 	{/if}
 	<ul class="puces">
-		{#if carte.score !== null}<li>Score {carte.score}</li>{/if}
-		{#if carte.distance_km !== null}<li>{Math.round(carte.distance_km)} km</li>{/if}
+		{#if carte.score !== null}<li>Score <span class="donnee">{carte.score}</span></li>{/if}
+		{#if carte.distance_km !== null}<li><span class="donnee">{Math.round(carte.distance_km)}</span> km</li>{/if}
 		{#if carte.piste}<li>{carte.piste === 'stage' ? 'Stage' : carte.piste === 'alternance' ? 'Alternance' : 'Autre'}</li>{/if}
 		{#if carte.priorite !== null}<li>Priorité {carte.priorite}</li>{/if}
 	</ul>
@@ -29,7 +30,7 @@
 		<p><a href={carte.lien} target="_blank" rel="noopener noreferrer">{libelleLien}</a></p>
 	{/if}
 	{#if choix.length}
-		<form method="POST" action={`?/statut${suite}`} use:enhance>
+		<form method="POST" action={`?/statut${suite}`} use:enhance={envoi}>
 			<input type="hidden" name="genre" value={carte.genre} />
 			<input type="hidden" name="id" value={carte.id} />
 			<label for={`statut-${cle}`}>Passer à</label>
