@@ -108,6 +108,7 @@ model or options between requests of the same kind, use a paid service.
 | `commit` | end of every lot |
 | `long-run-delivery` | only if the user runs several lots unattended (`/goal`, overnight) |
 | `sveltekit`, `browser-proof`, `fixing-accessibility` (global) | C7 |
+| `frontend-design`, `ui-ux-pro-max`, `design-system`, `web-design-guidelines`, `anti-ui-slop` (+ the three above, now copied into the project) | C8 |
 | `threat-modeling` (global) | C4 L2 (Telegram bot: `chat_id` allowlist) |
 
 ---
@@ -619,6 +620,23 @@ test that compares both lists to avoid drift); filters stage/alternance; offers 
 LLM from `executions`); `/projet` showcase page (FR) describing the architecture, no personal data. README FR
 with screenshots of bot and dashboard. Verify with `browser-proof` (real browser: login, move a card, stats).
 Done when: all applications are visible and editable from the dashboard.
+
+### C8 — dashboard visual overhaul (added 2026-11-19, after C7)
+
+Four separate OpenSpec changes, one lot each. `dashboard-fondations-visuelles` comes first and must be
+archived before the others. The next three are independent of each other.
+1. `dashboard-fondations-visuelles`: tokens (light and dark), IBM Plex Sans and Mono self-hosted with
+   `@fontsource`, button and badge states, reduced motion, 375 px, `@axe-core/playwright` on every page.
+2. `dashboard-kanban-ergonomie`: every column reachable, sticky headers, collapsed empty columns, compact
+   clickable card, "Déplacer" menu instead of select + "Changer", announced result with focus returned.
+3. `dashboard-listes-et-fiches`: denser tables, "—" for empty values, numbers aligned right, cards under
+   48rem, numbered pagination, breadcrumb and readable drafts on record pages.
+4. `dashboard-stats-visuelles`: offer funnel and status distribution as CSS bars with text values,
+   tiered tiles, error badge on runs, reading typography on `/projet`.
+Same constraints as C7: no CSS framework or chart library, forms work without JavaScript, no migration,
+nothing leaves 127.0.0.1. Skills: `frontend-design`, `ui-ux-pro-max`, `design-system`,
+`web-design-guidelines`, `fixing-accessibility`, `anti-ui-slop`, `browser-proof`, `sveltekit`.
+Done when: the four changes are archived and the README screenshots are regenerated.
 
 ---
 
